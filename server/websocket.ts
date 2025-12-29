@@ -292,41 +292,10 @@ async function sendInitialData(ws: WebSocket) {
   });
 }
 
-// Refresh data at intervals for real-time updates (every 30 seconds)
-let lastRefresh = 0;
-setInterval(async () => {
-  if (clients.size > 0) {
-    const now = Date.now();
-    if (now - lastRefresh < 30000) return;
-    lastRefresh = now;
-    
-    try {
-      const account = await metaapi.getAccountInfo();
-      if (account) {
-        broadcast({ type: "account_info", account });
-      }
-
-      const positions = await metaapi.getPositions();
-      broadcast({ type: "positions", positions });
-
-      // Always refresh markets - important for trading
-      console.log("Refreshing market data...");
-      const markets = await metaapi.getMarkets();
-      if (markets.length > 0) {
-        broadcast({ type: "markets", markets });
-      } else {
-        console.warn("No markets returned from MetaAPI");
-      }
-
-      const history = await metaapi.getHistory();
-      if (history.length > 0) {
-        broadcast({ type: "history", trades: history });
-      }
-    } catch (error) {
-      console.error("Refresh error:", error);
-    }
-  }
-}, 30000);
+// Real-time position updates via MetaAPI event handler
+metaapi.onPositionsUpdate((positions) => {
+  broadcast({ type: "positions", positions });
+});
 
 export function initWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: "/ws" });
@@ -363,6 +332,11 @@ export function initWebSocket(server: Server) {
     const realtimeMessage = { ...message, isRealtime: true };
     broadcast({ type: "new_message", message: realtimeMessage });
     processMessage(realtimeMessage, true);
+  });
+
+  // Set up real-time market data updates via MetaAPI
+  metaapi.onMarketsUpdate((markets) => {
+    broadcast({ type: "markets", markets });
   });
 
   // Set up Telegram status handler

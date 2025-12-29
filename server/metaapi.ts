@@ -44,6 +44,18 @@ type PositionsCallback = (positions: Position[]) => void;
 
 let statusCallbacks: StatusCallback[] = [];
 let positionsCallbacks: PositionsCallback[] = [];
+let marketCallbacks: ((markets: MarketSymbol[]) => void)[] = [];
+
+export function onMarketsUpdate(callback: (markets: MarketSymbol[]) => void) {
+  marketCallbacks.push(callback);
+  return () => {
+    marketCallbacks = marketCallbacks.filter((cb) => cb !== callback);
+  };
+}
+
+function notifyMarkets(markets: MarketSymbol[]) {
+  marketCallbacks.forEach((cb) => cb(markets));
+}
 
 // Cache to reduce API calls and avoid rate limiting
 let cachedAccount: TradingAccount | null = null;
@@ -111,13 +123,30 @@ export async function initMetaApi(): Promise<void> {
     notifyStatus("connected");
     console.log("MetaAPI connected successfully");
 
-    // Set up position updates
+    // Set up real-time updates: positions every 1 second, markets every 2 seconds
     setInterval(async () => {
       if (isConnected) {
-        const positions = await getPositions();
-        notifyPositions(positions);
+        try {
+          const positions = await getPositions();
+          notifyPositions(positions);
+        } catch (e) {
+          // Silently handle rate limits
+        }
       }
-    }, 5000);
+    }, 1000);
+
+    setInterval(async () => {
+      if (isConnected) {
+        try {
+          const markets = await getMarkets();
+          if (markets.length > 0) {
+            notifyMarkets(markets);
+          }
+        } catch (e) {
+          // Silently handle rate limits
+        }
+      }
+    }, 2000);
   } catch (error) {
     console.error("Failed to connect to MetaAPI:", error);
     isConnected = false;
