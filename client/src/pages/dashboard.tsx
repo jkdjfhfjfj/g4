@@ -1,6 +1,6 @@
 import { useWebSocket } from "@/hooks/use-websocket";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { StatusBar } from "@/components/connection-status";
+import { StatusBar, MobileStatusBar } from "@/components/connection-status";
 import { SignalCards } from "@/components/signal-cards";
 import { MessageFeed } from "@/components/message-feed";
 import { PositionsPanel } from "@/components/positions-panel";
@@ -68,19 +68,27 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-b from-background to-background/50 flex flex-col">
       {/* Fixed Header - Not Scrollable */}
       <header className="fixed top-0 left-0 right-0 z-40 bg-card border-b border-border">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/15 rounded-lg">
-              <Bot className="h-5 w-5 text-primary" />
+        {/* Main Header Row */}
+        <div className="px-3 md:px-4 py-2 md:py-3 flex items-center justify-between gap-2">
+          {/* Logo & Title */}
+          <div className="flex items-center gap-2 flex-1 min-w-0">
+            <div className="p-1.5 md:p-2 bg-primary/15 rounded-lg flex-shrink-0">
+              <Bot className="h-4 md:h-5 w-4 md:w-5 text-primary" />
             </div>
-            <div>
-              <h1 className="text-lg font-bold">Trading Bot</h1>
-              <p className="text-xs text-muted-foreground">Real-time signal executor</p>
+            <div className="min-w-0">
+              <h1 className="text-sm md:text-lg font-bold truncate">Trading Bot</h1>
+              <p className="text-xs text-muted-foreground hidden md:block">Real-time signal executor</p>
             </div>
           </div>
-          
-          <div className="flex items-center gap-3">
+
+          {/* Status & Theme Toggle */}
+          <div className="flex items-center gap-2 flex-shrink-0">
             <StatusBar
+              wsStatus={connectionStatus}
+              telegramStatus={telegramStatus}
+              metaapiStatus={metaapiStatus}
+            />
+            <MobileStatusBar
               wsStatus={connectionStatus}
               telegramStatus={telegramStatus}
               metaapiStatus={metaapiStatus}
@@ -89,41 +97,38 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Channel Selector & Auto-Trade */}
-        <div className="px-4 py-3 border-t border-border/50 bg-muted/30">
-          <div className="flex items-center gap-3 flex-wrap">
-            <div className="flex-1 min-w-[200px]">
-              <select
-                value={selectedChannelId || ""}
-                onChange={(e) => selectChannel(e.target.value)}
-                disabled={telegramStatus !== "connected"}
-                className="w-full px-3 py-2 rounded-lg border border-border bg-background text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent"
-                data-testid="select-channel"
-              >
-                <option value="">Select a channel...</option>
-                {channels.map((ch) => (
-                  <option key={ch.id} value={ch.id}>
-                    {ch.isPrivate ? "🔒" : "📢"} {ch.title}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {/* Channel Selector & Auto-Trade Row */}
+        <div className="px-3 md:px-4 py-2 md:py-3 border-t border-border/50 bg-muted/30 flex flex-col md:flex-row gap-2 md:gap-3">
+          <select
+            value={selectedChannelId || ""}
+            onChange={(e) => selectChannel(e.target.value)}
+            disabled={telegramStatus !== "connected"}
+            className="flex-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border border-border bg-background text-xs md:text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent"
+            data-testid="select-channel"
+          >
+            <option value="">Select channel...</option>
+            {channels.map((ch) => (
+              <option key={ch.id} value={ch.id}>
+                {ch.isPrivate ? "🔒" : "📢"} {ch.title}
+              </option>
+            ))}
+          </select>
 
-            <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-lg border border-border">
-              <Bot className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm font-medium">Auto-Trade</span>
-              <Switch
-                checked={autoTradeEnabled}
-                onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
-                data-testid="toggle-auto-trade"
-              />
-            </div>
+          <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0">
+            <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
+            <Switch
+              checked={autoTradeEnabled}
+              onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
+              data-testid="toggle-auto-trade"
+              className="scale-75 origin-right md:scale-100"
+            />
           </div>
         </div>
       </header>
 
       {/* Main Content - Account for fixed header */}
-      <main className="flex-1 overflow-auto pt-32 md:pt-[180px]">
+      <main className="flex-1 overflow-auto pt-[120px] md:pt-[150px]">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 pb-28 md:pb-6">
           {/* Account Info Card */}
           {account && (

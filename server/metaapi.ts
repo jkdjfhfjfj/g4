@@ -236,7 +236,8 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   const now = Date.now();
-  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < CACHE_TTL) {
+  // Return cached markets if available and fresh (cached for 1 minute to reduce API calls)
+  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < 60000) {
     return cachedMarkets;
   }
 
@@ -257,28 +258,45 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
     ];
 
     const markets: MarketSymbol[] = [];
-
-    for (const symbol of availableSymbols) {
+    
+    // Fetch prices in batches to avoid rate limits - try up to 10 symbols
+    const symbolsToFetch = availableSymbols.slice(0, 15);
+    
+    for (const symbol of symbolsToFetch) {
       try {
         const price = await connection.getSymbolPrice(symbol);
-        if (price && (price.bid || price.ask)) {
-          const specification = await connection.getSymbolSpecification(symbol);
+        if (price && price.bid && price.ask) {
+          // Try to get specification, but don't fail if not available
+          let digits = 5;
+          try {
+            const specification = await connection.getSymbolSpecification(symbol);
+            if (specification && specification.digits) {
+              digits = specification.digits;
+            }
+          } catch (e) {
+            // Use default digits if specification fails
+          }
+          
           markets.push({
             symbol,
-            bid: price.bid || 0,
-            ask: price.ask || 0,
-            spread: (price.ask || 0) - (price.bid || 0),
-            digits: specification?.digits || 5,
+            bid: price.bid,
+            ask: price.ask,
+            spread: price.ask - price.bid,
+            digits,
           });
         }
       } catch (e) {
-        // Symbol might not be available on this broker
+        // Symbol might not be available or API limit hit - skip silently
       }
     }
 
-    cachedMarkets = markets;
-    lastMarketsUpdate = now;
-    return cachedMarkets;
+    // If we got some markets, cache and return them
+    if (markets.length > 0) {
+      cachedMarkets = markets;
+      lastMarketsUpdate = now;
+    }
+    
+    return markets.length > 0 ? markets : cachedMarkets;
   } catch (error) {
     console.error("Failed to get markets:", error);
     return cachedMarkets;

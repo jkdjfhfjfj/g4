@@ -49,11 +49,56 @@ interface StatusBarProps {
 }
 
 export function StatusBar({ wsStatus, telegramStatus, metaapiStatus }: StatusBarProps) {
+  const statusConfig = {
+    connected: {
+      color: "bg-status-online",
+      text: "Connected",
+    },
+    disconnected: {
+      color: "bg-status-busy",
+      text: "Disconnected",
+    },
+    connecting: {
+      color: "bg-status-away",
+      text: "Connecting...",
+    },
+    needs_auth: {
+      color: "bg-status-away",
+      text: "Auth Required",
+    },
+  };
+
   return (
-    <div className="flex items-center gap-4">
+    <div className="hidden md:flex items-center gap-4">
       <ConnectionStatus label="WS" status={wsStatus} />
       <ConnectionStatus label="Telegram" status={telegramStatus} />
       <ConnectionStatus label="MetaAPI" status={metaapiStatus} />
+    </div>
+  );
+}
+
+// Compact mobile status indicator
+export function MobileStatusBar({ wsStatus, telegramStatus, metaapiStatus }: StatusBarProps) {
+  const getOverallStatus = () => {
+    if (wsStatus === "connected" && telegramStatus === "connected" && metaapiStatus === "connected") {
+      return { color: "bg-status-online", text: "All Connected" };
+    }
+    if (wsStatus === "disconnected" || telegramStatus === "disconnected" || metaapiStatus === "disconnected") {
+      return { color: "bg-status-busy", text: "Some Offline" };
+    }
+    return { color: "bg-status-away", text: "Connecting..." };
+  };
+
+  const status = getOverallStatus();
+
+  return (
+    <div className="md:hidden flex items-center gap-1.5">
+      <span
+        className={`h-2 w-2 rounded-full ${status.color} ${
+          wsStatus === "connecting" || telegramStatus === "connecting" || metaapiStatus === "connecting" ? "animate-pulse" : ""
+        }`}
+      />
+      <span className="text-xs font-medium">{status.text}</span>
     </div>
   );
 }
