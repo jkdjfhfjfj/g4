@@ -97,8 +97,8 @@ export function submitPassword(password: string) {
 }
 
 export async function initTelegram(): Promise<void> {
-  const apiIdVal = process.env.TELEGRAM_API_ID;
-  const apiHashVal = process.env.TELEGRAM_API_HASH;
+  const apiIdVal = process.env.TELEGRAM_API_ID?.trim();
+  const apiHashVal = process.env.TELEGRAM_API_HASH?.trim();
   
   if (!apiIdVal || !apiHashVal) {
     console.error("Telegram API credentials not set. Set TELEGRAM_API_ID and TELEGRAM_API_HASH");
@@ -108,6 +108,10 @@ export async function initTelegram(): Promise<void> {
 
   try {
     const parsedApiId = parseInt(apiIdVal);
+    console.log(`DEBUG: Raw TELEGRAM_API_ID length: ${process.env.TELEGRAM_API_ID?.length}`);
+    console.log(`DEBUG: Raw TELEGRAM_API_HASH length: ${process.env.TELEGRAM_API_HASH?.length}`);
+    console.log(`DEBUG: Trimmed API_ID: "${apiIdVal}" (length: ${apiIdVal.length})`);
+    console.log(`DEBUG: Trimmed API_HASH: "${apiHashVal.substring(0, 16)}..." (length: ${apiHashVal.length})`);
     console.log(`Initializing Telegram with API_ID: ${parsedApiId}, API_HASH: ${apiHashVal.substring(0, 8)}...`);
 
     client = new TelegramClient(stringSession, parsedApiId, apiHashVal, {
