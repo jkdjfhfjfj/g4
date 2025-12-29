@@ -2,7 +2,10 @@ module.exports = {
   apps: [
     {
       name: "trading-bot",
-      script: "/home/ubuntu/g4/start.sh",
+      script: "server.js",
+      env: {
+        NODE_ENV: "production",
+      },
       error_file: "./logs/error.log",
       out_file: "./logs/out.log",
       log_date_format: "YYYY-MM-DD HH:mm:ss Z",
