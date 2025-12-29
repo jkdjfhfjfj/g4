@@ -1,0 +1,86 @@
+# Trading Bot - Telegram Signal Detector & MetaTrader Executor
+
+## Overview
+A real-time forex trading bot that:
+1. Reads messages from Telegram channels using GramJS
+2. Analyzes each message with Groq AI to detect valid trading signals
+3. Displays detected signals with confidence scores
+4. Executes trades on MetaTrader 4/5 via MetaAPI.cloud
+5. Shows live positions, market prices, and trade history
+
+## Architecture
+
+### Frontend (React + TypeScript)
+- **Dashboard**: Main layout with sidebar and multi-panel display
+- **WebSocket Client**: Real-time updates for messages, signals, positions
+- **Components**:
+  - `AccountInfo`: Trading account balance/equity display
+  - `ChannelList`: Telegram channel selector with search
+  - `MessageFeed`: Real-time messages with AI verdict badges
+  - `SignalCards`: Detected signals with execute/dismiss actions
+  - `PositionsPanel`: Open positions with close button
+  - `MarketsPanel`: Market prices with quick trade buttons
+  - `HistoryPanel`: Closed trades history
+  - `AuthDialog`: Telegram authentication flow
+
+### Backend (Express + WebSocket)
+- **Telegram Integration** (`server/telegram.ts`): GramJS client for channel messages
+- **Groq AI** (`server/groq-ai.ts`): Signal detection with model fallback
+- **MetaAPI** (`server/metaapi.ts`): Trade execution and account management
+- **WebSocket Server** (`server/websocket.ts`): Real-time bidirectional communication
+
+### Data Flow
+1. User selects a Telegram channel
+2. Messages stream via WebSocket to frontend
+3. Each message is analyzed by Groq AI
+4. Valid signals are displayed with execute button
+5. User clicks execute → trade sent to MetaAPI
+6. Position updates stream back in real-time
+
+## Environment Variables Required
+- `TELEGRAM_API_ID`: From https://my.telegram.org
+- `TELEGRAM_API_HASH`: From https://my.telegram.org
+- `GROQ_API_KEY`: From https://console.groq.com
+- `METAAPI_TOKEN`: From https://app.metaapi.cloud/token
+- `METAAPI_ACCOUNT_ID`: Your MetaTrader account ID in MetaAPI
+
+## Key Technologies
+- **GramJS**: Telegram MTProto client for Node.js
+- **Groq SDK**: Fast AI inference with model fallback
+- **MetaAPI.cloud SDK**: MetaTrader cloud trading API
+- **WebSocket**: Real-time bidirectional communication
+- **TanStack Query**: Data fetching and caching
+- **Shadcn/UI**: Component library
+- **Tailwind CSS**: Styling
+
+## Groq Models (Fallback Order)
+1. llama-3.3-70b-versatile
+2. llama-3.1-70b-versatile
+3. llama3-70b-8192
+4. mixtral-8x7b-32768
+5. llama3-8b-8192
+
+## Signal Detection Format
+The AI analyzes messages and returns:
+```json
+{
+  "isSignal": true,
+  "confidence": 0.85,
+  "symbol": "EURUSD",
+  "direction": "BUY",
+  "entryPrice": 1.0850,
+  "stopLoss": 1.0820,
+  "takeProfit": [1.0900, 1.0950]
+}
+```
+
+## Recent Changes
+- Initial implementation (Dec 29, 2025)
+- Full trading bot with Telegram, Groq AI, and MetaAPI integration
+- Real-time WebSocket updates
+- Dark/light theme support
+
+## User Preferences
+- Dark mode by default
+- Inter font family
+- JetBrains Mono for code/numbers
