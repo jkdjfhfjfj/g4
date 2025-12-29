@@ -10,8 +10,9 @@ import { MarketsPanel } from "@/components/markets-panel";
 import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { useEffect } from "react";
-import { Activity } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Activity, MessageSquare, BarChart3, TrendingUp, History, Wallet } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
   const {
@@ -39,6 +40,7 @@ export default function Dashboard() {
   } = useWebSocket();
 
   const { toast } = useToast();
+  const [activeTab, setActiveTab] = useState("signals");
 
   useEffect(() => {
     if (error) {
@@ -69,8 +71,8 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="flex flex-col md:flex-row gap-4 md:gap-0 flex-1 overflow-hidden">
-        <aside className="w-full md:w-80 md:border-r border-b md:border-b-0 border-border p-3 md:p-4 space-y-3 md:space-y-4 md:overflow-y-auto">
+      <div className="flex flex-col md:flex-row gap-0 flex-1 overflow-hidden">
+        <aside className="w-full md:w-72 lg:w-80 md:border-r border-b md:border-b-0 border-border p-3 md:p-4 space-y-3 md:space-y-4 md:overflow-y-auto md:max-h-[calc(100vh-56px)]">
           <AccountInfo account={account} />
           <ChannelList
             channels={channels}
@@ -80,29 +82,63 @@ export default function Dashboard() {
           />
         </aside>
 
-        <main className="flex-1 p-3 md:p-4 overflow-y-auto">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 auto-rows-max md:auto-rows-auto">
-            <div className="space-y-3 md:space-y-4">
-              <SignalCards
-                signals={signals}
-                onExecute={executeTrade}
-                onDismiss={dismissSignal}
-              />
-              <MessageFeed
-                messages={messages}
-                selectedChannelId={selectedChannelId}
-              />
-            </div>
+        <main className="flex-1 p-3 md:p-4 overflow-hidden">
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            <TabsList className="grid w-full grid-cols-5 mb-3 md:mb-4" data-testid="tabs-navigation">
+              <TabsTrigger value="signals" className="text-xs md:text-sm gap-1" data-testid="tab-signals">
+                <TrendingUp className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden sm:inline">Signals</span>
+              </TabsTrigger>
+              <TabsTrigger value="messages" className="text-xs md:text-sm gap-1" data-testid="tab-messages">
+                <MessageSquare className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden sm:inline">Messages</span>
+              </TabsTrigger>
+              <TabsTrigger value="positions" className="text-xs md:text-sm gap-1" data-testid="tab-positions">
+                <Wallet className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden sm:inline">Positions</span>
+              </TabsTrigger>
+              <TabsTrigger value="markets" className="text-xs md:text-sm gap-1" data-testid="tab-markets">
+                <BarChart3 className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden sm:inline">Markets</span>
+              </TabsTrigger>
+              <TabsTrigger value="history" className="text-xs md:text-sm gap-1" data-testid="tab-history">
+                <History className="h-3.5 w-3.5 md:h-4 md:w-4" />
+                <span className="hidden sm:inline">History</span>
+              </TabsTrigger>
+            </TabsList>
 
-            <div className="space-y-3 md:space-y-4">
-              <PositionsPanel
-                positions={positions}
-                onClosePosition={closePosition}
-              />
-              <MarketsPanel markets={markets} onTrade={manualTrade} />
-              <HistoryPanel trades={history} />
+            <div className="flex-1 overflow-y-auto">
+              <TabsContent value="signals" className="mt-0 h-full">
+                <SignalCards
+                  signals={signals}
+                  onExecute={executeTrade}
+                  onDismiss={dismissSignal}
+                />
+              </TabsContent>
+
+              <TabsContent value="messages" className="mt-0 h-full">
+                <MessageFeed
+                  messages={messages}
+                  selectedChannelId={selectedChannelId}
+                />
+              </TabsContent>
+
+              <TabsContent value="positions" className="mt-0 h-full">
+                <PositionsPanel
+                  positions={positions}
+                  onClosePosition={closePosition}
+                />
+              </TabsContent>
+
+              <TabsContent value="markets" className="mt-0 h-full">
+                <MarketsPanel markets={markets} onTrade={manualTrade} />
+              </TabsContent>
+
+              <TabsContent value="history" className="mt-0 h-full">
+                <HistoryPanel trades={history} />
+              </TabsContent>
             </div>
-          </div>
+          </Tabs>
         </main>
       </div>
 

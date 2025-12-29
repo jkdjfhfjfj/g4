@@ -144,15 +144,15 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   try {
-    // All major forex pairs, metals, and indices
+    // All major forex pairs, metals, and indices (no duplicates)
     const symbols = [
       "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
       "EURGBP", "EURJPY", "GBPJPY", "GBPCHF", "EURCHF", "AUDJPY", "CADJPY",
-      "NZDJPY", "EURCAD", "AUDCAD", "AUDNZD", "EURAUD", "EURNZD", "NZDUSD",
-      "USDRUB", "USDTRY", "USDZAR", "USDMXN", "USDINR", "USDSGD", "USDHKD",
+      "NZDJPY", "EURCAD", "AUDCAD", "AUDNZD", "EURAUD", "EURNZD",
+      "USDRUB", "USDTRY", "USDZAR", "USDMXN", "USDSGD", "USDHKD",
       "XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD",
-      "US30", "UK100", "DE30", "FR40", "STOXX50", "IBEX35",
-      "SPX500", "VIX", "NGAS", "BRENT", "WTI"
+      "US30", "UK100", "DE30", "FR40", "STOXX50",
+      "SPX500", "NGAS", "BRENT", "WTI"
     ];
 
     const markets: MarketSymbol[] = [];

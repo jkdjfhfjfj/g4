@@ -86,75 +86,93 @@ export async function initTelegram(): Promise<void> {
   }
 
   try {
-    notifyStatus("connecting");
     const parsedApiId = parseInt(apiIdVal);
 
     client = new TelegramClient(stringSession, parsedApiId, apiHashVal, {
       connectionRetries: 5,
       retryDelay: 1000,
-      baseLogger: {
-        debug: (msg: string) => console.debug("[TG]", msg),
-        info: (msg: string) => console.info("[TG]", msg),
-        warning: (msg: string) => console.warn("[TG]", msg),
-        error: (msg: string) => console.error("[TG]", msg),
-      },
     });
 
-    await client.start({
-      phoneNumber: async () => {
-        notifyStatus("needs_auth");
-        notifyAuth("phone");
-        return new Promise<string>((resolve) => {
-          phoneResolver = resolve;
-        });
-      },
-      password: async () => {
-        notifyAuth("password");
-        return new Promise<string>((resolve) => {
-          passwordResolver = resolve;
-        });
-      },
-      phoneCode: async () => {
-        notifyAuth("code");
-        return new Promise<string>((resolve) => {
-          codeResolver = resolve;
-        });
-      },
-      onError: (err) => {
-        console.error("Telegram auth error:", err);
-      },
-    });
+    // Connect first (establishes connection without auth)
+    await client.connect();
+    console.log("Telegram network connected, checking auth...");
 
-    isConnected = true;
-    notifyStatus("connected");
-    console.log("Telegram client connected successfully");
-
-    // Add message handler for real-time messages
-    client.addEventHandler(async (update: Api.TypeUpdate) => {
-      if (update instanceof Api.UpdateNewChannelMessage) {
-        const message = update.message;
-        if (message instanceof Api.Message && selectedChannelId) {
-          const channelId = message.peerId?.toString() || "";
-          if (channelId.includes(selectedChannelId.replace("-100", ""))) {
-            const telegramMessage: TelegramMessage = {
-              id: message.id,
-              channelId: selectedChannelId,
-              channelTitle: "",
-              text: message.message || "",
-              date: new Date(message.date * 1000).toISOString(),
-              senderName: undefined,
-              aiVerdict: "analyzing",
-            };
-            notifyMessage(telegramMessage);
-          }
-        }
-      }
-    });
+    // Check if already authorized
+    const isAuthorized = await client.isUserAuthorized();
+    
+    if (isAuthorized) {
+      isConnected = true;
+      notifyStatus("connected");
+      console.log("Telegram already authorized");
+      setupMessageHandler();
+    } else {
+      // Need authentication
+      console.log("Telegram requires authentication");
+      notifyStatus("needs_auth");
+      notifyAuth("phone");
+      
+      // Start auth flow in background
+      client.start({
+        phoneNumber: async () => {
+          return new Promise<string>((resolve) => {
+            phoneResolver = resolve;
+          });
+        },
+        password: async () => {
+          notifyAuth("password");
+          return new Promise<string>((resolve) => {
+            passwordResolver = resolve;
+          });
+        },
+        phoneCode: async () => {
+          notifyAuth("code");
+          return new Promise<string>((resolve) => {
+            codeResolver = resolve;
+          });
+        },
+        onError: (err) => {
+          console.error("Telegram auth error:", err);
+        },
+      }).then(() => {
+        isConnected = true;
+        notifyStatus("connected");
+        console.log("Telegram authenticated successfully");
+        setupMessageHandler();
+      }).catch((err) => {
+        console.error("Telegram auth failed:", err);
+        notifyStatus("disconnected");
+      });
+    }
   } catch (error: any) {
     console.error("Failed to connect to Telegram:", error?.message || error);
     isConnected = false;
     notifyStatus("disconnected");
   }
+}
+
+function setupMessageHandler() {
+  if (!client) return;
+  
+  client.addEventHandler(async (update: Api.TypeUpdate) => {
+    if (update instanceof Api.UpdateNewChannelMessage) {
+      const message = update.message;
+      if (message instanceof Api.Message && selectedChannelId) {
+        const channelId = message.peerId?.toString() || "";
+        if (channelId.includes(selectedChannelId.replace("-100", ""))) {
+          const telegramMessage: TelegramMessage = {
+            id: message.id,
+            channelId: selectedChannelId,
+            channelTitle: "",
+            text: message.message || "",
+            date: new Date(message.date * 1000).toISOString(),
+            senderName: undefined,
+            aiVerdict: "analyzing",
+          };
+          notifyMessage(telegramMessage);
+        }
+      }
+    }
+  });
 }
 
 export async function getChannels(): Promise<TelegramChannel[]> {

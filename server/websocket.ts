@@ -202,21 +202,30 @@ async function sendInitialData(ws: WebSocket) {
   });
 }
 
-// Refresh data at intervals for real-time updates
+// Refresh data at intervals for real-time updates (15 seconds to avoid rate limits)
+let lastRefresh = 0;
 setInterval(async () => {
   if (clients.size > 0) {
-    const account = await metaapi.getAccountInfo();
-    if (account) {
-      broadcast({ type: "account_info", account });
+    const now = Date.now();
+    if (now - lastRefresh < 15000) return;
+    lastRefresh = now;
+    
+    try {
+      const account = await metaapi.getAccountInfo();
+      if (account) {
+        broadcast({ type: "account_info", account });
+      }
+
+      const positions = await metaapi.getPositions();
+      broadcast({ type: "positions", positions });
+
+      const markets = await metaapi.getMarkets();
+      broadcast({ type: "markets", markets });
+    } catch (error) {
+      console.error("Refresh error:", error);
     }
-
-    const positions = await metaapi.getPositions();
-    broadcast({ type: "positions", positions });
-
-    const markets = await metaapi.getMarkets();
-    broadcast({ type: "markets", markets });
   }
-}, 2000);
+}, 15000);
 
 export function initWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: "/ws" });
