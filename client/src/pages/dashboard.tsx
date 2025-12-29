@@ -11,7 +11,7 @@ import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { Activity, MessageSquare, BarChart3, TrendingUp, History, Wallet, Bot } from "lucide-react";
+import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
 
@@ -69,22 +69,18 @@ export default function Dashboard() {
     <div className="min-h-screen bg-background flex flex-col">
       {/* Material Design Header */}
       <header className="sticky top-0 z-40 bg-gradient-to-r from-primary to-primary/90 text-primary-foreground shadow-lg">
-        <div className="px-4 py-4 space-y-4">
-          {/* Top row: Logo + Controls */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-3">
-              <div className="bg-white/20 p-2 rounded-lg">
-                <Activity className="h-6 w-6" />
-              </div>
-              <h1 className="text-xl font-bold">Trading Bot</h1>
-            </div>
+        <div className="px-4 py-3 space-y-3">
+          {/* Top controls row */}
+          <div className="flex items-center justify-between gap-2">
+            <h1 className="text-lg font-bold">Trading Bot</h1>
             <div className="flex items-center gap-2">
-              <div className="hidden sm:flex items-center gap-2 px-3 py-2 bg-white/10 rounded-full text-sm">
-                <Bot className="h-4 w-4" />
+              <div className="hidden sm:flex items-center gap-2 px-2.5 py-1.5 bg-white/15 rounded-full text-xs font-medium">
+                <Bot className="h-3.5 w-3.5" />
                 <Switch
                   checked={autoTradeEnabled}
                   onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
                   data-testid="toggle-auto-trade"
+                  className="scale-75"
                 />
               </div>
               <StatusBar
@@ -106,54 +102,80 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Main content */}
-      <div className="flex flex-col md:flex-row gap-0 flex-1 min-h-0 overflow-hidden">
-        {/* Sidebar - Account Info (hidden on mobile) */}
-        <aside className="hidden md:flex md:flex-col w-full md:w-72 lg:w-80 md:border-r border-border p-4 space-y-4 overflow-y-auto">
-          <AccountInfo account={account} />
-        </aside>
-
-        {/* Main content area */}
-        <main className="flex-1 flex flex-col min-h-0 overflow-hidden md:p-4 p-3">
-          {/* Content tabs */}
-          <div className="flex-1 flex flex-col min-h-0">
-            {/* Tab content area with Material Design card */}
-            <div className="flex-1 overflow-y-auto pb-24 md:pb-0">
-              <div className="space-y-4">
-                {activeTab === "signals" && (
-                  <SignalCards
-                    signals={signals}
-                    onExecute={executeTrade}
-                    onDismiss={dismissSignal}
-                    autoTradeEnabled={autoTradeEnabled}
-                  />
-                )}
-                {activeTab === "messages" && (
-                  <MessageFeed
-                    messages={messages}
-                    selectedChannelId={selectedChannelId}
-                  />
-                )}
-                {activeTab === "positions" && (
-                  <PositionsPanel
-                    positions={positions}
-                    onClosePosition={closePosition}
-                  />
-                )}
-                {activeTab === "markets" && (
-                  <MarketsPanel markets={markets} onTrade={manualTrade} />
-                )}
-                {activeTab === "history" && (
-                  <HistoryPanel trades={history} />
-                )}
+      {/* Main content - properly sized to avoid overlap */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Account info bar - compact */}
+        {account && (
+          <div className="bg-card border-b border-border px-4 py-2 text-xs">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-4">
+                <div>
+                  <span className="text-muted-foreground">Balance: </span>
+                  <span className="font-mono font-semibold">{account.currency} {account.balance.toFixed(2)}</span>
+                </div>
+                <div>
+                  <span className="text-muted-foreground">Equity: </span>
+                  <span className="font-mono font-semibold">{account.currency} {account.equity.toFixed(2)}</span>
+                </div>
+              </div>
+              <div className={`font-mono font-semibold ${account.equity - account.balance >= 0 ? "text-success" : "text-destructive"}`}>
+                P/L: {account.equity - account.balance >= 0 ? "+" : ""}{(account.equity - account.balance).toFixed(2)}
               </div>
             </div>
           </div>
-        </main>
+        )}
+
+        {/* Tab content area */}
+        <div className="flex-1 overflow-y-auto">
+          <div className="px-4 py-4 space-y-4 pb-28 md:pb-4">
+            {activeTab === "signals" && (
+              <SignalCards
+                signals={signals}
+                onExecute={executeTrade}
+                onDismiss={dismissSignal}
+                autoTradeEnabled={autoTradeEnabled}
+              />
+            )}
+            {activeTab === "messages" && (
+              <MessageFeed
+                messages={messages}
+                selectedChannelId={selectedChannelId}
+              />
+            )}
+            {activeTab === "positions" && (
+              <PositionsPanel
+                positions={positions}
+                onClosePosition={closePosition}
+              />
+            )}
+            {activeTab === "markets" && (
+              <MarketsPanel markets={markets} onTrade={manualTrade} />
+            )}
+            {activeTab === "history" && (
+              <HistoryPanel trades={history} />
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* Mobile Bottom Navigation - Material Design */}
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card shadow-2xl">
+      {/* Mobile: Auto-trade toggle - above bottom nav */}
+      <div className="md:hidden fixed bottom-20 left-3 right-3 z-30">
+        <Button
+          onClick={() => toggleAutoTrade(!autoTradeEnabled)}
+          className={`w-full font-semibold shadow-lg text-sm ${
+            autoTradeEnabled
+              ? "bg-primary text-primary-foreground"
+              : "bg-card text-foreground border border-border"
+          }`}
+          data-testid="mobile-toggle-auto-trade"
+        >
+          <Bot className="h-4 w-4 mr-2" />
+          {autoTradeEnabled ? "Auto-Trade ON" : "Auto-Trade OFF"}
+        </Button>
+      </div>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-card border-t border-border shadow-2xl">
         <div className="flex items-center justify-around gap-0">
           {tabs.map((tab) => {
             const Icon = tab.icon;
@@ -162,20 +184,18 @@ export default function Dashboard() {
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-4 px-2 text-xs font-medium transition-all duration-200 ${
+                className={`flex-1 flex flex-col items-center justify-center gap-1.5 py-4 px-2 text-xs font-medium transition-all ${
                   isActive
                     ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-muted-foreground"
                 }`}
                 data-testid={`tab-mobile-${tab.id}`}
               >
-                <div
-                  className={`p-2 rounded-lg transition-all ${
-                    isActive
-                      ? "bg-primary/15 text-primary"
-                      : "text-muted-foreground"
-                  }`}
-                >
+                <div className={`p-2 rounded-lg transition-all ${
+                  isActive
+                    ? "bg-primary/15"
+                    : "bg-transparent"
+                }`}>
                   <Icon className="h-5 w-5" />
                 </div>
                 <span>{tab.label}</span>
@@ -184,22 +204,6 @@ export default function Dashboard() {
           })}
         </div>
       </nav>
-
-      {/* Mobile: Auto-trade toggle */}
-      <div className="md:hidden fixed bottom-24 left-3 right-3 z-30">
-        <Button
-          onClick={() => toggleAutoTrade(!autoTradeEnabled)}
-          className={`w-full justify-center gap-2 font-semibold shadow-lg ${
-            autoTradeEnabled
-              ? "bg-primary text-primary-foreground"
-              : "bg-card text-foreground border border-border"
-          }`}
-          data-testid="mobile-toggle-auto-trade"
-        >
-          <Bot className="h-5 w-5" />
-          {autoTradeEnabled ? "Auto-Trade ON" : "Auto-Trade OFF"}
-        </Button>
-      </div>
 
       {/* Auth Dialog */}
       <AuthDialog
