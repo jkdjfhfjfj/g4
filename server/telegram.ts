@@ -99,12 +99,10 @@ function notifyAuth(type: "phone" | "code" | "password") {
 
 function notifyAuthError(message: string) {
   authErrorCallbacks.forEach((cb) => cb(message));
-  // Don't re-emit on flood errors - let the user wait
-  if (!message.includes("FLOOD") && !message.includes("PHONE_PASSWORD")) {
-    // Re-emit current step so dialog can retry after other errors
-    if (currentAuthStep) {
-      setTimeout(() => notifyAuth(currentAuthStep!), 500);
-    }
+  // Always re-emit the current auth step so user can retry
+  // This allows them to wait out flood timeouts and try again
+  if (currentAuthStep) {
+    setTimeout(() => notifyAuth(currentAuthStep!), 500);
   }
 }
 
