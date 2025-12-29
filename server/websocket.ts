@@ -190,52 +190,63 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
   try {
     const updatedMessage = { ...message, isRealtime };
     
-    // Only analyze real-time messages, skip historical ones
+    // For all messages, broadcast immediately (don't wait for analysis)
+    broadcast({ type: "new_message", message: updatedMessage });
+
+    // Only analyze real-time messages asynchronously, skip historical ones
     if (isRealtime) {
-      const { verdict, verdictDescription, signal } = await analyzeMessage(message);
-      
-      updatedMessage.aiVerdict = verdict;
-      updatedMessage.verdictDescription = verdictDescription;
-      broadcast({ type: "new_message", message: updatedMessage });
+      // Don't await - process analysis in background
+      analyzeMessage(message).then(({ verdict, verdictDescription, signal }) => {
+        updatedMessage.aiVerdict = verdict;
+        updatedMessage.verdictDescription = verdictDescription;
+        
+        // Broadcast updated message with analysis
+        broadcast({ type: "new_message", message: updatedMessage });
 
-      if (signal) {
-        updatedMessage.parsedSignal = signal;
-        signals.set(signal.id, signal);
-        broadcast({ type: "signal_detected", signal });
+        if (signal) {
+          updatedMessage.parsedSignal = signal;
+          signals.set(signal.id, signal);
+          broadcast({ type: "signal_detected", signal });
 
-        if (autoTradeEnabled && signal.confidence >= 0.7) {
-          console.log(`Auto-executing trade for real-time signal: ${signal.symbol} ${signal.direction}`);
-          const result = await metaapi.executeTrade(
-            signal.symbol,
-            signal.direction,
-            DEFAULT_TRADE_VOLUME,
-            signal.stopLoss,
-            signal.takeProfit?.[0]
-          );
+          if (autoTradeEnabled && signal.confidence >= 0.7) {
+            console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (confidence: ${signal.confidence})`);
+            
+            // Auto-execute in background
+            metaapi.executeTrade(
+              signal.symbol,
+              signal.direction,
+              DEFAULT_TRADE_VOLUME,
+              signal.stopLoss,
+              signal.takeProfit?.[0]
+            ).then(result => {
+              if (result.success) {
+                signal.status = "executed";
+                signals.set(signal.id, signal);
+                broadcast({ type: "signal_updated", signal });
+                broadcast({ type: "auto_trade_executed", signal, result });
+              } else {
+                signal.status = "failed";
+                signals.set(signal.id, signal);
+                broadcast({ type: "signal_updated", signal });
+                broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
+              }
 
-          if (result.success) {
-            signal.status = "executed";
-            signals.set(signal.id, signal);
-            broadcast({ type: "signal_updated", signal });
-            broadcast({ type: "auto_trade_executed", signal, result });
-          } else {
-            signal.status = "failed";
-            signals.set(signal.id, signal);
-            broadcast({ type: "signal_updated", signal });
-            broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
+              metaapi.getPositions().then(positions => {
+                broadcast({ type: "positions", positions });
+              });
+            });
           }
-
-          const positions = await metaapi.getPositions();
-          broadcast({ type: "positions", positions });
         }
-      }
-    } else {
-      // For historical messages, just broadcast without analysis
-      broadcast({ type: "new_message", message: updatedMessage });
+      }).catch(error => {
+        console.error("Background analysis error:", error);
+        updatedMessage.aiVerdict = "error";
+        updatedMessage.verdictDescription = "Analysis timeout or error";
+        broadcast({ type: "new_message", message: updatedMessage });
+      });
     }
   } catch (error) {
     console.error("Error processing message:", error);
-    const updatedMessage = { ...message, aiVerdict: "error" as const, verdictDescription: "Analysis failed", isRealtime };
+    const updatedMessage = { ...message, aiVerdict: "error" as const, verdictDescription: "Processing error", isRealtime };
     broadcast({ type: "new_message", message: updatedMessage });
   }
 }

@@ -51,21 +51,38 @@ interface SignalAnalysis {
   takeProfit: number[] | null;
 }
 
+// Helper to add timeout to promises
+function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
+  return Promise.race([
+    promise,
+    new Promise<null>(resolve => setTimeout(() => resolve(null), timeoutMs))
+  ]);
+}
+
 async function tryAnalyzeWithModel(
   model: string,
   messageText: string
 ): Promise<SignalAnalysis | null> {
   try {
-    const response = await groq.chat.completions.create({
-      model,
-      messages: [
-        { role: "system", content: SIGNAL_DETECTION_PROMPT },
-        { role: "user", content: messageText },
-      ],
-      temperature: 0.1,
-      max_tokens: 500,
-      response_format: { type: "json_object" },
-    });
+    // 10 second timeout per model
+    const response = await withTimeout(
+      groq.chat.completions.create({
+        model,
+        messages: [
+          { role: "system", content: SIGNAL_DETECTION_PROMPT },
+          { role: "user", content: messageText },
+        ],
+        temperature: 0.1,
+        max_tokens: 500,
+        response_format: { type: "json_object" },
+      }),
+      10000
+    );
+
+    if (!response) {
+      console.log(`Model ${model} timed out after 10 seconds, trying next...`);
+      return null;
+    }
 
     const content = response.choices[0]?.message?.content;
     if (!content) return null;
