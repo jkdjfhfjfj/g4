@@ -50,7 +50,7 @@ export function PositionsPanel({ positions, onClosePosition }: PositionsPanelPro
             <p className="text-sm text-muted-foreground">No open positions</p>
           </div>
         ) : (
-          <ScrollArea className="h-[250px]">
+          <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px]">
             <Table>
               <TableHeader>
                 <TableRow>

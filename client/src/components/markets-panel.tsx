@@ -183,7 +183,7 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
               <p className="text-sm text-muted-foreground">Loading markets...</p>
             </div>
           ) : (
-            <ScrollArea className="h-[300px]">
+            <ScrollArea className="h-[calc(100vh-320px)] min-h-[200px] max-h-[400px]">
               <Table>
                 <TableHeader>
                   <TableRow>

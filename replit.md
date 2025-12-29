@@ -79,6 +79,13 @@ The AI analyzes messages and returns:
 - Full trading bot with Telegram, Groq AI, and MetaAPI integration
 - Real-time WebSocket updates
 - Dark/light theme support
+- Fixed Telegram auth flow with proper retry handling (Dec 29, 2025)
+  - Backend now tracks needs_auth status properly via currentStatus variable
+  - Auth errors re-emit phone step so dialog stays open for retry
+  - New WebSocket clients receive correct auth state on connect
+- Enhanced MetaAPI typing with ExtendedRpcConnection interface
+- Dynamic market symbols fetched via connection.getSymbols() with fallback
+- Trade history retrieval using both RPC and REST API methods
 
 ## User Preferences
 - Dark mode by default

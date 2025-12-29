@@ -124,7 +124,9 @@ export type WSMessageType =
   | { type: 'markets'; markets: MarketSymbol[] }
   | { type: 'history'; trades: TradeHistory[] }
   | { type: 'error'; message: string }
-  | { type: 'auth_required'; phone?: string };
+  | { type: 'auth_required'; phone?: string }
+  | { type: 'auth_step'; step: 'phone' | 'code' | 'password' | 'done'; message?: string }
+  | { type: 'auth_error'; message: string };
 
 // Insert schemas for API validation
 export const executeTradeSchema = z.object({

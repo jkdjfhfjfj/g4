@@ -29,6 +29,8 @@ export default function Dashboard() {
     history,
     error,
     authRequired,
+    authStep,
+    authError,
     selectChannel,
     executeTrade,
     dismissSignal,
@@ -144,6 +146,8 @@ export default function Dashboard() {
 
       <AuthDialog
         open={authRequired}
+        step={authStep}
+        error={authError}
         onSubmitPhone={submitPhoneNumber}
         onSubmitCode={submitAuthCode}
         onSubmitPassword={submitPassword}

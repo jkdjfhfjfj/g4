@@ -165,8 +165,15 @@ async function sendInitialData(ws: WebSocket) {
     }
   };
 
-  wsMessage({ type: "telegram_status", status: telegram.getTelegramStatus() });
+  const telegramStatus = telegram.getTelegramStatus();
+  wsMessage({ type: "telegram_status", status: telegramStatus });
   wsMessage({ type: "metaapi_status", status: metaapi.getMetaApiStatus() });
+  
+  // If telegram needs auth, send auth_required to open dialog
+  if (telegramStatus === "needs_auth") {
+    wsMessage({ type: "auth_required" });
+    wsMessage({ type: "auth_step", step: "phone" });
+  }
 
   // Get channels asynchronously and save selection
   const channels = await telegram.getChannels();
@@ -266,6 +273,21 @@ export function initWebSocket(server: Server) {
   // Set up Telegram status handler
   telegram.onStatusChange((status) => {
     broadcast({ type: "telegram_status", status });
+    if (status === "needs_auth") {
+      broadcast({ type: "auth_required" });
+    } else if (status === "connected") {
+      broadcast({ type: "auth_step", step: "done" });
+    }
+  });
+
+  // Set up Telegram auth handler
+  telegram.onAuthRequired((authType) => {
+    broadcast({ type: "auth_step", step: authType });
+  });
+
+  // Set up Telegram auth error handler
+  telegram.onAuthError((errorMessage) => {
+    broadcast({ type: "auth_error", message: errorMessage });
   });
 
   // Set up MetaAPI status handler

@@ -9,17 +9,21 @@ let client: TelegramClient | null = null;
 let stringSession = new StringSession("");
 let isConnected = false;
 let selectedChannelId: string | null = null;
+let currentStatus: "connected" | "disconnected" | "connecting" | "needs_auth" = "disconnected";
 
 type MessageCallback = (message: TelegramMessage) => void;
 type StatusCallback = (status: "connected" | "disconnected" | "connecting" | "needs_auth") => void;
 type AuthCallback = (type: "phone" | "code" | "password") => void;
+type AuthErrorCallback = (message: string) => void;
 
 let messageCallbacks: MessageCallback[] = [];
 let statusCallbacks: StatusCallback[] = [];
 let authCallbacks: AuthCallback[] = [];
+let authErrorCallbacks: AuthErrorCallback[] = [];
 let phoneResolver: ((phone: string) => void) | null = null;
 let codeResolver: ((code: string) => void) | null = null;
 let passwordResolver: ((password: string) => void) | null = null;
+let currentAuthStep: "phone" | "code" | "password" | null = null;
 
 export function onMessage(callback: MessageCallback) {
   messageCallbacks.push(callback);
@@ -42,7 +46,15 @@ export function onAuthRequired(callback: AuthCallback) {
   };
 }
 
+export function onAuthError(callback: AuthErrorCallback) {
+  authErrorCallbacks.push(callback);
+  return () => {
+    authErrorCallbacks = authErrorCallbacks.filter((cb) => cb !== callback);
+  };
+}
+
 function notifyStatus(status: "connected" | "disconnected" | "connecting" | "needs_auth") {
+  currentStatus = status;
   statusCallbacks.forEach((cb) => cb(status));
 }
 
@@ -51,7 +63,16 @@ function notifyMessage(message: TelegramMessage) {
 }
 
 function notifyAuth(type: "phone" | "code" | "password") {
+  currentAuthStep = type;
   authCallbacks.forEach((cb) => cb(type));
+}
+
+function notifyAuthError(message: string) {
+  authErrorCallbacks.forEach((cb) => cb(message));
+  // Re-emit current step so dialog can retry
+  if (currentAuthStep) {
+    setTimeout(() => notifyAuth(currentAuthStep!), 100);
+  }
 }
 
 export function submitPhone(phone: string) {
@@ -132,15 +153,24 @@ export async function initTelegram(): Promise<void> {
         },
         onError: (err) => {
           console.error("Telegram auth error:", err);
+          const errorMessage = err instanceof Error ? err.message : String(err);
+          notifyAuthError(errorMessage);
         },
       }).then(() => {
         isConnected = true;
+        currentAuthStep = null;
         notifyStatus("connected");
         console.log("Telegram authenticated successfully");
         setupMessageHandler();
       }).catch((err) => {
         console.error("Telegram auth failed:", err);
-        notifyStatus("disconnected");
+        const errorMessage = err instanceof Error ? err.message : String(err);
+        notifyAuthError(errorMessage);
+        // Keep needs_auth status so dialog stays open for retry
+        // Reset to phone step for fresh attempt
+        currentAuthStep = "phone";
+        notifyStatus("needs_auth");
+        notifyAuth("phone");
       });
     }
   } catch (error: any) {
@@ -243,9 +273,7 @@ export async function selectChannel(channelId: string): Promise<TelegramMessage[
 }
 
 export function getTelegramStatus(): "connected" | "disconnected" | "connecting" | "needs_auth" {
-  if (!client) return "disconnected";
-  if (isConnected) return "connected";
-  return "connecting";
+  return currentStatus;
 }
 
 export function getSelectedChannelId(): string | null {

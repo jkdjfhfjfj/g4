@@ -31,6 +31,8 @@ export function useWebSocket() {
   const [history, setHistory] = useState<TradeHistory[]>([]);
   const [error, setError] = useState<string | null>(null);
   const [authRequired, setAuthRequired] = useState(false);
+  const [authStep, setAuthStep] = useState<'phone' | 'code' | 'password' | 'done'>('phone');
+  const [authError, setAuthError] = useState<string | null>(null);
 
   useEffect(() => {
     wsClient.connect();
@@ -105,6 +107,18 @@ export function useWebSocket() {
           break;
         case "auth_required":
           setAuthRequired(true);
+          setAuthStep('phone');
+          setAuthError(null);
+          break;
+        case "auth_step":
+          setAuthStep(message.step);
+          setAuthError(null);
+          if (message.step === 'done') {
+            setAuthRequired(false);
+          }
+          break;
+        case "auth_error":
+          setAuthError(message.message);
           break;
       }
     });
@@ -189,6 +203,8 @@ export function useWebSocket() {
     history,
     error,
     authRequired,
+    authStep,
+    authError,
     selectChannel,
     executeTrade,
     dismissSignal,

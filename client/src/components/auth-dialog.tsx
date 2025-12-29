@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -10,41 +10,88 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Phone, Key, Lock } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Phone, Key, Lock, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
 
 interface AuthDialogProps {
   open: boolean;
+  step: "phone" | "code" | "password" | "done";
+  error: string | null;
   onSubmitPhone: (phone: string) => void;
   onSubmitCode: (code: string) => void;
   onSubmitPassword: (password: string) => void;
 }
 
-type AuthStep = "phone" | "code" | "password";
-
 export function AuthDialog({
   open,
+  step,
+  error: backendError,
   onSubmitPhone,
   onSubmitCode,
   onSubmitPassword,
 }: AuthDialogProps) {
-  const [step, setStep] = useState<AuthStep>("phone");
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [localError, setLocalError] = useState("");
+
+  const error = backendError || localError;
+
+  useEffect(() => {
+    if (open) {
+      setPhone("");
+      setCode("");
+      setPassword("");
+      setLocalError("");
+      setIsLoading(false);
+    }
+  }, [open]);
+
+  useEffect(() => {
+    setIsLoading(false);
+    setLocalError("");
+  }, [step]);
+
+  useEffect(() => {
+    if (backendError) {
+      setIsLoading(false);
+    }
+  }, [backendError]);
 
   const handleSubmit = () => {
+    setLocalError("");
+    
     switch (step) {
       case "phone":
+        if (!phone || phone.length < 8) {
+          setLocalError("Please enter a valid phone number with country code");
+          return;
+        }
+        setIsLoading(true);
         onSubmitPhone(phone);
-        setStep("code");
         break;
       case "code":
+        if (!code || code.length < 5) {
+          setLocalError("Please enter the 5-digit code from Telegram");
+          return;
+        }
+        setIsLoading(true);
         onSubmitCode(code);
-        setStep("password");
         break;
       case "password":
+        setIsLoading(true);
         onSubmitPassword(password);
         break;
+    }
+  };
+
+  const getStepNumber = () => {
+    switch (step) {
+      case "phone": return 1;
+      case "code": return 2;
+      case "password": return 3;
+      case "done": return 3;
     }
   };
 
@@ -52,81 +99,139 @@ export function AuthDialog({
     switch (step) {
       case "phone":
         return {
-          icon: <Phone className="h-5 w-5" />,
-          title: "Telegram Authentication",
-          description: "Enter your phone number to connect to Telegram",
+          icon: <Phone className="h-5 w-5 text-primary" />,
+          title: "Connect Your Telegram",
+          description: "Enter your phone number with country code (e.g., +1 for USA, +44 for UK). You'll receive a verification code in your Telegram app.",
           label: "Phone Number",
           placeholder: "+1234567890",
           value: phone,
           onChange: setPhone,
           type: "tel",
+          hint: "Include your country code",
         };
       case "code":
         return {
-          icon: <Key className="h-5 w-5" />,
-          title: "Enter Verification Code",
-          description: "Check your Telegram app for the verification code",
+          icon: <Key className="h-5 w-5 text-primary" />,
+          title: "Verify Your Identity",
+          description: `A 5-digit code was sent to your Telegram app on ${phone}. Check your Telegram messages and enter the code below.`,
           label: "Verification Code",
           placeholder: "12345",
           value: code,
           onChange: setCode,
           type: "text",
+          hint: "Check your Telegram app for the code",
         };
       case "password":
         return {
-          icon: <Lock className="h-5 w-5" />,
+          icon: <Lock className="h-5 w-5 text-primary" />,
           title: "Two-Factor Authentication",
-          description: "Enter your Telegram 2FA password (if enabled)",
-          label: "Password",
-          placeholder: "Your 2FA password",
+          description: "If you have 2FA enabled on your Telegram account, enter your cloud password. If you don't have 2FA, click 'Skip' to continue.",
+          label: "2FA Password",
+          placeholder: "Your cloud password",
           value: password,
           onChange: setPassword,
           type: "password",
+          hint: "Only required if you have 2FA enabled",
+        };
+      case "done":
+        return {
+          icon: <CheckCircle2 className="h-5 w-5 text-success" />,
+          title: "Connected!",
+          description: "Your Telegram account is now connected.",
+          label: "",
+          placeholder: "",
+          value: "",
+          onChange: () => {},
+          type: "text",
+          hint: "",
         };
     }
   };
 
-  const content = getStepContent();
+  const content = getStepContent()!;
 
   return (
     <Dialog open={open}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
+          <div className="flex items-center justify-between gap-2 mb-2">
+            <Badge variant="outline" className="text-xs">
+              Step {getStepNumber()} of 3
+            </Badge>
+            <div className="flex gap-1">
+              {[1, 2, 3].map((s) => (
+                <div
+                  key={s}
+                  className={`h-1.5 w-8 rounded-full transition-colors ${
+                    s <= getStepNumber() ? "bg-primary" : "bg-muted"
+                  }`}
+                />
+              ))}
+            </div>
+          </div>
           <DialogTitle className="flex items-center gap-2">
             {content.icon}
             {content.title}
           </DialogTitle>
-          <DialogDescription>{content.description}</DialogDescription>
+          <DialogDescription className="text-sm leading-relaxed">
+            {content.description}
+          </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="auth-input" className="text-right">
+          <div className="space-y-2">
+            <Label htmlFor="auth-input">
               {content.label}
             </Label>
             <Input
               id="auth-input"
               type={content.type}
               value={content.value}
-              onChange={(e) => content.onChange(e.target.value)}
+              onChange={(e) => {
+                content.onChange(e.target.value);
+                setLocalError("");
+              }}
               placeholder={content.placeholder}
-              className="col-span-3"
+              className="font-mono"
               data-testid={`input-auth-${step}`}
-              onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
+              onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSubmit()}
+              disabled={isLoading}
             />
+            <p className="text-xs text-muted-foreground">{content.hint}</p>
+            {error && (
+              <p className="text-xs text-destructive">{error}</p>
+            )}
           </div>
         </div>
-        <DialogFooter>
+        <DialogFooter className="flex-col sm:flex-row gap-2">
           {step === "password" && (
             <Button
               variant="outline"
-              onClick={() => onSubmitPassword("")}
+              onClick={() => {
+                setIsLoading(true);
+                onSubmitPassword("");
+              }}
+              disabled={isLoading}
               data-testid="button-skip-2fa"
             >
               Skip (No 2FA)
             </Button>
           )}
-          <Button onClick={handleSubmit} data-testid={`button-submit-${step}`}>
-            Continue
+          <Button 
+            onClick={handleSubmit} 
+            disabled={isLoading}
+            data-testid={`button-submit-${step}`}
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                Please wait...
+              </>
+            ) : (
+              <>
+                Continue
+                <CheckCircle2 className="h-4 w-4 ml-1" />
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>

@@ -1,5 +1,7 @@
 import MetaApiPkg from "metaapi.cloud-sdk/node";
 const MetaApi = MetaApiPkg.default;
+import type MetaApiClass from "metaapi.cloud-sdk/lib/metaApi/metaApi";
+import type RpcMetaApiConnectionInstance from "metaapi.cloud-sdk/lib/metaApi/rpcMetaApiConnectionInstance";
 import type {
   TradingAccount,
   Position,
@@ -10,9 +12,23 @@ import type {
 const token = process.env.METAAPI_TOKEN || "";
 const accountId = process.env.METAAPI_ACCOUNT_ID || "";
 
-let api: MetaApi | null = null;
-let account: any = null;
-let connection: any = null;
+// Extended RPC connection type with methods available at runtime but not in SDK types
+interface ExtendedRpcConnection extends RpcMetaApiConnectionInstance {
+  getSymbols(): Promise<string[]>;
+  getSymbolSpecification(symbol: string): Promise<{ symbol: string; description?: string } | null>;
+}
+
+// Account type with methods we use
+interface MetaApiAccount {
+  state: string;
+  deploy: () => Promise<void>;
+  waitDeployed: () => Promise<void>;
+  getRPCConnection: () => ExtendedRpcConnection;
+}
+
+let api: MetaApiClass | null = null;
+let account: MetaApiAccount | null = null;
+let connection: ExtendedRpcConnection | null = null;
 let isConnected = false;
 
 type StatusCallback = (status: "connected" | "disconnected" | "connecting") => void;
@@ -174,18 +190,43 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   try {
-    // Top forex pairs (reduced for speed)
-    const symbols = [
-      "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-      "EURGBP", "EURJPY", "GBPJPY", "XAUUSD", "XAGUSD"
-    ];
+    // Get symbols dynamically from MetaAPI
+    let availableSymbols: string[] = [];
+    
+    try {
+      const symbols = await connection.getSymbols();
+      if (symbols && symbols.length > 0) {
+        // Filter for forex pairs and metals (common tradable instruments)
+        availableSymbols = symbols
+          .filter((s: any) => {
+            const name = typeof s === 'string' ? s : s.symbol;
+            return name && (
+              name.match(/^[A-Z]{6}$/) || // Forex pairs like EURUSD
+              name.startsWith("XAU") ||    // Gold
+              name.startsWith("XAG")       // Silver
+            );
+          })
+          .map((s: any) => typeof s === 'string' ? s : s.symbol)
+          .slice(0, 20); // Limit to 20 symbols
+      }
+    } catch (e) {
+      console.log("getSymbols not available, using fallback list");
+    }
+
+    // Fallback to common pairs if dynamic fetch fails
+    if (availableSymbols.length === 0) {
+      availableSymbols = [
+        "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
+        "EURGBP", "EURJPY", "GBPJPY", "XAUUSD", "XAGUSD"
+      ];
+    }
 
     const markets: MarketSymbol[] = [];
 
-    for (const symbol of symbols) {
+    for (const symbol of availableSymbols) {
       try {
         const price = await connection.getSymbolPrice(symbol);
-        if (price) {
+        if (price && (price.bid || price.ask)) {
           const specification = await connection.getSymbolSpecification(symbol);
           markets.push({
             symbol,
@@ -196,7 +237,7 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
           });
         }
       } catch (e) {
-        // Symbol might not be available
+        // Symbol might not be available on this broker
       }
     }
 
@@ -210,7 +251,7 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
 }
 
 export async function getHistory(): Promise<TradeHistory[]> {
-  if (!connection || !isConnected) {
+  if (!connection || !isConnected || !account) {
     return cachedHistory;
   }
 
@@ -223,22 +264,56 @@ export async function getHistory(): Promise<TradeHistory[]> {
     const nowDate = new Date();
     const thirtyDaysAgo = new Date(nowDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const deals = await connection.getDealsByTimeRange(thirtyDaysAgo, nowDate);
+    // Try multiple methods to get history
+    let deals: any[] = [];
+    
+    // Method 1: Try RPC connection getDealsByTimeRange
+    try {
+      const rpcDeals = await connection.getDealsByTimeRange(thirtyDaysAgo, nowDate);
+      if (rpcDeals && rpcDeals.length > 0) {
+        deals = rpcDeals;
+        console.log(`Got ${deals.length} deals from RPC connection`);
+      }
+    } catch (e) {
+      console.log("RPC getDealsByTimeRange failed, trying REST API");
+    }
+
+    // Method 2: Try account REST API if RPC fails
+    if (deals.length === 0) {
+      try {
+        const restDeals = await account.getHistoryDealsByTimeRange(
+          thirtyDaysAgo.toISOString(),
+          nowDate.toISOString()
+        );
+        if (restDeals && restDeals.length > 0) {
+          deals = restDeals;
+          console.log(`Got ${deals.length} deals from REST API`);
+        }
+      } catch (e) {
+        console.log("REST getHistoryDealsByTimeRange failed");
+      }
+    }
 
     const trades: TradeHistory[] = [];
 
     for (const deal of (deals || []).slice(-50)) {
-      if (deal.type === "DEAL_TYPE_SELL" || deal.type === "DEAL_TYPE_BUY") {
+      // Filter for actual trade entries/exits
+      const dealType = deal.type || deal.entryType;
+      if (dealType === "DEAL_TYPE_SELL" || dealType === "DEAL_TYPE_BUY" ||
+          dealType === "DEAL_ENTRY_IN" || dealType === "DEAL_ENTRY_OUT") {
+        const isBuy = dealType === "DEAL_TYPE_BUY" || 
+          (dealType === "DEAL_ENTRY_IN" && deal.positionType === "POSITION_TYPE_BUY");
+        
         trades.push({
-          id: deal.id,
-          symbol: deal.symbol,
-          type: deal.type === "DEAL_TYPE_BUY" ? "buy" : "sell",
-          volume: deal.volume || 0,
-          openPrice: deal.price || 0,
-          closePrice: deal.price || 0,
+          id: deal.id || deal._id || String(Date.now()),
+          symbol: deal.symbol || "Unknown",
+          type: isBuy ? "buy" : "sell",
+          volume: deal.volume || deal.lots || 0,
+          openPrice: deal.price || deal.openPrice || 0,
+          closePrice: deal.closePrice || deal.price || 0,
           profit: deal.profit || 0,
-          openTime: deal.time || new Date().toISOString(),
-          closeTime: deal.time || new Date().toISOString(),
+          openTime: deal.time || deal.openTime || new Date().toISOString(),
+          closeTime: deal.closeTime || deal.time || new Date().toISOString(),
           commission: deal.commission || 0,
           swap: deal.swap || 0,
         });
@@ -247,6 +322,7 @@ export async function getHistory(): Promise<TradeHistory[]> {
 
     cachedHistory = trades.reverse();
     lastHistoryUpdate = now;
+    console.log(`Returning ${cachedHistory.length} history trades`);
     return cachedHistory;
   } catch (error) {
     console.error("Failed to get history:", error);
