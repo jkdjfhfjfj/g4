@@ -85,7 +85,11 @@ The AI analyzes messages and returns:
   - New WebSocket clients receive correct auth state on connect
 - Enhanced MetaAPI typing with ExtendedRpcConnection interface
 - Dynamic market symbols fetched via connection.getSymbols() with fallback
-- Trade history retrieval using both RPC and REST API methods
+- Trade history retrieval using RPC API method (7-day range)
+- Telegram session persistence (Dec 29, 2025)
+  - Session saved to `.telegram_session` file after successful auth
+  - Session loaded on startup for persistent connection across restarts
+  - File excluded from version control via .gitignore
 
 ## User Preferences
 - Dark mode by default
