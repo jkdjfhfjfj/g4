@@ -26,6 +26,7 @@ Respond in JSON format only:
 {
   "isSignal": boolean,
   "confidence": number (0-1),
+  "reason": string (brief 10-20 word explanation of why this is or isn't a valid signal),
   "symbol": string or null,
   "direction": "BUY" or "SELL" or null,
   "entryPrice": number or null,
@@ -33,12 +34,16 @@ Respond in JSON format only:
   "takeProfit": [number] or null
 }
 
-If it's not a trading signal, set isSignal to false and leave other fields as null.
+For "reason", explain concisely:
+- If valid: what signal was detected (e.g., "Clear BUY signal for EURUSD with entry at 1.0850 and SL/TP levels")
+- If not valid: why it's not a signal (e.g., "General market commentary without actionable trade direction" or "Missing currency pair information")
+
 Only respond with the JSON, no additional text.`;
 
 interface SignalAnalysis {
   isSignal: boolean;
   confidence: number;
+  reason: string;
   symbol: string | null;
   direction: "BUY" | "SELL" | null;
   entryPrice: number | null;
@@ -85,15 +90,16 @@ async function tryAnalyzeWithModel(
 
 export async function analyzeMessage(message: TelegramMessage): Promise<{
   verdict: TelegramMessage["aiVerdict"];
+  verdictDescription: string;
   signal: ParsedSignal | null;
 }> {
   if (!message.text || message.text.trim().length < 3) {
-    return { verdict: "no_signal", signal: null };
+    return { verdict: "no_signal", verdictDescription: "Message too short to contain trading signal", signal: null };
   }
 
   if (!process.env.GROQ_API_KEY) {
     console.error("GROQ_API_KEY not set");
-    return { verdict: "error", signal: null };
+    return { verdict: "error", verdictDescription: "AI analysis unavailable", signal: null };
   }
 
   let analysis: SignalAnalysis | null = null;
@@ -109,11 +115,11 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
 
     if (!analysis) {
       console.error("All models failed to analyze message");
-      return { verdict: "error", signal: null };
+      return { verdict: "error", verdictDescription: "AI analysis failed after trying all models", signal: null };
     }
 
     if (!analysis.isSignal || !analysis.symbol || !analysis.direction) {
-      return { verdict: "no_signal", signal: null };
+      return { verdict: "no_signal", verdictDescription: analysis.reason || "No actionable trading signal detected", signal: null };
     }
 
     const normalizedSymbol = analysis.symbol
@@ -135,9 +141,9 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
       rawMessage: message.text,
     };
 
-    return { verdict: "valid_signal", signal };
+    return { verdict: "valid_signal", verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`, signal };
   } catch (error: any) {
     console.error("Message analysis failed:", error?.message || error);
-    return { verdict: "error", signal: null };
+    return { verdict: "error", verdictDescription: "Analysis error occurred", signal: null };
   }
 }

@@ -35,6 +35,7 @@ export interface TelegramMessage {
   date: string;
   senderName?: string;
   aiVerdict?: 'valid_signal' | 'no_signal' | 'analyzing' | 'error';
+  verdictDescription?: string;
   parsedSignal?: ParsedSignal | null;
 }
 

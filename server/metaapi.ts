@@ -46,7 +46,7 @@ let lastAccountUpdate = 0;
 let lastPositionsUpdate = 0;
 let lastMarketsUpdate = 0;
 let lastHistoryUpdate = 0;
-const CACHE_TTL = 20000; // 20 seconds
+const CACHE_TTL = 5000; // 5 seconds for real-time updates
 
 export function onStatusChange(callback: StatusCallback) {
   statusCallbacks.push(callback);
@@ -207,7 +207,7 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
             );
           })
           .map((s: any) => typeof s === 'string' ? s : s.symbol)
-          .slice(0, 20); // Limit to 20 symbols
+          .slice(0, 40); // Limit to 40 symbols
       }
     } catch (e) {
       console.log("getSymbols not available, using fallback list");
@@ -216,8 +216,17 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
     // Fallback to common pairs if dynamic fetch fails
     if (availableSymbols.length === 0) {
       availableSymbols = [
+        // Major pairs
         "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-        "EURGBP", "EURJPY", "GBPJPY", "XAUUSD", "XAGUSD"
+        // Crosses
+        "EURGBP", "EURJPY", "GBPJPY", "EURAUD", "EURCHF", "GBPAUD", "GBPCHF",
+        "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY", "AUDCAD", "AUDNZD", "CADCHF",
+        // Metals
+        "XAUUSD", "XAGUSD",
+        // Indices (common broker symbols)
+        "US30", "US500", "NAS100", "GER40", "UK100", "JP225",
+        // Oil
+        "USOIL", "UKOIL"
       ];
     }
 
