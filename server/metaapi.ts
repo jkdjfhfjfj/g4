@@ -63,8 +63,8 @@ export async function initMetaApi(): Promise<void> {
       await account.waitDeployed();
     }
 
-    // Connect to the account
-    connection = account.getStreamingConnection();
+    // Use RPC connection for simpler API calls
+    connection = account.getRPCConnection();
     await connection.connect();
     await connection.waitSynchronized();
 
@@ -196,12 +196,12 @@ export async function getHistory(): Promise<TradeHistory[]> {
     const now = new Date();
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const deals = await connection.getDeals(thirtyDaysAgo, now);
+    const deals = await connection.getDealsByTimeRange(thirtyDaysAgo, now);
 
     // Group deals by position to get complete trades
     const trades: TradeHistory[] = [];
 
-    for (const deal of deals.slice(-50)) {
+    for (const deal of (deals || []).slice(-50)) {
       if (deal.type === "DEAL_TYPE_SELL" || deal.type === "DEAL_TYPE_BUY") {
         trades.push({
           id: deal.id,
