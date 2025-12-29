@@ -3,7 +3,7 @@ import type { ParsedSignal, TelegramMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
 const groq = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
+  apiKey: "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",
 });
 
 // Models to try in order (fallback system)
