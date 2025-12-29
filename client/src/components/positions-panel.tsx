@@ -107,7 +107,6 @@ export function PositionsPanel({ positions, onClosePosition }: PositionsPanelPro
                         size="icon"
                         variant="ghost"
                         onClick={() => onClosePosition(position.id)}
-                        className="h-7 w-7"
                         data-testid={`button-close-position-${position.id}`}
                       >
                         <X className="h-4 w-4 text-destructive" />

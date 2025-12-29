@@ -1,7 +1,5 @@
 import MetaApiPkg from "metaapi.cloud-sdk/node";
-const MetaApi = MetaApiPkg.default;
-import type MetaApiClass from "metaapi.cloud-sdk/lib/metaApi/metaApi";
-import type RpcMetaApiConnectionInstance from "metaapi.cloud-sdk/lib/metaApi/rpcMetaApiConnectionInstance";
+const MetaApi = (MetaApiPkg as any).default || MetaApiPkg;
 import type {
   TradingAccount,
   Position,
@@ -13,9 +11,18 @@ const token = process.env.METAAPI_TOKEN || "";
 const accountId = process.env.METAAPI_ACCOUNT_ID || "";
 
 // Extended RPC connection type with methods available at runtime but not in SDK types
-interface ExtendedRpcConnection extends RpcMetaApiConnectionInstance {
+interface ExtendedRpcConnection {
+  connect(): Promise<void>;
+  waitSynchronized(): Promise<void>;
   getSymbols(): Promise<string[]>;
-  getSymbolSpecification(symbol: string): Promise<{ symbol: string; description?: string } | null>;
+  getSymbolSpecification(symbol: string): Promise<{ symbol: string; description?: string; digits?: number } | null>;
+  getSymbolPrice(symbol: string): Promise<{ bid?: number; ask?: number } | null>;
+  getAccountInformation(): Promise<any>;
+  getPositions(): Promise<any[]>;
+  getDealsByTimeRange(startTime: Date, endTime: Date): Promise<any[]>;
+  createMarketBuyOrder(symbol: string, volume: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
+  createMarketSellOrder(symbol: string, volume: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
+  closePosition(positionId: string): Promise<void>;
 }
 
 // Account type with methods we use
@@ -24,9 +31,10 @@ interface MetaApiAccount {
   deploy: () => Promise<void>;
   waitDeployed: () => Promise<void>;
   getRPCConnection: () => ExtendedRpcConnection;
+  getHistoryDealsByTimeRange: (startTime: string, endTime: string) => Promise<any[]>;
 }
 
-let api: MetaApiClass | null = null;
+let api: any = null;
 let account: MetaApiAccount | null = null;
 let connection: ExtendedRpcConnection | null = null;
 let isConnected = false;
@@ -46,7 +54,7 @@ let lastAccountUpdate = 0;
 let lastPositionsUpdate = 0;
 let lastMarketsUpdate = 0;
 let lastHistoryUpdate = 0;
-const CACHE_TTL = 5000; // 5 seconds for real-time updates
+const CACHE_TTL = 30000; // 30 seconds to avoid rate limiting
 
 export function onStatusChange(callback: StatusCallback) {
   statusCallbacks.push(callback);
@@ -84,10 +92,14 @@ export async function initMetaApi(): Promise<void> {
     account = await api.metatraderAccountApi.getAccount(accountId);
 
     // Wait for account to be deployed
-    if (account.state !== "DEPLOYED") {
+    if (account && account.state !== "DEPLOYED") {
       console.log("Deploying MetaAPI account...");
       await account.deploy();
       await account.waitDeployed();
+    }
+
+    if (!account) {
+      throw new Error("Failed to get account");
     }
 
     // Use RPC connection for simpler API calls

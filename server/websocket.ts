@@ -138,10 +138,10 @@ async function handleMessage(ws: WebSocket, data: any) {
 
 async function processMessage(message: TelegramMessage) {
   try {
-    const { verdict, signal } = await analyzeMessage(message);
+    const { verdict, verdictDescription, signal } = await analyzeMessage(message);
     
-    // Update message with verdict
-    const updatedMessage = { ...message, aiVerdict: verdict };
+    // Update message with verdict and description
+    const updatedMessage = { ...message, aiVerdict: verdict, verdictDescription };
     broadcast({ type: "new_message", message: updatedMessage });
 
     // If signal detected, add to signals list
@@ -152,7 +152,7 @@ async function processMessage(message: TelegramMessage) {
     }
   } catch (error) {
     console.error("Error processing message:", error);
-    const updatedMessage = { ...message, aiVerdict: "error" as const };
+    const updatedMessage = { ...message, aiVerdict: "error" as const, verdictDescription: "Analysis failed" };
     broadcast({ type: "new_message", message: updatedMessage });
   }
 }
@@ -173,15 +173,9 @@ async function sendInitialData(ws: WebSocket) {
   if (telegramStatus === "needs_auth") {
     wsMessage({ type: "auth_required" });
     wsMessage({ type: "auth_step", step: "phone" });
-  }
-
-  // Get channels asynchronously and save selection
-  const channels = await telegram.getChannels();
-  wsMessage({ type: "channels", channels });
-
-  // Save last selected channel to localStorage
-  if (channels.length > 0) {
-    const lastChannel = channels[0];
+  } else if (telegramStatus === "connected") {
+    // Only fetch channels if Telegram is authenticated
+    const channels = await telegram.getChannels();
     wsMessage({ type: "channels", channels });
   }
 
@@ -271,12 +265,15 @@ export function initWebSocket(server: Server) {
   });
 
   // Set up Telegram status handler
-  telegram.onStatusChange((status) => {
+  telegram.onStatusChange(async (status) => {
     broadcast({ type: "telegram_status", status });
     if (status === "needs_auth") {
       broadcast({ type: "auth_required" });
     } else if (status === "connected") {
       broadcast({ type: "auth_step", step: "done" });
+      // Fetch and broadcast channels after successful authentication
+      const channels = await telegram.getChannels();
+      broadcast({ type: "channels", channels });
     }
   });
 
