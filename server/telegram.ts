@@ -108,6 +108,7 @@ export async function initTelegram(): Promise<void> {
 
   try {
     const parsedApiId = parseInt(apiIdVal);
+    console.log(`Initializing Telegram with API_ID: ${parsedApiId}, API_HASH: ${apiHashVal.substring(0, 8)}...`);
 
     client = new TelegramClient(stringSession, parsedApiId, apiHashVal, {
       connectionRetries: 5,
@@ -154,6 +155,14 @@ export async function initTelegram(): Promise<void> {
         onError: (err) => {
           console.error("Telegram auth error:", err);
           const errorMessage = err instanceof Error ? err.message : String(err);
+          
+          // Helpful message for common errors
+          if (errorMessage.includes("API_ID_INVALID")) {
+            console.error("ERROR: API_ID_INVALID - Your TELEGRAM_API_ID or TELEGRAM_API_HASH is incorrect.");
+            console.error("Fix: Go to https://my.telegram.org/apps and verify your API credentials match exactly.");
+            console.error("Note: Make sure you're using a production app, not a test app.");
+          }
+          
           notifyAuthError(errorMessage);
         },
       }).then(() => {
