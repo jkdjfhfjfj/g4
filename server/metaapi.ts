@@ -62,6 +62,7 @@ let cachedAccount: TradingAccount | null = null;
 let cachedPositions: Position[] = [];
 let cachedMarkets: MarketSymbol[] = [];
 let cachedHistory: TradeHistory[] = [];
+let cachedSymbols: string[] = []; // Cache symbols fetched at startup
 let lastAccountUpdate = 0;
 let lastPositionsUpdate = 0;
 let lastMarketsUpdate = 0;
@@ -122,6 +123,25 @@ export async function initMetaApi(): Promise<void> {
     isConnected = true;
     notifyStatus("connected");
     console.log("MetaAPI connected successfully");
+
+    // Fetch and cache symbol list once at startup
+    try {
+      console.log("Fetching symbol list at startup...");
+      const symbols = await connection.getSymbols();
+      if (symbols && symbols.length > 0) {
+        cachedSymbols = symbols.filter((s: any) => {
+          const name = typeof s === 'string' ? s : s.symbol;
+          return name && (
+            name.match(/^[A-Z]{6}$/) || 
+            name.startsWith("XAU") || 
+            name.startsWith("XAG")
+          );
+        }).map((s: any) => typeof s === 'string' ? s : s.symbol).slice(0, 40);
+        console.log(`Cached ${cachedSymbols.length} symbols for trading`);
+      }
+    } catch (e) {
+      console.log("Symbol caching not available, will use fallback list");
+    }
 
     // Set up real-time updates with respect for rate limits (every 60 seconds)
     // Markets fetch every 60 seconds to avoid rate limiting
@@ -221,45 +241,20 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   try {
-    // Get symbols dynamically from MetaAPI
-    let availableSymbols: string[] = [];
-    
-    try {
-      const symbols = await connection.getSymbols();
-      if (symbols && symbols.length > 0) {
-        // Filter for forex pairs and metals (common tradable instruments)
-        availableSymbols = symbols
-          .filter((s: any) => {
-            const name = typeof s === 'string' ? s : s.symbol;
-            return name && (
-              name.match(/^[A-Z]{6}$/) || // Forex pairs like EURUSD
-              name.startsWith("XAU") ||    // Gold
-              name.startsWith("XAG")       // Silver
-            );
-          })
-          .map((s: any) => typeof s === 'string' ? s : s.symbol)
-          .slice(0, 40); // Limit to 40 symbols
-      }
-    } catch (e) {
-      console.log("getSymbols not available, using fallback list");
-    }
-
-    // Fallback to common pairs if dynamic fetch fails
-    if (availableSymbols.length === 0) {
-      availableSymbols = [
-        // Major pairs
-        "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-        // Crosses
-        "EURGBP", "EURJPY", "GBPJPY", "EURAUD", "EURCHF", "GBPAUD", "GBPCHF",
-        "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY", "AUDCAD", "AUDNZD", "CADCHF",
-        // Metals
-        "XAUUSD", "XAGUSD",
-        // Indices (common broker symbols)
-        "US30", "US500", "NAS100", "GER40", "UK100", "JP225",
-        // Oil
-        "USOIL", "UKOIL"
-      ];
-    }
+    // Use cached symbols from startup, fallback to list if not available
+    let availableSymbols = cachedSymbols.length > 0 ? cachedSymbols : [
+      // Major pairs
+      "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
+      // Crosses
+      "EURGBP", "EURJPY", "GBPJPY", "EURAUD", "EURCHF", "GBPAUD", "GBPCHF",
+      "AUDJPY", "CADJPY", "CHFJPY", "NZDJPY", "AUDCAD", "AUDNZD", "CADCHF",
+      // Metals
+      "XAUUSD", "XAGUSD",
+      // Indices (common broker symbols)
+      "US30", "US500", "NAS100", "GER40", "UK100", "JP225",
+      // Oil
+      "USOIL", "UKOIL"
+    ];
 
     const markets: MarketSymbol[] = [];
 

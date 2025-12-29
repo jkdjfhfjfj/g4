@@ -2,6 +2,7 @@ import { useWebSocket } from "@/hooks/use-websocket";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { StatusBar } from "@/components/connection-status";
 import { SignalCards } from "@/components/signal-cards";
+import { MessageFeed } from "@/components/message-feed";
 import { PositionsPanel } from "@/components/positions-panel";
 import { MarketsPanel } from "@/components/markets-panel";
 import { HistoryPanel } from "@/components/history-panel";
@@ -10,7 +11,6 @@ import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -58,6 +58,7 @@ export default function Dashboard() {
 
   const tabs = [
     { id: "signals", label: "Signals", icon: TrendingUp, count: signals.filter(s => s.status === 'pending').length },
+    { id: "messages", label: "Messages", icon: MessageSquare, count: messages.length },
     { id: "markets", label: "Markets", icon: BarChart3, count: markets.length },
     { id: "positions", label: "Positions", icon: Wallet, count: positions.length },
     { id: "history", label: "History", icon: History, count: history.length },
@@ -65,8 +66,8 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/50 flex flex-col">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-card border-b border-border">
+      {/* Fixed Header - Not Scrollable */}
+      <header className="fixed top-0 left-0 right-0 z-40 bg-card border-b border-border">
         <div className="px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-primary/15 rounded-lg">
@@ -121,9 +122,9 @@ export default function Dashboard() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6">
+      {/* Main Content - Account for fixed header */}
+      <main className="flex-1 overflow-auto pt-32 md:pt-[180px]">
+        <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 pb-28 md:pb-6">
           {/* Account Info Card */}
           {account && (
             <Card className="bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border-primary/20">
@@ -168,7 +169,7 @@ export default function Dashboard() {
                 <div>
                   <p className="font-medium text-sm">MetaAPI Rate Limited</p>
                   <p className="text-xs text-muted-foreground mt-1">
-                    Data will update every 60 seconds. Market data is being throttled to respect API limits.
+                    Data updates every 60 seconds to respect API limits.
                   </p>
                 </div>
               </CardContent>
@@ -184,6 +185,9 @@ export default function Dashboard() {
                 onDismiss={dismissSignal}
                 autoTradeEnabled={autoTradeEnabled}
               />
+            )}
+            {activeTab === "messages" && (
+              <MessageFeed messages={messages} selectedChannelId={selectedChannelId} />
             )}
             {activeTab === "markets" && (
               <MarketsPanel markets={markets} onTrade={manualTrade} />
