@@ -30,6 +30,7 @@ interface SignalCardsProps {
   signals: ParsedSignal[];
   onExecute: (signalId: string, volume: number, stopLoss?: number, takeProfit?: number) => void;
   onDismiss: (signalId: string) => void;
+  autoTradeEnabled?: boolean;
 }
 
 interface ExecuteDialogProps {

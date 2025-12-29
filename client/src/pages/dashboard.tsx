@@ -11,7 +11,8 @@ import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { Activity, MessageSquare, BarChart3, TrendingUp, History, Wallet } from "lucide-react";
+import { Activity, MessageSquare, BarChart3, TrendingUp, History, Wallet, Bot } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function Dashboard() {
@@ -31,7 +32,9 @@ export default function Dashboard() {
     authRequired,
     authStep,
     authError,
+    autoTradeEnabled,
     selectChannel,
+    toggleAutoTrade,
     executeTrade,
     dismissSignal,
     closePosition,
@@ -62,7 +65,16 @@ export default function Dashboard() {
             <Activity className="h-5 w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
             <h1 className="text-sm md:text-lg font-semibold truncate">Trading Bot</h1>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted text-xs">
+              <Bot className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Auto-Trade</span>
+              <Switch
+                checked={autoTradeEnabled}
+                onCheckedChange={toggleAutoTrade}
+                data-testid="toggle-auto-trade"
+              />
+            </div>
             <StatusBar
               wsStatus={connectionStatus}
               telegramStatus={telegramStatus}
@@ -115,6 +127,7 @@ export default function Dashboard() {
                   signals={signals}
                   onExecute={executeTrade}
                   onDismiss={dismissSignal}
+                  autoTradeEnabled={autoTradeEnabled}
                 />
               </TabsContent>
 

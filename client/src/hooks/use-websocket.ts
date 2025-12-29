@@ -33,6 +33,8 @@ export function useWebSocket() {
   const [authRequired, setAuthRequired] = useState(false);
   const [authStep, setAuthStep] = useState<'phone' | 'code' | 'password' | 'done'>('phone');
   const [authError, setAuthError] = useState<string | null>(null);
+  const [autoTradeEnabled, setAutoTradeEnabled] = useState(false);
+  const [savedChannelId, setSavedChannelId] = useState<string | null>(null);
 
   useEffect(() => {
     wsClient.connect();
@@ -63,6 +65,10 @@ export function useWebSocket() {
               return prev.map((m) =>
                 m.id === message.message.id ? message.message : m
               );
+            }
+            // Play sound for real-time messages from selected channel
+            if (message.message.isRealtime && message.message.channelId === selectedChannelId) {
+              playNotificationSound();
             }
             return [message.message, ...prev].slice(0, 100);
           });
@@ -120,6 +126,19 @@ export function useWebSocket() {
         case "auth_error":
           setAuthError(message.message);
           break;
+        case "saved_channel":
+          setSavedChannelId(message.channelId);
+          if (message.channelId) {
+            setSelectedChannelId(message.channelId);
+            wsClient.send({ type: "select_channel", channelId: message.channelId });
+          }
+          break;
+        case "auto_trade_enabled":
+          setAutoTradeEnabled(message.enabled);
+          break;
+        case "auto_trade_executed":
+          playNotificationSound();
+          break;
       }
     });
 
@@ -132,6 +151,11 @@ export function useWebSocket() {
     setSelectedChannelId(channelId);
     setMessages([]);
     wsClient.send({ type: "select_channel", channelId });
+    wsClient.send({ type: "save_channel", channelId });
+  }, []);
+
+  const toggleAutoTrade = useCallback((enabled: boolean) => {
+    wsClient.send({ type: "toggle_auto_trade", enabled });
   }, []);
 
   const executeTrade = useCallback(
@@ -205,7 +229,10 @@ export function useWebSocket() {
     authRequired,
     authStep,
     authError,
+    autoTradeEnabled,
+    savedChannelId,
     selectChannel,
+    toggleAutoTrade,
     executeTrade,
     dismissSignal,
     closePosition,
@@ -214,4 +241,26 @@ export function useWebSocket() {
     submitPassword,
     manualTrade,
   };
+}
+
+function playNotificationSound() {
+  try {
+    const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    
+    oscillator.frequency.value = 800;
+    oscillator.type = "sine";
+    
+    gain.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.2);
+  } catch (e) {
+    console.log("Sound notification not available");
+  }
 }
