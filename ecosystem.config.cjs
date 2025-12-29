@@ -2,9 +2,10 @@ module.exports = {
   apps: [
     {
       name: "trading-bot",
-      script: "server.js",
+      script: "dist/index.cjs",
       env: {
         NODE_ENV: "production",
+        PORT: "5000",
       },
       error_file: "./logs/error.log",
       out_file: "./logs/out.log",
