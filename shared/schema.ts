@@ -37,6 +37,7 @@ export interface TelegramMessage {
   aiVerdict?: 'valid_signal' | 'no_signal' | 'analyzing' | 'error';
   verdictDescription?: string;
   parsedSignal?: ParsedSignal | null;
+  isRealtime?: boolean;
 }
 
 // Parsed Trading Signal
@@ -118,6 +119,7 @@ export type WSMessageType =
   | { type: 'new_message'; message: TelegramMessage }
   | { type: 'signal_detected'; signal: ParsedSignal }
   | { type: 'signal_updated'; signal: ParsedSignal }
+  | { type: 'auto_trade_executed'; signal: ParsedSignal; result: { success: boolean; message: string } }
   | { type: 'account_info'; account: TradingAccount }
   | { type: 'positions'; positions: Position[] }
   | { type: 'position_update'; position: Position }
@@ -127,7 +129,9 @@ export type WSMessageType =
   | { type: 'error'; message: string }
   | { type: 'auth_required'; phone?: string }
   | { type: 'auth_step'; step: 'phone' | 'code' | 'password' | 'done'; message?: string }
-  | { type: 'auth_error'; message: string };
+  | { type: 'auth_error'; message: string }
+  | { type: 'saved_channel'; channelId: string | null }
+  | { type: 'auto_trade_enabled'; enabled: boolean };
 
 // Insert schemas for API validation
 export const executeTradeSchema = z.object({
