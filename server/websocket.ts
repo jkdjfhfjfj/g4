@@ -61,12 +61,16 @@ async function handleMessage(ws: WebSocket, data: any) {
       case "select_channel": {
         const messages = await telegram.selectChannel(data.channelId);
         
-        for (const message of messages) {
-          const historicalMessage = { ...message, isRealtime: false };
-          broadcast({ type: "new_message", message: historicalMessage });
+        // Only show last hour of messages (real-time), skip older history
+        const oneHourAgo = Date.now() - 60 * 60 * 1000;
+        const recentMessages = messages.filter(m => new Date(m.timestamp).getTime() > oneHourAgo);
+
+        for (const message of recentMessages) {
+          const realtimeMessage = { ...message, isRealtime: false };
+          broadcast({ type: "new_message", message: realtimeMessage });
         }
 
-        for (const message of messages) {
+        for (const message of recentMessages) {
           processMessage({ ...message, isRealtime: false }, false);
         }
         break;

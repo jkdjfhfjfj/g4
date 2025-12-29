@@ -54,7 +54,7 @@ let lastAccountUpdate = 0;
 let lastPositionsUpdate = 0;
 let lastMarketsUpdate = 0;
 let lastHistoryUpdate = 0;
-const CACHE_TTL = 30000; // 30 seconds to avoid rate limiting
+const CACHE_TTL = 300000; // 5 minutes to stay within free tier rate limits
 
 export function onStatusChange(callback: StatusCallback) {
   statusCallbacks.push(callback);
