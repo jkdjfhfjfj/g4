@@ -14,6 +14,7 @@ import { useEffect, useState } from "react";
 import { Activity, MessageSquare, BarChart3, TrendingUp, History, Wallet, Bot } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 
 export default function Dashboard() {
   const {
@@ -60,40 +61,44 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between gap-2 px-3 py-2 md:px-4 md:py-3 flex-wrap">
-          <div className="flex items-center gap-2 min-w-0">
-            <Activity className="h-5 w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
-            <h1 className="text-sm md:text-lg font-semibold truncate">Trading Bot</h1>
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted text-xs">
-              <Bot className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Auto-Trade</span>
-              <Switch
-                checked={autoTradeEnabled}
-                onCheckedChange={toggleAutoTrade}
-                data-testid="toggle-auto-trade"
-              />
+        <div className="flex flex-col gap-3 px-3 py-2 md:px-4 md:py-3">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <div className="flex items-center gap-2 min-w-0">
+              <Activity className="h-5 w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+              <h1 className="text-sm md:text-lg font-semibold truncate">Trading Bot</h1>
             </div>
-            <StatusBar
-              wsStatus={connectionStatus}
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-2 py-1 rounded-md bg-muted text-xs">
+                <Bot className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Auto-Trade</span>
+                <Switch
+                  checked={autoTradeEnabled}
+                  onCheckedChange={toggleAutoTrade}
+                  data-testid="toggle-auto-trade"
+                />
+              </div>
+              <StatusBar
+                wsStatus={connectionStatus}
+                telegramStatus={telegramStatus}
+                metaapiStatus={metaapiStatus}
+              />
+              <ThemeToggle />
+            </div>
+          </div>
+          <div className="flex items-center gap-2 min-w-0">
+            <ChannelList
+              channels={channels}
+              selectedChannelId={selectedChannelId}
+              onSelectChannel={selectChannel}
               telegramStatus={telegramStatus}
-              metaapiStatus={metaapiStatus}
             />
-            <ThemeToggle />
           </div>
         </div>
       </header>
 
       <div className="flex flex-col md:flex-row gap-0 flex-1 overflow-hidden">
-        <aside className="w-full md:w-72 lg:w-80 md:border-r border-b md:border-b-0 border-border p-3 md:p-4 space-y-3 md:space-y-4 md:overflow-y-auto md:max-h-[calc(100vh-56px)]">
+        <aside className="w-full md:w-72 lg:w-80 md:border-r border-b md:border-b-0 border-border p-3 md:p-4 space-y-3 md:space-y-4 md:overflow-y-auto md:max-h-[calc(100vh-130px)]">
           <AccountInfo account={account} />
-          <ChannelList
-            channels={channels}
-            selectedChannelId={selectedChannelId}
-            onSelectChannel={selectChannel}
-            telegramStatus={telegramStatus}
-          />
         </aside>
 
         <main className="flex-1 p-3 md:p-4 overflow-hidden">

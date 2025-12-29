@@ -184,41 +184,50 @@ async function handleMessage(ws: WebSocket, data: any) {
 
 async function processMessage(message: TelegramMessage, isRealtime: boolean = false) {
   try {
-    const { verdict, verdictDescription, signal } = await analyzeMessage(message);
+    const updatedMessage = { ...message, isRealtime };
     
-    const updatedMessage = { ...message, aiVerdict: verdict, verdictDescription, isRealtime };
-    broadcast({ type: "new_message", message: updatedMessage });
+    // Only analyze real-time messages, skip historical ones
+    if (isRealtime) {
+      const { verdict, verdictDescription, signal } = await analyzeMessage(message);
+      
+      updatedMessage.aiVerdict = verdict;
+      updatedMessage.verdictDescription = verdictDescription;
+      broadcast({ type: "new_message", message: updatedMessage });
 
-    if (signal) {
-      updatedMessage.parsedSignal = signal;
-      signals.set(signal.id, signal);
-      broadcast({ type: "signal_detected", signal });
+      if (signal) {
+        updatedMessage.parsedSignal = signal;
+        signals.set(signal.id, signal);
+        broadcast({ type: "signal_detected", signal });
 
-      if (isRealtime && autoTradeEnabled && signal.confidence >= 0.7) {
-        console.log(`Auto-executing trade for real-time signal: ${signal.symbol} ${signal.direction}`);
-        const result = await metaapi.executeTrade(
-          signal.symbol,
-          signal.direction,
-          DEFAULT_TRADE_VOLUME,
-          signal.stopLoss,
-          signal.takeProfit?.[0]
-        );
+        if (autoTradeEnabled && signal.confidence >= 0.7) {
+          console.log(`Auto-executing trade for real-time signal: ${signal.symbol} ${signal.direction}`);
+          const result = await metaapi.executeTrade(
+            signal.symbol,
+            signal.direction,
+            DEFAULT_TRADE_VOLUME,
+            signal.stopLoss,
+            signal.takeProfit?.[0]
+          );
 
-        if (result.success) {
-          signal.status = "executed";
-          signals.set(signal.id, signal);
-          broadcast({ type: "signal_updated", signal });
-          broadcast({ type: "auto_trade_executed", signal, result });
-        } else {
-          signal.status = "failed";
-          signals.set(signal.id, signal);
-          broadcast({ type: "signal_updated", signal });
-          broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
+          if (result.success) {
+            signal.status = "executed";
+            signals.set(signal.id, signal);
+            broadcast({ type: "signal_updated", signal });
+            broadcast({ type: "auto_trade_executed", signal, result });
+          } else {
+            signal.status = "failed";
+            signals.set(signal.id, signal);
+            broadcast({ type: "signal_updated", signal });
+            broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
+          }
+
+          const positions = await metaapi.getPositions();
+          broadcast({ type: "positions", positions });
         }
-
-        const positions = await metaapi.getPositions();
-        broadcast({ type: "positions", positions });
       }
+    } else {
+      // For historical messages, just broadcast without analysis
+      broadcast({ type: "new_message", message: updatedMessage });
     }
   } catch (error) {
     console.error("Error processing message:", error);
