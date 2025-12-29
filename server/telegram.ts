@@ -137,8 +137,37 @@ export async function initTelegram(): Promise<void> {
     });
 
     // Connect first (establishes connection without auth)
-    await client.connect();
-    console.log("Telegram network connected, checking auth...");
+    try {
+      await client.connect();
+      console.log("Telegram network connected, checking auth...");
+    } catch (connectError: any) {
+      const errorMsg = connectError?.message || String(connectError);
+      
+      // Handle corrupted session (AUTH_KEY_DUPLICATED)
+      if (errorMsg.includes("AUTH_KEY_DUPLICATED")) {
+        console.log("Corrupted session detected, clearing and retrying...");
+        
+        // Clear corrupted session
+        try {
+          fs.unlinkSync(SESSION_FILE);
+        } catch (e) {
+          // File may not exist
+        }
+        
+        // Reset to empty session
+        stringSession = new StringSession("");
+        client = new TelegramClient(stringSession, apiId, apiHash, {
+          connectionRetries: 5,
+          retryDelay: 1000,
+        });
+        
+        // Try connecting again with fresh session
+        await client.connect();
+        console.log("Telegram network connected with fresh session, checking auth...");
+      } else {
+        throw connectError;
+      }
+    }
 
     // Check if already authorized
     const isAuthorized = await client.isUserAuthorized();
