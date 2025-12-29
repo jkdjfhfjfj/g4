@@ -2,8 +2,9 @@ import { TelegramClient, Api } from "telegram";
 import { StringSession } from "telegram/sessions";
 import type { TelegramChannel, TelegramMessage } from "@shared/schema";
 
-const apiId = parseInt(process.env.TELEGRAM_API_ID || "0");
-const apiHash = process.env.TELEGRAM_API_HASH || "";
+// Hardcoded Telegram API credentials
+const apiId = 34108253;
+const apiHash = "dacfc4bfece509097693f6d96d3420b8";
 
 let client: TelegramClient | null = null;
 let stringSession = new StringSession("");
@@ -97,24 +98,10 @@ export function submitPassword(password: string) {
 }
 
 export async function initTelegram(): Promise<void> {
-  const apiIdVal = process.env.TELEGRAM_API_ID?.trim();
-  const apiHashVal = process.env.TELEGRAM_API_HASH?.trim();
-  
-  if (!apiIdVal || !apiHashVal) {
-    console.error("Telegram API credentials not set. Set TELEGRAM_API_ID and TELEGRAM_API_HASH");
-    notifyStatus("disconnected");
-    return;
-  }
-
   try {
-    const parsedApiId = parseInt(apiIdVal);
-    console.log(`DEBUG: Raw TELEGRAM_API_ID length: ${process.env.TELEGRAM_API_ID?.length}`);
-    console.log(`DEBUG: Raw TELEGRAM_API_HASH length: ${process.env.TELEGRAM_API_HASH?.length}`);
-    console.log(`DEBUG: Trimmed API_ID: "${apiIdVal}" (length: ${apiIdVal.length})`);
-    console.log(`DEBUG: Trimmed API_HASH: "${apiHashVal.substring(0, 16)}..." (length: ${apiHashVal.length})`);
-    console.log(`Initializing Telegram with API_ID: ${parsedApiId}, API_HASH: ${apiHashVal.substring(0, 8)}...`);
+    console.log(`Initializing Telegram with API_ID: ${apiId}, API_HASH: ${apiHash.substring(0, 8)}...`);
 
-    client = new TelegramClient(stringSession, parsedApiId, apiHashVal, {
+    client = new TelegramClient(stringSession, apiId, apiHash, {
       connectionRetries: 5,
       retryDelay: 1000,
     });
