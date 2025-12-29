@@ -195,8 +195,8 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredMarkets.map((market) => (
-                    <TableRow key={market.symbol} data-testid={`market-row-${market.symbol}`}>
+                  {filteredMarkets.map((market, index) => (
+                    <TableRow key={`${market.symbol}-${index}`} data-testid={`market-row-${market.symbol}`}>
                       <TableCell className="font-medium text-sm">
                         {market.symbol}
                       </TableCell>

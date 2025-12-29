@@ -21,6 +21,17 @@ type PositionsCallback = (positions: Position[]) => void;
 let statusCallbacks: StatusCallback[] = [];
 let positionsCallbacks: PositionsCallback[] = [];
 
+// Cache to reduce API calls and avoid rate limiting
+let cachedAccount: TradingAccount | null = null;
+let cachedPositions: Position[] = [];
+let cachedMarkets: MarketSymbol[] = [];
+let cachedHistory: TradeHistory[] = [];
+let lastAccountUpdate = 0;
+let lastPositionsUpdate = 0;
+let lastMarketsUpdate = 0;
+let lastHistoryUpdate = 0;
+const CACHE_TTL = 20000; // 20 seconds
+
 export function onStatusChange(callback: StatusCallback) {
   statusCallbacks.push(callback);
   return () => {
@@ -88,12 +99,17 @@ export async function initMetaApi(): Promise<void> {
 
 export async function getAccountInfo(): Promise<TradingAccount | null> {
   if (!connection || !isConnected) {
-    return null;
+    return cachedAccount;
+  }
+
+  const now = Date.now();
+  if (cachedAccount && now - lastAccountUpdate < CACHE_TTL) {
+    return cachedAccount;
   }
 
   try {
     const info = await connection.getAccountInformation();
-    return {
+    cachedAccount = {
       id: accountId,
       name: info.name || "Trading Account",
       login: info.login?.toString() || "",
@@ -106,20 +122,27 @@ export async function getAccountInfo(): Promise<TradingAccount | null> {
       leverage: info.leverage || 100,
       connected: isConnected,
     };
+    lastAccountUpdate = now;
+    return cachedAccount;
   } catch (error) {
     console.error("Failed to get account info:", error);
-    return null;
+    return cachedAccount;
   }
 }
 
 export async function getPositions(): Promise<Position[]> {
   if (!connection || !isConnected) {
-    return [];
+    return cachedPositions;
+  }
+
+  const now = Date.now();
+  if (cachedPositions.length > 0 && now - lastPositionsUpdate < CACHE_TTL) {
+    return cachedPositions;
   }
 
   try {
     const positions = await connection.getPositions();
-    return positions.map((p: any) => ({
+    cachedPositions = positions.map((p: any) => ({
       id: p.id,
       symbol: p.symbol,
       type: p.type === "POSITION_TYPE_BUY" ? "buy" : "sell",
@@ -132,27 +155,29 @@ export async function getPositions(): Promise<Position[]> {
       swap: p.swap || 0,
       openTime: p.time || new Date().toISOString(),
     }));
+    lastPositionsUpdate = now;
+    return cachedPositions;
   } catch (error) {
     console.error("Failed to get positions:", error);
-    return [];
+    return cachedPositions;
   }
 }
 
 export async function getMarkets(): Promise<MarketSymbol[]> {
   if (!connection || !isConnected) {
-    return [];
+    return cachedMarkets;
+  }
+
+  const now = Date.now();
+  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < CACHE_TTL) {
+    return cachedMarkets;
   }
 
   try {
-    // All major forex pairs, metals, and indices (no duplicates)
+    // Top forex pairs (reduced for speed)
     const symbols = [
       "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
-      "EURGBP", "EURJPY", "GBPJPY", "GBPCHF", "EURCHF", "AUDJPY", "CADJPY",
-      "NZDJPY", "EURCAD", "AUDCAD", "AUDNZD", "EURAUD", "EURNZD",
-      "USDRUB", "USDTRY", "USDZAR", "USDMXN", "USDSGD", "USDHKD",
-      "XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD",
-      "US30", "UK100", "DE30", "FR40", "STOXX50",
-      "SPX500", "NGAS", "BRENT", "WTI"
+      "EURGBP", "EURJPY", "GBPJPY", "XAUUSD", "XAGUSD"
     ];
 
     const markets: MarketSymbol[] = [];
@@ -171,29 +196,35 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
           });
         }
       } catch (e) {
-        // Symbol might not be available on this broker
+        // Symbol might not be available
       }
     }
 
-    return markets;
+    cachedMarkets = markets;
+    lastMarketsUpdate = now;
+    return cachedMarkets;
   } catch (error) {
     console.error("Failed to get markets:", error);
-    return [];
+    return cachedMarkets;
   }
 }
 
 export async function getHistory(): Promise<TradeHistory[]> {
   if (!connection || !isConnected) {
-    return [];
+    return cachedHistory;
+  }
+
+  const now = Date.now();
+  if (cachedHistory.length > 0 && now - lastHistoryUpdate < CACHE_TTL * 3) {
+    return cachedHistory;
   }
 
   try {
-    const now = new Date();
-    const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const nowDate = new Date();
+    const thirtyDaysAgo = new Date(nowDate.getTime() - 30 * 24 * 60 * 60 * 1000);
 
-    const deals = await connection.getDealsByTimeRange(thirtyDaysAgo, now);
+    const deals = await connection.getDealsByTimeRange(thirtyDaysAgo, nowDate);
 
-    // Group deals by position to get complete trades
     const trades: TradeHistory[] = [];
 
     for (const deal of (deals || []).slice(-50)) {
@@ -214,10 +245,12 @@ export async function getHistory(): Promise<TradeHistory[]> {
       }
     }
 
-    return trades.reverse();
+    cachedHistory = trades.reverse();
+    lastHistoryUpdate = now;
+    return cachedHistory;
   } catch (error) {
     console.error("Failed to get history:", error);
-    return [];
+    return cachedHistory;
   }
 }
 
