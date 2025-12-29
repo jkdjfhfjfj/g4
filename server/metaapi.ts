@@ -123,18 +123,8 @@ export async function initMetaApi(): Promise<void> {
     notifyStatus("connected");
     console.log("MetaAPI connected successfully");
 
-    // Set up real-time updates: positions every 1 second, markets every 2 seconds
-    setInterval(async () => {
-      if (isConnected) {
-        try {
-          const positions = await getPositions();
-          notifyPositions(positions);
-        } catch (e) {
-          // Silently handle rate limits
-        }
-      }
-    }, 1000);
-
+    // Set up real-time updates with respect for rate limits (every 60 seconds)
+    // Markets fetch every 60 seconds to avoid rate limiting
     setInterval(async () => {
       if (isConnected) {
         try {
@@ -146,7 +136,7 @@ export async function initMetaApi(): Promise<void> {
           // Silently handle rate limits
         }
       }
-    }, 2000);
+    }, 60000);
   } catch (error) {
     console.error("Failed to connect to MetaAPI:", error);
     isConnected = false;
