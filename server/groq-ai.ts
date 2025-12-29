@@ -91,45 +91,53 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
     return { verdict: "no_signal", signal: null };
   }
 
-  let analysis: SignalAnalysis | null = null;
-
-  // Try each model until one succeeds
-  for (const model of MODELS) {
-    analysis = await tryAnalyzeWithModel(model, message.text);
-    if (analysis !== null) {
-      console.log(`Successfully analyzed with model: ${model}`);
-      break;
-    }
-  }
-
-  if (!analysis) {
-    console.error("All models failed to analyze message");
+  if (!process.env.GROQ_API_KEY) {
+    console.error("GROQ_API_KEY not set");
     return { verdict: "error", signal: null };
   }
 
-  if (!analysis.isSignal || !analysis.symbol || !analysis.direction) {
-    return { verdict: "no_signal", signal: null };
+  let analysis: SignalAnalysis | null = null;
+
+  try {
+    for (const model of MODELS) {
+      analysis = await tryAnalyzeWithModel(model, message.text);
+      if (analysis !== null) {
+        console.log(`Successfully analyzed with model: ${model}`);
+        break;
+      }
+    }
+
+    if (!analysis) {
+      console.error("All models failed to analyze message");
+      return { verdict: "error", signal: null };
+    }
+
+    if (!analysis.isSignal || !analysis.symbol || !analysis.direction) {
+      return { verdict: "no_signal", signal: null };
+    }
+
+    const normalizedSymbol = analysis.symbol
+      .replace(/[\/\s-]/g, "")
+      .toUpperCase();
+
+    const signal: ParsedSignal = {
+      id: randomUUID(),
+      messageId: message.id,
+      channelId: message.channelId,
+      symbol: normalizedSymbol,
+      direction: analysis.direction,
+      entryPrice: analysis.entryPrice || undefined,
+      stopLoss: analysis.stopLoss || undefined,
+      takeProfit: analysis.takeProfit || undefined,
+      confidence: analysis.confidence,
+      timestamp: new Date().toISOString(),
+      status: "pending",
+      rawMessage: message.text,
+    };
+
+    return { verdict: "valid_signal", signal };
+  } catch (error: any) {
+    console.error("Message analysis failed:", error?.message || error);
+    return { verdict: "error", signal: null };
   }
-
-  // Normalize symbol (remove slashes, spaces)
-  const normalizedSymbol = analysis.symbol
-    .replace(/[\/\s-]/g, "")
-    .toUpperCase();
-
-  const signal: ParsedSignal = {
-    id: randomUUID(),
-    messageId: message.id,
-    channelId: message.channelId,
-    symbol: normalizedSymbol,
-    direction: analysis.direction,
-    entryPrice: analysis.entryPrice || undefined,
-    stopLoss: analysis.stopLoss || undefined,
-    takeProfit: analysis.takeProfit || undefined,
-    confidence: analysis.confidence,
-    timestamp: new Date().toISOString(),
-    status: "pending",
-    rawMessage: message.text,
-  };
-
-  return { verdict: "valid_signal", signal };
 }

@@ -27,20 +27,26 @@ export function ChannelList({
       channel.username?.toLowerCase().includes(search.toLowerCase())
   );
 
+  // Auto-select first channel when available
+  if (channels.length > 0 && !selectedChannelId && channels[0]?.id) {
+    setTimeout(() => onSelectChannel(channels[0].id), 100);
+  }
+
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-3">
         <CardTitle className="text-sm font-medium flex items-center gap-2">
           <MessageSquare className="h-4 w-4" />
-          Telegram Channels
+          <span className="hidden sm:inline">Channels</span>
+          <span className="sm:hidden">Ch</span>
         </CardTitle>
         <div className="relative mt-2">
           <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Search channels..."
+            placeholder="Search..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-8"
+            className="pl-8 text-sm"
             data-testid="input-channel-search"
           />
         </div>

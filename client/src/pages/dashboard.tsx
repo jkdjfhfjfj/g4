@@ -51,24 +51,26 @@ export default function Dashboard() {
   }, [error, toast]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <header className="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="flex items-center justify-between gap-4 px-4 py-3 flex-wrap">
-          <div className="flex items-center gap-3">
-            <Activity className="h-6 w-6 text-primary" />
-            <h1 className="text-lg font-semibold">Trading Bot</h1>
+        <div className="flex items-center justify-between gap-2 px-3 py-2 md:px-4 md:py-3 flex-wrap">
+          <div className="flex items-center gap-2 min-w-0">
+            <Activity className="h-5 w-5 md:h-6 md:w-6 text-primary flex-shrink-0" />
+            <h1 className="text-sm md:text-lg font-semibold truncate">Trading Bot</h1>
           </div>
-          <StatusBar
-            wsStatus={connectionStatus}
-            telegramStatus={telegramStatus}
-            metaapiStatus={metaapiStatus}
-          />
-          <ThemeToggle />
+          <div className="flex items-center gap-2">
+            <StatusBar
+              wsStatus={connectionStatus}
+              telegramStatus={telegramStatus}
+              metaapiStatus={metaapiStatus}
+            />
+            <ThemeToggle />
+          </div>
         </div>
       </header>
 
-      <div className="flex flex-col lg:flex-row">
-        <aside className="w-full lg:w-80 border-r border-border p-4 space-y-4">
+      <div className="flex flex-col md:flex-row gap-4 md:gap-0 flex-1 overflow-hidden">
+        <aside className="w-full md:w-80 md:border-r border-b md:border-b-0 border-border p-3 md:p-4 space-y-3 md:space-y-4 md:overflow-y-auto">
           <AccountInfo account={account} />
           <ChannelList
             channels={channels}
@@ -78,9 +80,9 @@ export default function Dashboard() {
           />
         </aside>
 
-        <main className="flex-1 p-4">
-          <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-            <div className="space-y-4">
+        <main className="flex-1 p-3 md:p-4 overflow-y-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 auto-rows-max md:auto-rows-auto">
+            <div className="space-y-3 md:space-y-4">
               <SignalCards
                 signals={signals}
                 onExecute={executeTrade}
@@ -92,7 +94,7 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <PositionsPanel
                 positions={positions}
                 onClosePosition={closePosition}

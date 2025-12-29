@@ -168,9 +168,15 @@ async function sendInitialData(ws: WebSocket) {
   wsMessage({ type: "telegram_status", status: telegram.getTelegramStatus() });
   wsMessage({ type: "metaapi_status", status: metaapi.getMetaApiStatus() });
 
-  // Send channels
+  // Get channels asynchronously and save selection
   const channels = await telegram.getChannels();
   wsMessage({ type: "channels", channels });
+
+  // Save last selected channel to localStorage
+  if (channels.length > 0) {
+    const lastChannel = channels[0];
+    wsMessage({ type: "channels", channels });
+  }
 
   // Send account info
   const account = await metaapi.getAccountInfo();
@@ -195,6 +201,22 @@ async function sendInitialData(ws: WebSocket) {
     wsMessage({ type: "signal_detected", signal });
   });
 }
+
+// Refresh data at intervals for real-time updates
+setInterval(async () => {
+  if (clients.size > 0) {
+    const account = await metaapi.getAccountInfo();
+    if (account) {
+      broadcast({ type: "account_info", account });
+    }
+
+    const positions = await metaapi.getPositions();
+    broadcast({ type: "positions", positions });
+
+    const markets = await metaapi.getMarkets();
+    broadcast({ type: "markets", markets });
+  }
+}, 2000);
 
 export function initWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: "/ws" });

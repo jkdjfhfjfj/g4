@@ -144,20 +144,15 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   try {
-    // Get common forex pairs
+    // All major forex pairs, metals, and indices
     const symbols = [
-      "EURUSD",
-      "GBPUSD",
-      "USDJPY",
-      "USDCHF",
-      "AUDUSD",
-      "USDCAD",
-      "NZDUSD",
-      "EURGBP",
-      "EURJPY",
-      "GBPJPY",
-      "XAUUSD",
-      "XAGUSD",
+      "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
+      "EURGBP", "EURJPY", "GBPJPY", "GBPCHF", "EURCHF", "AUDJPY", "CADJPY",
+      "NZDJPY", "EURCAD", "AUDCAD", "AUDNZD", "EURAUD", "EURNZD", "NZDUSD",
+      "USDRUB", "USDTRY", "USDZAR", "USDMXN", "USDINR", "USDSGD", "USDHKD",
+      "XAUUSD", "XAGUSD", "XPTUSD", "XPDUSD",
+      "US30", "UK100", "DE30", "FR40", "STOXX50", "IBEX35",
+      "SPX500", "VIX", "NGAS", "BRENT", "WTI"
     ];
 
     const markets: MarketSymbol[] = [];
@@ -176,7 +171,7 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
           });
         }
       } catch (e) {
-        // Symbol might not be available
+        // Symbol might not be available on this broker
       }
     }
 

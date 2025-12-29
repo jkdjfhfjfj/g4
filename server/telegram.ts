@@ -76,17 +76,28 @@ export function submitPassword(password: string) {
 }
 
 export async function initTelegram(): Promise<void> {
-  if (!apiId || !apiHash) {
-    console.error("Telegram API credentials not set");
+  const apiIdVal = process.env.TELEGRAM_API_ID;
+  const apiHashVal = process.env.TELEGRAM_API_HASH;
+  
+  if (!apiIdVal || !apiHashVal) {
+    console.error("Telegram API credentials not set. Set TELEGRAM_API_ID and TELEGRAM_API_HASH");
     notifyStatus("disconnected");
     return;
   }
 
   try {
     notifyStatus("connecting");
+    const parsedApiId = parseInt(apiIdVal);
 
-    client = new TelegramClient(stringSession, apiId, apiHash, {
+    client = new TelegramClient(stringSession, parsedApiId, apiHashVal, {
       connectionRetries: 5,
+      retryDelay: 1000,
+      baseLogger: {
+        debug: (msg: string) => console.debug("[TG]", msg),
+        info: (msg: string) => console.info("[TG]", msg),
+        warning: (msg: string) => console.warn("[TG]", msg),
+        error: (msg: string) => console.error("[TG]", msg),
+      },
     });
 
     await client.start({
@@ -116,12 +127,9 @@ export async function initTelegram(): Promise<void> {
 
     isConnected = true;
     notifyStatus("connected");
+    console.log("Telegram client connected successfully");
 
-    // Save session for later
-    const sessionString = client.session.save() as unknown as string;
-    console.log("Telegram session saved (length):", sessionString?.length || 0);
-
-    // Add message handler
+    // Add message handler for real-time messages
     client.addEventHandler(async (update: Api.TypeUpdate) => {
       if (update instanceof Api.UpdateNewChannelMessage) {
         const message = update.message;
@@ -142,10 +150,8 @@ export async function initTelegram(): Promise<void> {
         }
       }
     });
-
-    console.log("Telegram client connected successfully");
-  } catch (error) {
-    console.error("Failed to connect to Telegram:", error);
+  } catch (error: any) {
+    console.error("Failed to connect to Telegram:", error?.message || error);
     isConnected = false;
     notifyStatus("disconnected");
   }
