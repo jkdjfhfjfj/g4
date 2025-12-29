@@ -90,6 +90,15 @@ The AI analyzes messages and returns:
   - Session saved to `.telegram_session` file after successful auth
   - Session loaded on startup for persistent connection across restarts
   - File excluded from version control via .gitignore
+- Fixed production build static file serving (Dec 29, 2025)
+  - Updated static.ts to use `__dirname` for CJS compatibility
+  - Production build creates dist/public (frontend) and dist/index.cjs (backend)
+  - PM2 ecosystem.config.cjs runs bundle with NODE_ENV=production
+- Fixed AUTH_KEY_DUPLICATED session corruption (Dec 29, 2025)
+  - Added error handling during Telegram client connection
+  - Detects and clears corrupted .telegram_session file automatically
+  - Reinitializes client with fresh session and retries connection
+  - User gets authentication dialog as expected
 
 ## User Preferences
 - Dark mode by default
