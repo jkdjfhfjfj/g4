@@ -1,13 +1,42 @@
 import { TelegramClient, Api } from "telegram";
 import { StringSession } from "telegram/sessions";
 import type { TelegramChannel, TelegramMessage } from "@shared/schema";
+import * as fs from "fs";
+import * as path from "path";
 
-// Hardcoded Telegram API credentials
-const apiId = 34108253;
-const apiHash = "dacfc4bfece509097693f6d96d3420b8";
+// Telegram API credentials from environment variables
+const apiId = parseInt(process.env.TELEGRAM_API_ID || "0", 10);
+const apiHash = process.env.TELEGRAM_API_HASH || "";
+
+// Session persistence
+const SESSION_FILE = path.join(process.cwd(), ".telegram_session");
+
+function loadSession(): string {
+  try {
+    if (fs.existsSync(SESSION_FILE)) {
+      const saved = fs.readFileSync(SESSION_FILE, "utf-8").trim();
+      if (saved) {
+        console.log("Loaded existing Telegram session");
+        return saved;
+      }
+    }
+  } catch (e) {
+    console.log("No saved session found");
+  }
+  return "";
+}
+
+function saveSession(session: string) {
+  try {
+    fs.writeFileSync(SESSION_FILE, session, "utf-8");
+    console.log("Telegram session saved");
+  } catch (e) {
+    console.error("Failed to save session:", e);
+  }
+}
 
 let client: TelegramClient | null = null;
-let stringSession = new StringSession("");
+let stringSession = new StringSession(loadSession());
 let isConnected = false;
 let selectedChannelId: string | null = null;
 let currentStatus: "connected" | "disconnected" | "connecting" | "needs_auth" = "disconnected";
@@ -161,6 +190,11 @@ export async function initTelegram(): Promise<void> {
         currentAuthStep = null;
         notifyStatus("connected");
         console.log("Telegram authenticated successfully");
+        // Save session for persistence
+        if (client) {
+          const sessionString = client.session.save() as unknown as string;
+          saveSession(sessionString);
+        }
         setupMessageHandler();
       }).catch((err) => {
         console.error("Telegram auth failed:", err);

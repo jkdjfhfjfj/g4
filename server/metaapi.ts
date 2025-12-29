@@ -272,7 +272,7 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
 }
 
 export async function getHistory(): Promise<TradeHistory[]> {
-  if (!connection || !isConnected || !account) {
+  if (!connection || !isConnected) {
     return cachedHistory;
   }
 
@@ -283,36 +283,19 @@ export async function getHistory(): Promise<TradeHistory[]> {
 
   try {
     const nowDate = new Date();
-    const thirtyDaysAgo = new Date(nowDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+    const sevenDaysAgo = new Date(nowDate.getTime() - 7 * 24 * 60 * 60 * 1000);
 
-    // Try multiple methods to get history
+    // Use RPC connection getDealsByTimeRange with shorter range to reduce load
     let deals: any[] = [];
     
-    // Method 1: Try RPC connection getDealsByTimeRange
     try {
-      const rpcDeals = await connection.getDealsByTimeRange(thirtyDaysAgo, nowDate);
+      const rpcDeals = await connection.getDealsByTimeRange(sevenDaysAgo, nowDate);
       if (rpcDeals && rpcDeals.length > 0) {
         deals = rpcDeals;
         console.log(`Got ${deals.length} deals from RPC connection`);
       }
-    } catch (e) {
-      console.log("RPC getDealsByTimeRange failed, trying REST API");
-    }
-
-    // Method 2: Try account REST API if RPC fails
-    if (deals.length === 0) {
-      try {
-        const restDeals = await account.getHistoryDealsByTimeRange(
-          thirtyDaysAgo.toISOString(),
-          nowDate.toISOString()
-        );
-        if (restDeals && restDeals.length > 0) {
-          deals = restDeals;
-          console.log(`Got ${deals.length} deals from REST API`);
-        }
-      } catch (e) {
-        console.log("REST getHistoryDealsByTimeRange failed");
-      }
+    } catch (e: any) {
+      console.log("getDealsByTimeRange not available:", e.message?.substring(0, 50));
     }
 
     const trades: TradeHistory[] = [];
