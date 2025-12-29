@@ -99,9 +99,12 @@ function notifyAuth(type: "phone" | "code" | "password") {
 
 function notifyAuthError(message: string) {
   authErrorCallbacks.forEach((cb) => cb(message));
-  // Re-emit current step so dialog can retry
-  if (currentAuthStep) {
-    setTimeout(() => notifyAuth(currentAuthStep!), 100);
+  // Don't re-emit on flood errors - let the user wait
+  if (!message.includes("FLOOD") && !message.includes("PHONE_PASSWORD")) {
+    // Re-emit current step so dialog can retry after other errors
+    if (currentAuthStep) {
+      setTimeout(() => notifyAuth(currentAuthStep!), 500);
+    }
   }
 }
 
@@ -172,9 +175,17 @@ export async function initTelegram(): Promise<void> {
             codeResolver = resolve;
           });
         },
-        onError: (err) => {
+        onError: (err: any) => {
           console.error("Telegram auth error:", err);
           const errorMessage = err instanceof Error ? err.message : String(err);
+          
+          // Check for flood wait errors and extract wait time
+          if (err?.seconds) {
+            const waitSeconds = err.seconds;
+            const userMessage = `Too many login attempts. Please wait ${waitSeconds} seconds before trying again.`;
+            notifyAuthError(userMessage);
+            return;
+          }
           
           // Helpful message for common errors
           if (errorMessage.includes("API_ID_INVALID")) {
