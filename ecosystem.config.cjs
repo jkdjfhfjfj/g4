@@ -2,8 +2,8 @@ module.exports = {
   apps: [
     {
       name: "trading-bot",
-      script: "./server/index.ts",
-      interpreter: "tsx",
+      script: "npm",
+      args: "run dev",
       env: {
         NODE_ENV: "production",
       },
