@@ -4,9 +4,9 @@ import type { TelegramChannel, TelegramMessage } from "@shared/schema";
 import * as fs from "fs";
 import * as path from "path";
 
-// Telegram API credentials from environment variables
-const apiId = parseInt(process.env.TELEGRAM_API_ID || "0", 10);
-const apiHash = process.env.TELEGRAM_API_HASH || "";
+// Telegram API credentials (hardcoded)
+const apiId = 34108253;
+const apiHash = "dacfc4bfece509097693f6d96d3420b8";
 
 // Session persistence
 const SESSION_FILE = path.join(process.cwd(), ".telegram_session");
