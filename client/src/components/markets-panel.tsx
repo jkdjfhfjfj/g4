@@ -20,7 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BarChart3, TrendingUp, TrendingDown, Search } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, Search, RefreshCw } from "lucide-react";
 import type { MarketSymbol } from "@shared/schema";
 
 interface MarketsPanelProps {
@@ -58,6 +58,8 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
 
   if (!symbol) return null;
 
+  const midPrice = (symbol.bid + symbol.ask) / 2;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent>
@@ -71,7 +73,7 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
             {direction} {symbol.symbol}
           </DialogTitle>
           <DialogDescription>
-            {direction === "BUY" ? `Ask: ${symbol.ask}` : `Bid: ${symbol.bid}`}
+            Mid: {midPrice.toFixed(symbol.digits)}, Spread: {symbol.spread.toFixed(symbol.digits + 1)}
           </DialogDescription>
         </DialogHeader>
         <div className="grid gap-4 py-4">
@@ -98,7 +100,7 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
             <Input
               id="stopLoss"
               type="number"
-              step="0.00001"
+              step={`0.${'0'.repeat(symbol.digits - 1)}1`}
               value={stopLoss}
               onChange={(e) => setStopLoss(e.target.value)}
               placeholder="Optional"
@@ -113,7 +115,7 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
             <Input
               id="takeProfit"
               type="number"
-              step="0.00001"
+              step={`0.${'0'.repeat(symbol.digits - 1)}1`}
               value={takeProfit}
               onChange={(e) => setTakeProfit(e.target.value)}
               placeholder="Optional"
@@ -133,7 +135,7 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
                 ? "bg-success text-success-foreground"
                 : "bg-destructive text-destructive-foreground"
             }
-            data-testid="button-confirm-market-trade"
+            data-testid="button-market-trade-execute"
           >
             {direction}
           </Button>
@@ -144,92 +146,104 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
 }
 
 export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
-  const [search, setSearch] = useState("");
-  const [tradeSymbol, setTradeSymbol] = useState<MarketSymbol | null>(null);
+  const [selectedSymbol, setSelectedSymbol] = useState<MarketSymbol | null>(null);
   const [tradeDirection, setTradeDirection] = useState<"BUY" | "SELL">("BUY");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const filteredMarkets = markets.filter((m) =>
-    m.symbol.toLowerCase().includes(search.toLowerCase())
+    m.symbol.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleOpenTrade = (symbol: MarketSymbol, direction: "BUY" | "SELL") => {
-    setTradeSymbol(symbol);
+  const handleTrade = (symbol: MarketSymbol, direction: "BUY" | "SELL") => {
+    setSelectedSymbol(symbol);
     setTradeDirection(direction);
+    setDialogOpen(true);
+  };
+
+  const handleExecuteTrade = (volume: number, stopLoss?: number, takeProfit?: number) => {
+    if (selectedSymbol) {
+      onTrade(selectedSymbol.symbol, tradeDirection, volume, stopLoss, takeProfit);
+      setDialogOpen(false);
+    }
   };
 
   return (
     <>
       <Card className="h-full flex flex-col">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Markets
-          </CardTitle>
-          <div className="relative mt-2">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search markets..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="pl-8"
-              data-testid="input-market-search"
-            />
+          <div className="flex items-center justify-between gap-2 flex-wrap">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Market Symbols ({markets.length})
+            </CardTitle>
+            <div className="flex-1 max-w-xs">
+              <div className="relative">
+                <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 h-8 text-xs"
+                  data-testid="input-market-search"
+                />
+              </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent className="flex-1 p-0 overflow-hidden">
           {markets.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-40 px-4 text-center">
-              <BarChart3 className="h-8 w-8 text-muted-foreground mb-2" />
-              <p className="text-sm text-muted-foreground">Loading markets...</p>
+              <RefreshCw className="h-8 w-8 text-muted-foreground mb-2 animate-spin" />
+              <p className="text-sm text-muted-foreground">Loading market data...</p>
             </div>
           ) : (
-            <ScrollArea className="h-[calc(100vh-320px)] min-h-[200px] max-h-[400px]">
+            <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px]">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-background">
                   <TableRow>
                     <TableHead className="text-xs">Symbol</TableHead>
                     <TableHead className="text-xs text-right">Bid</TableHead>
                     <TableHead className="text-xs text-right">Ask</TableHead>
                     <TableHead className="text-xs text-right">Spread</TableHead>
-                    <TableHead className="text-xs"></TableHead>
+                    <TableHead className="text-xs">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredMarkets.map((market, index) => (
-                    <TableRow key={`${market.symbol}-${index}`} data-testid={`market-row-${market.symbol}`}>
-                      <TableCell className="font-medium text-sm">
+                  {filteredMarkets.map((market) => (
+                    <TableRow key={market.symbol} data-testid={`market-row-${market.symbol}`}>
+                      <TableCell className="font-mono font-medium text-sm">
                         {market.symbol}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-sm text-destructive">
+                      <TableCell className="text-right font-mono text-sm text-muted-foreground">
                         {market.bid.toFixed(market.digits)}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-sm text-success">
+                      <TableCell className="text-right font-mono text-sm text-muted-foreground">
                         {market.ask.toFixed(market.digits)}
                       </TableCell>
-                      <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                        {(market.spread * Math.pow(10, market.digits - 1)).toFixed(1)}
+                      <TableCell className="text-right font-mono text-xs">
+                        <span className="text-warning font-medium">
+                          {market.spread.toFixed(market.digits + 1)}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center gap-1">
                           <Button
                             size="sm"
-                            variant="ghost"
-                            className="h-7 px-2 text-xs text-success"
-                            onClick={() => handleOpenTrade(market, "BUY")}
+                            className="h-7 px-2 bg-success text-success-foreground text-xs"
+                            onClick={() => handleTrade(market, "BUY")}
                             data-testid={`button-buy-${market.symbol}`}
                           >
-                            <TrendingUp className="h-3 w-3 mr-1" />
-                            Buy
+                            <TrendingUp className="h-3 w-3" />
                           </Button>
                           <Button
                             size="sm"
-                            variant="ghost"
-                            className="h-7 px-2 text-xs text-destructive"
-                            onClick={() => handleOpenTrade(market, "SELL")}
+                            variant="destructive"
+                            className="h-7 px-2 text-xs"
+                            onClick={() => handleTrade(market, "SELL")}
                             data-testid={`button-sell-${market.symbol}`}
                           >
-                            <TrendingDown className="h-3 w-3 mr-1" />
-                            Sell
+                            <TrendingDown className="h-3 w-3" />
                           </Button>
                         </div>
                       </TableCell>
@@ -243,13 +257,11 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
       </Card>
 
       <TradeDialog
-        symbol={tradeSymbol}
+        symbol={selectedSymbol}
         direction={tradeDirection}
-        open={!!tradeSymbol}
-        onClose={() => setTradeSymbol(null)}
-        onTrade={(volume, stopLoss, takeProfit) =>
-          tradeSymbol && onTrade(tradeSymbol.symbol, tradeDirection, volume, stopLoss, takeProfit)
-        }
+        open={dialogOpen}
+        onClose={() => setDialogOpen(false)}
+        onTrade={handleExecuteTrade}
       />
     </>
   );

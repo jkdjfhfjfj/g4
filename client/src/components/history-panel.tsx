@@ -9,7 +9,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { History, TrendingUp, TrendingDown } from "lucide-react";
+import { History, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import type { TradeHistory } from "@shared/schema";
 import { format } from "date-fns";
 
@@ -20,7 +20,11 @@ interface HistoryPanelProps {
 export function HistoryPanel({ trades }: HistoryPanelProps) {
   const totalProfit = trades.reduce((sum, t) => sum + t.profit, 0);
   const winningTrades = trades.filter((t) => t.profit > 0).length;
+  const losingTrades = trades.filter((t) => t.profit < 0).length;
   const winRate = trades.length > 0 ? (winningTrades / trades.length) * 100 : 0;
+  const totalVolume = trades.reduce((sum, t) => sum + t.volume, 0);
+  const avgProfit = trades.length > 0 ? totalProfit / trades.length : 0;
+  const totalCommission = trades.reduce((sum, t) => sum + t.commission, 0);
 
   return (
     <Card className="h-full flex flex-col">
@@ -28,32 +32,64 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
         <div className="flex items-center justify-between gap-2 flex-wrap">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <History className="h-4 w-4" />
-            Trade History
+            Trade History ({trades.length})
           </CardTitle>
-          <div className="flex items-center gap-3">
-            <div className="text-xs text-muted-foreground">
-              Win Rate: <span className="font-medium text-foreground">{winRate.toFixed(1)}%</span>
-            </div>
-            <span
-              className={`text-sm font-medium font-mono ${
-                totalProfit >= 0 ? "text-success" : "text-destructive"
-              }`}
+          <div className="flex items-center gap-2 text-xs">
+            <Badge variant="outline" className="font-mono">
+              Wins: {winningTrades}/{trades.length}
+            </Badge>
+            <Badge
+              variant={totalProfit >= 0 ? "default" : "destructive"}
+              className="font-mono"
             >
-              {totalProfit >= 0 ? "+" : ""}${totalProfit.toFixed(2)}
-            </span>
+              P/L: {totalProfit >= 0 ? "+" : ""}{totalProfit.toFixed(2)}
+            </Badge>
           </div>
         </div>
       </CardHeader>
+
+      {/* Statistics Row */}
+      {trades.length > 0 && (
+        <div className="px-4 py-2 bg-card border-b border-border grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs">
+          <div>
+            <p className="text-muted-foreground">Win Rate</p>
+            <p className="font-semibold text-foreground">{winRate.toFixed(1)}%</p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Avg Trade</p>
+            <p className={`font-semibold ${avgProfit >= 0 ? "text-success" : "text-destructive"}`}>
+              {avgProfit >= 0 ? "+" : ""}{avgProfit.toFixed(2)}
+            </p>
+          </div>
+          <div>
+            <p className="text-muted-foreground">Volume</p>
+            <p className="font-semibold font-mono">{totalVolume.toFixed(2)}</p>
+          </div>
+          <div className="hidden sm:block">
+            <p className="text-muted-foreground">Wins</p>
+            <p className="font-semibold text-success">{winningTrades}</p>
+          </div>
+          <div className="hidden sm:block">
+            <p className="text-muted-foreground">Losses</p>
+            <p className="font-semibold text-destructive">{losingTrades}</p>
+          </div>
+          <div className="hidden sm:block">
+            <p className="text-muted-foreground">Commission</p>
+            <p className="font-mono font-semibold">{totalCommission.toFixed(2)}</p>
+          </div>
+        </div>
+      )}
+
       <CardContent className="flex-1 p-0 overflow-hidden">
         {trades.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-40 px-4 text-center">
-            <History className="h-8 w-8 text-muted-foreground mb-2" />
+            <BarChart3 className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">No trade history</p>
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px]">
+          <ScrollArea className="h-[calc(100vh-400px)] min-h-[150px] max-h-[300px]">
             <Table>
-              <TableHeader>
+              <TableHeader className="sticky top-0 bg-background">
                 <TableRow>
                   <TableHead className="text-xs">Date</TableHead>
                   <TableHead className="text-xs">Symbol</TableHead>
@@ -61,50 +97,52 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
                   <TableHead className="text-xs text-right">Volume</TableHead>
                   <TableHead className="text-xs text-right">Entry</TableHead>
                   <TableHead className="text-xs text-right">Exit</TableHead>
-                  <TableHead className="text-xs text-right">Result</TableHead>
+                  <TableHead className="text-xs text-right">P/L</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {trades.map((trade) => (
                   <TableRow key={trade.id} data-testid={`history-row-${trade.id}`}>
                     <TableCell className="text-xs text-muted-foreground">
-                      {format(new Date(trade.closeTime), "MMM d, HH:mm")}
+                      {format(new Date(trade.closeTime), "MMM d HH:mm")}
                     </TableCell>
-                    <TableCell className="font-medium text-sm">
+                    <TableCell className="font-mono font-semibold text-sm">
                       {trade.symbol}
                     </TableCell>
                     <TableCell>
                       <Badge
                         variant={trade.type === "buy" ? "default" : "destructive"}
-                        className={`text-xs ${
+                        className={`text-xs flex w-fit ${
                           trade.type === "buy"
                             ? "bg-success text-success-foreground"
                             : ""
                         }`}
+                        data-testid={`badge-trade-type-${trade.id}`}
                       >
                         {trade.type === "buy" ? (
-                          <TrendingUp className="h-3 w-3 mr-1" />
+                          <TrendingUp className="h-2.5 w-2.5 mr-1" />
                         ) : (
-                          <TrendingDown className="h-3 w-3 mr-1" />
+                          <TrendingDown className="h-2.5 w-2.5 mr-1" />
                         )}
                         {trade.type.toUpperCase()}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
-                      {trade.volume}
+                    <TableCell className="text-right font-mono text-xs">
+                      {trade.volume.toFixed(2)}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
+                    <TableCell className="text-right font-mono text-xs">
                       {trade.openPrice.toFixed(5)}
                     </TableCell>
-                    <TableCell className="text-right font-mono text-sm">
+                    <TableCell className="text-right font-mono text-xs">
                       {trade.closePrice.toFixed(5)}
                     </TableCell>
                     <TableCell
-                      className={`text-right font-mono text-sm font-medium ${
+                      className={`text-right font-mono text-xs font-semibold ${
                         trade.profit >= 0 ? "text-success" : "text-destructive"
                       }`}
+                      data-testid={`text-profit-${trade.id}`}
                     >
-                      {trade.profit >= 0 ? "+" : ""}${trade.profit.toFixed(2)}
+                      {trade.profit >= 0 ? "+" : ""}{trade.profit.toFixed(2)}
                     </TableCell>
                   </TableRow>
                 ))}

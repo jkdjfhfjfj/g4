@@ -63,7 +63,7 @@ async function handleMessage(ws: WebSocket, data: any) {
         
         // Only show last hour of messages (real-time), skip older history
         const oneHourAgo = Date.now() - 60 * 60 * 1000;
-        const recentMessages = messages.filter(m => new Date(m.timestamp).getTime() > oneHourAgo);
+        const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
         for (const message of recentMessages) {
           const realtimeMessage = { ...message, isRealtime: false };
@@ -292,12 +292,12 @@ async function sendInitialData(ws: WebSocket) {
   });
 }
 
-// Refresh data at intervals for real-time updates (15 seconds to avoid rate limits)
+// Refresh data at intervals for real-time updates (every 30 seconds)
 let lastRefresh = 0;
 setInterval(async () => {
   if (clients.size > 0) {
     const now = Date.now();
-    if (now - lastRefresh < 15000) return;
+    if (now - lastRefresh < 30000) return;
     lastRefresh = now;
     
     try {
@@ -309,13 +309,24 @@ setInterval(async () => {
       const positions = await metaapi.getPositions();
       broadcast({ type: "positions", positions });
 
+      // Always refresh markets - important for trading
+      console.log("Refreshing market data...");
       const markets = await metaapi.getMarkets();
-      broadcast({ type: "markets", markets });
+      if (markets.length > 0) {
+        broadcast({ type: "markets", markets });
+      } else {
+        console.warn("No markets returned from MetaAPI");
+      }
+
+      const history = await metaapi.getHistory();
+      if (history.length > 0) {
+        broadcast({ type: "history", trades: history });
+      }
     } catch (error) {
       console.error("Refresh error:", error);
     }
   }
-}, 15000);
+}, 30000);
 
 export function initWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: "/ws" });
