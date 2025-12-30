@@ -297,6 +297,18 @@ metaapi.onPositionsUpdate((positions) => {
   broadcast({ type: "positions", positions });
 });
 
+// Periodic history fetch every 2 minutes
+setInterval(async () => {
+  if (clients.size > 0) {
+    try {
+      const history = await metaapi.getHistory();
+      broadcast({ type: "history", trades: history });
+    } catch (e) {
+      console.log("History fetch error:", e);
+    }
+  }
+}, 120000);
+
 export function initWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: "/ws" });
 
