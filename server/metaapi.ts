@@ -143,8 +143,8 @@ export async function initMetaApi(): Promise<void> {
       console.log("Symbol caching not available, will use fallback list");
     }
 
-    // Set up real-time updates with respect for rate limits (every 5 seconds)
-    // Markets fetch every 5 seconds for live updates
+    // Set up real-time updates with respect for rate limits (every 60 seconds)
+    // Markets fetch every 60 seconds to avoid hitting rate limits on free tier
     setInterval(async () => {
       if (isConnected) {
         try {
@@ -156,7 +156,7 @@ export async function initMetaApi(): Promise<void> {
           // Silently handle rate limits
         }
       }
-    }, 5000);
+    }, 60000);
   } catch (error) {
     console.error("Failed to connect to MetaAPI:", error);
     isConnected = false;
@@ -236,8 +236,8 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   const now = Date.now();
-  // Return cached markets if available and fresh (cached for 5 seconds - frequent updates)
-  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < 5000) {
+  // Return cached markets if available and fresh (cached for 60 seconds to respect rate limits)
+  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < 60000) {
     return cachedMarkets;
   }
 
@@ -313,8 +313,8 @@ export async function getHistory(): Promise<TradeHistory[]> {
   }
 
   const now = Date.now();
-  // Cache for 30 seconds only - get fresh history
-  if (cachedHistory.length > 0 && now - lastHistoryUpdate < 30000) {
+  // Cache for 120 seconds - respect rate limits
+  if (cachedHistory.length > 0 && now - lastHistoryUpdate < 120000) {
     return cachedHistory;
   }
 

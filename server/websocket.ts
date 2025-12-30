@@ -46,44 +46,6 @@ function saveSettings() {
 
 loadSettings();
 
-// Live polling every second for real-time updates
-let pollingInterval: NodeJS.Timeout | null = null;
-
-function startLivePolling() {
-  if (pollingInterval) return;
-  
-  pollingInterval = setInterval(async () => {
-    if (clients.size === 0) return;
-    
-    try {
-      // Get fresh account info every second
-      const account = await metaapi.getAccountInfo();
-      if (account) {
-        broadcast({ type: "account_info", account });
-      }
-      
-      // Get positions every second for live P&L updates
-      const positions = await metaapi.getPositions();
-      broadcast({ type: "positions", positions });
-      
-      // Get history periodically (every 5 seconds)
-      if (Math.random() < 0.2) {
-        const history = await metaapi.getHistory();
-        broadcast({ type: "history", trades: history });
-      }
-    } catch (e) {
-      // Silent fail on rate limits
-    }
-  }, 1000); // 1 second polling for live updates
-}
-
-function stopLivePolling() {
-  if (pollingInterval) {
-    clearInterval(pollingInterval);
-    pollingInterval = null;
-  }
-}
-
 function broadcast(message: WSMessageType) {
   const data = JSON.stringify(message);
   clients.forEach((client) => {
