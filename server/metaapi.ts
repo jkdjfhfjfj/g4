@@ -23,6 +23,7 @@ interface ExtendedRpcConnection {
   createMarketBuyOrder(symbol: string, volume: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
   createMarketSellOrder(symbol: string, volume: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
   closePosition(positionId: string): Promise<void>;
+  modifyPosition(positionId: string, stopLoss?: number, takeProfit?: number): Promise<void>;
 }
 
 // Account type with methods we use
@@ -435,6 +436,41 @@ export async function closePosition(
       message: error?.message || "Failed to close position",
     };
   }
+}
+
+export async function modifyPosition(
+  positionId: string,
+  stopLoss?: number,
+  takeProfit?: number
+): Promise<{ success: boolean; message: string }> {
+  if (!connection || !isConnected) {
+    return { success: false, message: "Not connected to MetaAPI" };
+  }
+
+  try {
+    await connection.modifyPosition(positionId, stopLoss, takeProfit);
+    // Invalidate positions cache to get fresh data
+    lastPositionsUpdate = 0;
+    return { success: true, message: "Position modified successfully" };
+  } catch (error: any) {
+    console.error("Failed to modify position:", error);
+    return {
+      success: false,
+      message: error?.message || "Failed to modify position",
+    };
+  }
+}
+
+// Force refresh positions (bypass cache)
+export async function refreshPositions(): Promise<Position[]> {
+  lastPositionsUpdate = 0;
+  return getPositions();
+}
+
+// Force refresh account (bypass cache)
+export async function refreshAccount(): Promise<TradingAccount | null> {
+  lastAccountUpdate = 0;
+  return getAccountInfo();
 }
 
 export function getMetaApiStatus(): "connected" | "disconnected" | "connecting" {

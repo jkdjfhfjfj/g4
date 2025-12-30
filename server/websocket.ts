@@ -91,16 +91,20 @@ async function handleMessage(ws: WebSocket, data: any) {
             signal.status = "executed";
             signals.set(signal.id, signal);
             broadcast({ type: "signal_updated", signal });
+            broadcast({ type: "trade_result", success: true, message: `${data.direction} ${data.symbol} executed successfully` });
           } else {
             signal.status = "failed";
             signals.set(signal.id, signal);
             broadcast({ type: "signal_updated", signal });
             broadcast({ type: "error", message: result.message });
+            broadcast({ type: "trade_result", success: false, message: result.message });
           }
 
-          // Refresh positions
+          // Refresh positions and account
           const positions = await metaapi.getPositions();
           broadcast({ type: "positions", positions });
+          const account = await metaapi.refreshAccount();
+          if (account) broadcast({ type: "account_info", account });
         }
         break;
       }
@@ -114,13 +118,18 @@ async function handleMessage(ws: WebSocket, data: any) {
           data.takeProfit
         );
 
-        if (!result.success) {
+        if (result.success) {
+          broadcast({ type: "trade_result", success: true, message: `${data.direction} ${data.symbol} executed successfully` });
+        } else {
           broadcast({ type: "error", message: result.message });
+          broadcast({ type: "trade_result", success: false, message: result.message });
         }
 
-        // Refresh positions
+        // Refresh positions and account
         const positions = await metaapi.getPositions();
         broadcast({ type: "positions", positions });
+        const account = await metaapi.refreshAccount();
+        if (account) broadcast({ type: "account_info", account });
         break;
       }
 
@@ -138,8 +147,31 @@ async function handleMessage(ws: WebSocket, data: any) {
         const result = await metaapi.closePosition(data.positionId);
         if (result.success) {
           broadcast({ type: "position_closed", positionId: data.positionId });
+          broadcast({ type: "trade_result", success: true, message: "Position closed successfully" });
         } else {
           broadcast({ type: "error", message: result.message });
+          broadcast({ type: "trade_result", success: false, message: result.message });
+        }
+
+        // Refresh positions and account
+        const positions = await metaapi.getPositions();
+        broadcast({ type: "positions", positions });
+        const account = await metaapi.refreshAccount();
+        if (account) broadcast({ type: "account_info", account });
+        break;
+      }
+
+      case "modify_position": {
+        const result = await metaapi.modifyPosition(
+          data.positionId,
+          data.stopLoss,
+          data.takeProfit
+        );
+        if (result.success) {
+          broadcast({ type: "trade_result", success: true, message: "Position modified successfully" });
+        } else {
+          broadcast({ type: "error", message: result.message });
+          broadcast({ type: "trade_result", success: false, message: result.message });
         }
 
         // Refresh positions
@@ -319,6 +351,10 @@ export function initWebSocket(server: Server) {
     ws.on("message", async (data: Buffer) => {
       try {
         const message = JSON.parse(data.toString());
+        if (!message || typeof message !== 'object' || !message.type) {
+          console.error("Invalid WebSocket message format");
+          return;
+        }
         await handleMessage(ws, message);
       } catch (error) {
         console.error("Failed to parse WebSocket message:", error);

@@ -131,7 +131,8 @@ export type WSMessageType =
   | { type: 'auth_step'; step: 'phone' | 'code' | 'password' | 'done'; message?: string }
   | { type: 'auth_error'; message: string }
   | { type: 'saved_channel'; channelId: string | null }
-  | { type: 'auto_trade_enabled'; enabled: boolean };
+  | { type: 'auto_trade_enabled'; enabled: boolean }
+  | { type: 'trade_result'; success: boolean; message: string };
 
 // Insert schemas for API validation
 export const executeTradeSchema = z.object({

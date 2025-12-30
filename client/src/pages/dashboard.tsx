@@ -41,6 +41,8 @@ export default function Dashboard() {
     submitPhoneNumber,
     submitPassword,
     manualTrade,
+    modifyPosition,
+    tradeResult,
   } = useWebSocket();
 
   const { toast } = useToast();
@@ -55,6 +57,16 @@ export default function Dashboard() {
       });
     }
   }, [error, toast]);
+
+  useEffect(() => {
+    if (tradeResult) {
+      toast({
+        variant: tradeResult.success ? "default" : "destructive",
+        title: tradeResult.success ? "Success" : "Failed",
+        description: tradeResult.message,
+      });
+    }
+  }, [tradeResult, toast]);
 
   const tabs = [
     { id: "signals", label: "Signals", icon: TrendingUp, count: signals.filter(s => s.status === 'pending').length },
@@ -198,7 +210,11 @@ export default function Dashboard() {
               <MarketsPanel markets={markets} onTrade={manualTrade} />
             )}
             {activeTab === "positions" && (
-              <PositionsPanel positions={positions} onClosePosition={closePosition} />
+              <PositionsPanel 
+                positions={positions} 
+                onClosePosition={closePosition}
+                onModifyPosition={modifyPosition}
+              />
             )}
             {activeTab === "history" && (
               <HistoryPanel trades={history} />

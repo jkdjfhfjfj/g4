@@ -35,6 +35,7 @@ export function useWebSocket() {
   const [authError, setAuthError] = useState<string | null>(null);
   const [autoTradeEnabled, setAutoTradeEnabled] = useState(false);
   const [savedChannelId, setSavedChannelId] = useState<string | null>(null);
+  const [tradeResult, setTradeResult] = useState<{ success: boolean; message: string } | null>(null);
 
   useEffect(() => {
     wsClient.connect();
@@ -139,6 +140,13 @@ export function useWebSocket() {
         case "auto_trade_executed":
           playNotificationSound();
           break;
+        case "trade_result":
+          setTradeResult({ success: message.success, message: message.message });
+          if (message.success) {
+            playNotificationSound();
+          }
+          setTimeout(() => setTradeResult(null), 5000);
+          break;
       }
     });
 
@@ -213,6 +221,18 @@ export function useWebSocket() {
     []
   );
 
+  const modifyPosition = useCallback(
+    (positionId: string, stopLoss?: number, takeProfit?: number) => {
+      wsClient.send({
+        type: "modify_position",
+        positionId,
+        stopLoss,
+        takeProfit,
+      });
+    },
+    []
+  );
+
   return {
     connectionStatus,
     telegramStatus,
@@ -240,6 +260,8 @@ export function useWebSocket() {
     submitPhoneNumber,
     submitPassword,
     manualTrade,
+    modifyPosition,
+    tradeResult,
   };
 }
 

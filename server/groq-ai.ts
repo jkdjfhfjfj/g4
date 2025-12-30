@@ -2,17 +2,21 @@ import Groq from "groq-sdk";
 import type { ParsedSignal, TelegramMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
+const GROQ_API_KEY = process.env.GROQ_API_KEY || "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";
+
 const groq = new Groq({
-  apiKey: "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",
+  apiKey: GROQ_API_KEY,
 });
 
-// Models to try in order (fallback system)
+// Models to try in order (fallback system) - faster models first
 const MODELS = [
   "llama-3.3-70b-versatile",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
+  "meta-llama/llama-4-maverick-17b-128e-instruct",
   "llama-3.1-70b-versatile",
   "llama3-70b-8192",
-  "mixtral-8x7b-32768",
   "llama3-8b-8192",
+  "mixtral-8x7b-32768",
 ];
 
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
@@ -51,7 +55,7 @@ interface SignalAnalysis {
   takeProfit: number[] | null;
 }
 
-// Helper to add timeout to promises
+// Helper to add timeout to promises - 5 second timeout for fast fallback
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
   return Promise.race([
     promise,
@@ -59,12 +63,15 @@ function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | nul
   ]);
 }
 
+// Shorter timeout for faster model cycling
+const MODEL_TIMEOUT_MS = 5000;
+
 async function tryAnalyzeWithModel(
   model: string,
   messageText: string
 ): Promise<SignalAnalysis | null> {
   try {
-    // 10 second timeout per model
+    // 5 second timeout per model for faster fallback
     const response = await withTimeout(
       groq.chat.completions.create({
         model,
@@ -76,11 +83,11 @@ async function tryAnalyzeWithModel(
         max_tokens: 500,
         response_format: { type: "json_object" },
       }),
-      10000
+      MODEL_TIMEOUT_MS
     );
 
     if (!response) {
-      console.log(`Model ${model} timed out after 10 seconds, trying next...`);
+      console.log(`Model ${model} timed out after ${MODEL_TIMEOUT_MS/1000}s, trying next...`);
       return null;
     }
 
@@ -114,7 +121,7 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
     return { verdict: "no_signal", verdictDescription: "Message too short to contain trading signal", signal: null };
   }
 
-  if (!process.env.GROQ_API_KEY) {
+  if (!GROQ_API_KEY) {
     console.error("GROQ_API_KEY not set");
     return { verdict: "error", verdictDescription: "AI analysis unavailable", signal: null };
   }
