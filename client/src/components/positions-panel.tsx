@@ -50,21 +50,22 @@ export function PositionsPanel({ positions, onClosePosition }: PositionsPanelPro
             <p className="text-sm text-muted-foreground">No open positions</p>
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px]">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead className="text-xs">Symbol</TableHead>
-                  <TableHead className="text-xs">Type</TableHead>
-                  <TableHead className="text-xs text-right">Volume</TableHead>
-                  <TableHead className="text-xs text-right">Entry</TableHead>
-                  <TableHead className="text-xs text-right">Current</TableHead>
-                  <TableHead className="text-xs text-right">P/L</TableHead>
-                  <TableHead className="text-xs"></TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {positions.map((position) => (
+          <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px] w-full">
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs min-w-[70px]">Symbol</TableHead>
+                    <TableHead className="text-xs min-w-[60px]">Type</TableHead>
+                    <TableHead className="text-xs text-right min-w-[70px]">Volume</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Entry</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Current</TableHead>
+                    <TableHead className="text-xs text-right min-w-[70px]">P/L</TableHead>
+                    <TableHead className="text-xs min-w-[60px]"></TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {positions.map((position) => (
                   <TableRow key={position.id} data-testid={`position-row-${position.id}`}>
                     <TableCell className="font-medium text-sm">
                       {position.symbol}
@@ -116,6 +117,7 @@ export function PositionsPanel({ positions, onClosePosition }: PositionsPanelPro
                 ))}
               </TableBody>
             </Table>
+            </div>
           </ScrollArea>
         )}
       </CardContent>

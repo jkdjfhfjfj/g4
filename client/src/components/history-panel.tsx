@@ -87,22 +87,23 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
             <p className="text-sm text-muted-foreground">No trade history</p>
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100vh-400px)] min-h-[150px] max-h-[300px]">
-            <Table>
-              <TableHeader className="sticky top-0 bg-background">
-                <TableRow>
-                  <TableHead className="text-xs">Date</TableHead>
-                  <TableHead className="text-xs">Symbol</TableHead>
-                  <TableHead className="text-xs">Type</TableHead>
-                  <TableHead className="text-xs text-right">Volume</TableHead>
-                  <TableHead className="text-xs text-right">Entry</TableHead>
-                  <TableHead className="text-xs text-right">Exit</TableHead>
-                  <TableHead className="text-xs text-right">P/L</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {trades.map((trade) => (
-                  <TableRow key={trade.id} data-testid={`history-row-${trade.id}`}>
+          <ScrollArea className="h-[calc(100vh-400px)] min-h-[150px] max-h-[300px] w-full">
+            <div className="w-full overflow-x-auto">
+              <Table>
+                <TableHeader className="sticky top-0 bg-background">
+                  <TableRow>
+                    <TableHead className="text-xs min-w-[80px]">Date</TableHead>
+                    <TableHead className="text-xs min-w-[70px]">Symbol</TableHead>
+                    <TableHead className="text-xs min-w-[60px]">Type</TableHead>
+                    <TableHead className="text-xs text-right min-w-[70px]">Volume</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Entry</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Exit</TableHead>
+                    <TableHead className="text-xs text-right min-w-[70px]">P/L</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {trades.map((trade) => (
+                    <TableRow key={trade.id} data-testid={`history-row-${trade.id}`}>
                     <TableCell className="text-xs text-muted-foreground">
                       {format(new Date(trade.closeTime), "MMM d HH:mm")}
                     </TableCell>
@@ -148,6 +149,7 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
                 ))}
               </TableBody>
             </Table>
+            </div>
           </ScrollArea>
         )}
       </CardContent>

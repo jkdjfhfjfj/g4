@@ -143,8 +143,8 @@ export async function initMetaApi(): Promise<void> {
       console.log("Symbol caching not available, will use fallback list");
     }
 
-    // Set up real-time updates with respect for rate limits (every 60 seconds)
-    // Markets fetch every 60 seconds to avoid rate limiting
+    // Set up real-time updates with respect for rate limits (every 5 seconds)
+    // Markets fetch every 5 seconds for live updates
     setInterval(async () => {
       if (isConnected) {
         try {
@@ -156,7 +156,7 @@ export async function initMetaApi(): Promise<void> {
           // Silently handle rate limits
         }
       }
-    }, 60000);
+    }, 5000);
   } catch (error) {
     console.error("Failed to connect to MetaAPI:", error);
     isConnected = false;
@@ -236,13 +236,13 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
   }
 
   const now = Date.now();
-  // Return cached markets if available and fresh (cached for 1 minute to reduce API calls)
-  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < 60000) {
+  // Return cached markets if available and fresh (cached for 5 seconds - frequent updates)
+  if (cachedMarkets.length > 0 && now - lastMarketsUpdate < 5000) {
     return cachedMarkets;
   }
 
   try {
-    // Use cached symbols from startup, fallback to list if not available
+    // Use ALL cached symbols from startup, fallback to full list
     let availableSymbols = cachedSymbols.length > 0 ? cachedSymbols : [
       // Major pairs
       "EURUSD", "GBPUSD", "USDJPY", "USDCHF", "AUDUSD", "USDCAD", "NZDUSD",
@@ -259,10 +259,12 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
 
     const markets: MarketSymbol[] = [];
     
-    // Fetch prices in batches to avoid rate limits - try up to 10 symbols
-    const symbolsToFetch = availableSymbols.slice(0, 15);
+    // Fetch ALL symbols to get complete market list
+    const symbolsToFetch = availableSymbols.slice(0, Math.min(availableSymbols.length, 30));
     
     for (const symbol of symbolsToFetch) {
+      if (markets.length >= 20) break; // Fetch at least 20 markets per call
+      
       try {
         const price = await connection.getSymbolPrice(symbol);
         if (price && price.bid && price.ask) {
@@ -286,16 +288,18 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
           });
         }
       } catch (e) {
-        // Symbol might not be available or API limit hit - skip silently
+        // Symbol might not be available or API limit hit - continue to next
+        continue;
       }
     }
 
-    // If we got some markets, cache and return them
+    // Always update cache with whatever we got
     if (markets.length > 0) {
       cachedMarkets = markets;
       lastMarketsUpdate = now;
     }
     
+    // Return fetched markets or cached if fetch failed
     return markets.length > 0 ? markets : cachedMarkets;
   } catch (error) {
     console.error("Failed to get markets:", error);
@@ -309,19 +313,20 @@ export async function getHistory(): Promise<TradeHistory[]> {
   }
 
   const now = Date.now();
-  if (cachedHistory.length > 0 && now - lastHistoryUpdate < CACHE_TTL * 3) {
+  // Cache for 30 seconds only - get fresh history
+  if (cachedHistory.length > 0 && now - lastHistoryUpdate < 30000) {
     return cachedHistory;
   }
 
   try {
-    const nowDate = new Date();
-    const sevenDaysAgo = new Date(nowDate.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const endTime = new Date();
+    const startTime = new Date(endTime.getTime() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
 
-    // Use RPC connection getDealsByTimeRange with shorter range to reduce load
+    // Use RPC connection getDealsByTimeRange
     let deals: any[] = [];
     
     try {
-      const rpcDeals = await connection.getDealsByTimeRange(sevenDaysAgo, nowDate);
+      const rpcDeals = await connection.getDealsByTimeRange(startTime, endTime);
       if (rpcDeals && rpcDeals.length > 0) {
         deals = rpcDeals;
         console.log(`Got ${deals.length} deals from RPC connection`);
