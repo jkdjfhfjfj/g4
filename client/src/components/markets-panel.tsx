@@ -199,14 +199,14 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
             </div>
           ) : (
             <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px]">
-              <Table>
+              <Table className="w-max">
                 <TableHeader className="sticky top-0 bg-background">
                   <TableRow>
-                    <TableHead className="text-xs">Symbol</TableHead>
-                    <TableHead className="text-xs text-right">Bid</TableHead>
-                    <TableHead className="text-xs text-right">Ask</TableHead>
-                    <TableHead className="text-xs text-right">Spread</TableHead>
-                    <TableHead className="text-xs">Action</TableHead>
+                    <TableHead className="text-xs min-w-[80px]">Symbol</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Bid</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Ask</TableHead>
+                    <TableHead className="text-xs text-right min-w-[80px]">Spread</TableHead>
+                    <TableHead className="text-xs min-w-[90px]">Action</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
