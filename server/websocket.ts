@@ -18,7 +18,9 @@ const signals: Map<string, ParsedSignal> = new Map();
 const SETTINGS_FILE = path.join(process.cwd(), ".trading_settings.json");
 let autoTradeEnabled = false;
 let savedChannelId: string | null = null;
-const DEFAULT_TRADE_VOLUME = 0.01;
+let globalLotSize = 0.01;
+const processedMessageIds = new Set<string>();
+let currentChannelId: string | null = null;
 
 function loadSettings() {
   try {
@@ -26,7 +28,8 @@ function loadSettings() {
       const data = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
       autoTradeEnabled = data.autoTradeEnabled ?? false;
       savedChannelId = data.savedChannelId ?? null;
-      console.log("Loaded settings:", { autoTradeEnabled, savedChannelId });
+      globalLotSize = data.lotSize ?? 0.01;
+      console.log("Loaded settings:", { autoTradeEnabled, savedChannelId, globalLotSize });
     }
   } catch (e) {
     console.error("Failed to load settings:", e);
@@ -38,6 +41,7 @@ function saveSettings() {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify({
       autoTradeEnabled,
       savedChannelId,
+      lotSize: globalLotSize,
     }, null, 2), "utf-8");
   } catch (e) {
     console.error("Failed to save settings:", e);
@@ -59,6 +63,12 @@ async function handleMessage(ws: WebSocket, data: any) {
   try {
     switch (data.type) {
       case "select_channel": {
+        // Clear processed messages cache when switching channels
+        if (currentChannelId !== data.channelId) {
+          processedMessageIds.clear();
+          currentChannelId = data.channelId;
+        }
+        
         const messages = await telegram.selectChannel(data.channelId);
         
         // Only show last hour of messages (real-time), skip older history
@@ -208,6 +218,24 @@ async function handleMessage(ws: WebSocket, data: any) {
         broadcast({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
         break;
       }
+
+      case "set_lot_size": {
+        const size = parseFloat(data.lotSize);
+        if (!isNaN(size) && size >= 0.01 && size <= 100) {
+          globalLotSize = size;
+          saveSettings();
+          broadcast({ type: "lot_size_updated", lotSize: globalLotSize });
+        }
+        break;
+      }
+
+      case "disconnect_telegram": {
+        await telegram.disconnect();
+        processedMessageIds.clear();
+        currentChannelId = null;
+        broadcast({ type: "telegram_disconnected" });
+        break;
+      }
     }
   } catch (error) {
     console.error("Error handling WebSocket message:", error);
@@ -222,15 +250,36 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
   try {
     const updatedMessage = { ...message, isRealtime };
     
+    // Create unique key using channel + message ID
+    const messageKey = `${message.channelId}:${message.id}`;
+    
+    // Check for duplicate message processing
+    if (processedMessageIds.has(messageKey)) {
+      console.log(`Skipping duplicate message: ${messageKey}`);
+      return;
+    }
+    
     // For all messages, broadcast immediately (don't wait for analysis)
     broadcast({ type: "new_message", message: updatedMessage });
 
     // Only analyze real-time messages asynchronously, skip historical ones
     if (isRealtime) {
+      // Mark message as being processed to prevent duplicates
+      processedMessageIds.add(messageKey);
+      
+      // Limit cache size to prevent memory leaks
+      if (processedMessageIds.size > 1000) {
+        const idsArray = Array.from(processedMessageIds);
+        for (let i = 0; i < 500; i++) {
+          processedMessageIds.delete(idsArray[i]);
+        }
+      }
+      
       // Don't await - process analysis in background
-      analyzeMessage(message).then(({ verdict, verdictDescription, signal }) => {
+      analyzeMessage(message).then(({ verdict, verdictDescription, signal, modelUsed }) => {
         updatedMessage.aiVerdict = verdict;
         updatedMessage.verdictDescription = verdictDescription;
+        updatedMessage.modelUsed = modelUsed;
         
         // Broadcast updated message with analysis
         broadcast({ type: "new_message", message: updatedMessage });
@@ -241,13 +290,13 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
           broadcast({ type: "signal_detected", signal });
 
           if (autoTradeEnabled && signal.confidence >= 0.7) {
-            console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (confidence: ${signal.confidence})`);
+            console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
             
-            // Auto-execute in background
+            // Auto-execute in background with global lot size
             metaapi.executeTrade(
               signal.symbol,
               signal.direction,
-              DEFAULT_TRADE_VOLUME,
+              globalLotSize,
               signal.stopLoss,
               signal.takeProfit?.[0]
             ).then(result => {
@@ -275,6 +324,11 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         updatedMessage.verdictDescription = "Analysis timeout or error";
         broadcast({ type: "new_message", message: updatedMessage });
       });
+    } else {
+      // For historical messages, mark as skipped with reason
+      updatedMessage.aiVerdict = "skipped";
+      updatedMessage.verdictDescription = "Historical message - only real-time messages are analyzed for signals";
+      broadcast({ type: "new_message", message: updatedMessage });
     }
   } catch (error) {
     console.error("Error processing message:", error);
@@ -292,6 +346,7 @@ async function sendInitialData(ws: WebSocket) {
 
   wsMessage({ type: "saved_channel", channelId: savedChannelId });
   wsMessage({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
+  wsMessage({ type: "lot_size_updated", lotSize: globalLotSize });
 
   const telegramStatus = telegram.getTelegramStatus();
   wsMessage({ type: "telegram_status", status: telegramStatus });

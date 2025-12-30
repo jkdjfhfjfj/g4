@@ -375,3 +375,17 @@ export function getTelegramStatus(): "connected" | "disconnected" | "connecting"
 export function getSelectedChannelId(): string | null {
   return selectedChannelId;
 }
+
+export async function disconnect(): Promise<void> {
+  if (client) {
+    try {
+      await client.disconnect();
+      console.log("Telegram disconnected manually");
+    } catch (e) {
+      console.error("Error disconnecting Telegram:", e);
+    }
+    isConnected = false;
+    currentStatus = "disconnected";
+    notifyStatus("disconnected");
+  }
+}

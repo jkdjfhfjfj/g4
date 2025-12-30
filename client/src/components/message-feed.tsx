@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MessageCircle, Loader2, CheckCircle, XCircle, AlertCircle } from "lucide-react";
+import { MessageCircle, Loader2, CheckCircle, XCircle, AlertCircle, Clock, Cpu } from "lucide-react";
 import type { TelegramMessage } from "@shared/schema";
 import { formatDistanceToNow } from "date-fns";
 
@@ -17,7 +17,7 @@ function VerdictBadge({ verdict }: { verdict?: TelegramMessage["aiVerdict"] }) {
       return (
         <Badge variant="default" className="bg-success text-success-foreground text-xs gap-1">
           <CheckCircle className="h-3 w-3" />
-          Valid Signal
+          Signal
         </Badge>
       );
     case "no_signal":
@@ -31,7 +31,14 @@ function VerdictBadge({ verdict }: { verdict?: TelegramMessage["aiVerdict"] }) {
       return (
         <Badge variant="outline" className="text-xs gap-1 animate-pulse">
           <Loader2 className="h-3 w-3 animate-spin" />
-          Analyzing...
+          Analyzing
+        </Badge>
+      );
+    case "skipped":
+      return (
+        <Badge variant="outline" className="text-xs gap-1 text-muted-foreground">
+          <Clock className="h-3 w-3" />
+          Skipped
         </Badge>
       );
     case "error":
@@ -114,6 +121,12 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
                     <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-2">
                       {message.verdictDescription}
                     </p>
+                  )}
+                  {message.modelUsed && (
+                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                      <Cpu className="h-3 w-3" />
+                      <span className="font-mono">{message.modelUsed}</span>
+                    </div>
                   )}
                 </div>
               ))}

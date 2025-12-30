@@ -9,9 +9,11 @@ import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle } from "lucide-react";
+import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle, LogOut, Settings } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
@@ -43,6 +45,9 @@ export default function Dashboard() {
     manualTrade,
     modifyPosition,
     tradeResult,
+    lotSize,
+    updateLotSize,
+    disconnectTelegram,
   } = useWebSocket();
 
   const { toast } = useToast();
@@ -136,6 +141,39 @@ export default function Dashboard() {
               className="scale-75 origin-right md:scale-100"
             />
           </div>
+
+          <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0">
+            <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+            <span className="text-xs md:text-sm font-medium whitespace-nowrap">Lot:</span>
+            <Input
+              type="number"
+              step="0.01"
+              min="0.01"
+              max="100"
+              value={lotSize}
+              onChange={(e) => {
+                const val = parseFloat(e.target.value);
+                if (!isNaN(val) && val >= 0.01) {
+                  updateLotSize(val);
+                }
+              }}
+              className="w-16 h-7 text-xs font-mono px-2"
+              data-testid="input-lot-size"
+            />
+          </div>
+
+          {telegramStatus === "connected" && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={disconnectTelegram}
+              className="flex items-center gap-1 text-xs text-destructive"
+              data-testid="button-disconnect-telegram"
+            >
+              <LogOut className="h-4 w-4" />
+              <span className="hidden md:inline">Disconnect</span>
+            </Button>
+          )}
         </div>
       </header>
 

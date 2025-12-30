@@ -34,10 +34,11 @@ export interface TelegramMessage {
   text: string;
   date: string;
   senderName?: string;
-  aiVerdict?: 'valid_signal' | 'no_signal' | 'analyzing' | 'error';
+  aiVerdict?: 'valid_signal' | 'no_signal' | 'analyzing' | 'error' | 'skipped';
   verdictDescription?: string;
   parsedSignal?: ParsedSignal | null;
   isRealtime?: boolean;
+  modelUsed?: string;
 }
 
 // Parsed Trading Signal
@@ -132,7 +133,9 @@ export type WSMessageType =
   | { type: 'auth_error'; message: string }
   | { type: 'saved_channel'; channelId: string | null }
   | { type: 'auto_trade_enabled'; enabled: boolean }
-  | { type: 'trade_result'; success: boolean; message: string };
+  | { type: 'trade_result'; success: boolean; message: string }
+  | { type: 'lot_size_updated'; lotSize: number }
+  | { type: 'telegram_disconnected' };
 
 // Insert schemas for API validation
 export const executeTradeSchema = z.object({

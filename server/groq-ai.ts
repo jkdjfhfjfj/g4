@@ -116,34 +116,37 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
   verdict: TelegramMessage["aiVerdict"];
   verdictDescription: string;
   signal: ParsedSignal | null;
+  modelUsed?: string;
 }> {
   if (!message.text || message.text.trim().length < 3) {
-    return { verdict: "no_signal", verdictDescription: "Message too short to contain trading signal", signal: null };
+    return { verdict: "no_signal", verdictDescription: "Message too short to contain trading signal", signal: null, modelUsed: undefined };
   }
 
   if (!GROQ_API_KEY) {
     console.error("GROQ_API_KEY not set");
-    return { verdict: "error", verdictDescription: "AI analysis unavailable", signal: null };
+    return { verdict: "error", verdictDescription: "AI analysis unavailable", signal: null, modelUsed: undefined };
   }
 
   let analysis: SignalAnalysis | null = null;
+  let modelUsed: string | undefined = undefined;
 
   try {
     for (const model of MODELS) {
       analysis = await tryAnalyzeWithModel(model, message.text);
       if (analysis !== null) {
-        console.log(`Successfully analyzed with model: ${model}`);
+        modelUsed = model.split('/').pop() || model;
+        console.log(`Successfully analyzed with model: ${modelUsed}`);
         break;
       }
     }
 
     if (!analysis) {
       console.error("All models failed to analyze message");
-      return { verdict: "error", verdictDescription: "AI analysis failed after trying all models", signal: null };
+      return { verdict: "error", verdictDescription: "AI analysis failed after trying all models", signal: null, modelUsed: undefined };
     }
 
     if (!analysis.isSignal || !analysis.symbol || !analysis.direction) {
-      return { verdict: "no_signal", verdictDescription: analysis.reason || "No actionable trading signal detected", signal: null };
+      return { verdict: "no_signal", verdictDescription: analysis.reason || "No actionable trading signal detected", signal: null, modelUsed };
     }
 
     const normalizedSymbol = analysis.symbol
@@ -165,9 +168,9 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
       rawMessage: message.text,
     };
 
-    return { verdict: "valid_signal", verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`, signal };
+    return { verdict: "valid_signal", verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`, signal, modelUsed };
   } catch (error: any) {
     console.error("Message analysis failed:", error?.message || error);
-    return { verdict: "error", verdictDescription: "Analysis error occurred", signal: null };
+    return { verdict: "error", verdictDescription: "Analysis error occurred", signal: null, modelUsed: undefined };
   }
 }

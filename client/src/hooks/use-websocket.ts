@@ -36,6 +36,7 @@ export function useWebSocket() {
   const [autoTradeEnabled, setAutoTradeEnabled] = useState(false);
   const [savedChannelId, setSavedChannelId] = useState<string | null>(null);
   const [tradeResult, setTradeResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [lotSize, setLotSize] = useState(0.01);
 
   useEffect(() => {
     wsClient.connect();
@@ -69,7 +70,7 @@ export function useWebSocket() {
             }
             // Play sound for real-time messages from selected channel
             if (message.message.isRealtime && message.message.channelId === selectedChannelId) {
-              playNotificationSound();
+              playNotificationSound(`New message in channel`);
             }
             return [message.message, ...prev].slice(0, 100);
           });
@@ -138,14 +139,23 @@ export function useWebSocket() {
           setAutoTradeEnabled(message.enabled);
           break;
         case "auto_trade_executed":
-          playNotificationSound();
+          playNotificationSound('Trade executed automatically');
           break;
         case "trade_result":
           setTradeResult({ success: message.success, message: message.message });
           if (message.success) {
-            playNotificationSound();
+            playNotificationSound(message.message);
           }
           setTimeout(() => setTradeResult(null), 5000);
+          break;
+        case "lot_size_updated":
+          setLotSize(message.lotSize);
+          break;
+        case "telegram_disconnected":
+          setTelegramStatus("disconnected");
+          setChannels([]);
+          setSelectedChannelId(null);
+          setMessages([]);
           break;
       }
     });
@@ -233,6 +243,14 @@ export function useWebSocket() {
     []
   );
 
+  const updateLotSize = useCallback((size: number) => {
+    wsClient.send({ type: "set_lot_size", lotSize: size });
+  }, []);
+
+  const disconnectTelegram = useCallback(() => {
+    wsClient.send({ type: "disconnect_telegram" });
+  }, []);
+
   return {
     connectionStatus,
     telegramStatus,
@@ -262,10 +280,28 @@ export function useWebSocket() {
     manualTrade,
     modifyPosition,
     tradeResult,
+    lotSize,
+    updateLotSize,
+    disconnectTelegram,
   };
 }
 
-function playNotificationSound() {
+let serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
+
+// Register service worker for background notifications
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/notification-worker.js')
+    .then((registration) => {
+      serviceWorkerRegistration = registration;
+      console.log('Notification service worker registered');
+    })
+    .catch((error) => {
+      console.log('Service worker registration failed:', error);
+    });
+}
+
+function playNotificationSound(message?: string) {
+  // Try Web Audio API first (works when tab is active)
   try {
     const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
@@ -283,6 +319,17 @@ function playNotificationSound() {
     oscillator.start(audioContext.currentTime);
     oscillator.stop(audioContext.currentTime + 0.2);
   } catch (e) {
-    console.log("Sound notification not available");
+    console.log("Web Audio not available");
+  }
+  
+  // Also try Service Worker notification for background support
+  if (serviceWorkerRegistration && Notification.permission === 'granted') {
+    serviceWorkerRegistration.active?.postMessage({
+      type: 'PLAY_SOUND',
+      message: message || 'New trading activity'
+    });
+  } else if (Notification.permission === 'default') {
+    // Request permission if not yet decided
+    Notification.requestPermission();
   }
 }
