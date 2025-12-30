@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Dialog,
   DialogContent,
@@ -20,7 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BarChart3, TrendingUp, TrendingDown, Search, RefreshCw } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, Search } from "lucide-react";
 import type { MarketSymbol } from "@shared/schema";
 
 interface MarketsPanelProps {
@@ -191,67 +190,68 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
             </div>
           </div>
         </CardHeader>
-        <CardContent className="flex-1 p-0 overflow-hidden">
+        <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
           {markets.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-40 px-4 text-center">
-              <RefreshCw className="h-8 w-8 text-muted-foreground mb-2 animate-spin" />
+            <div className="flex flex-col items-center justify-center flex-1 px-4 text-center">
               <p className="text-sm text-muted-foreground">Loading market data...</p>
             </div>
           ) : (
-            <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px] w-full border-t border-border">
-              <Table className="w-max">
-                <TableHeader className="sticky top-0 bg-background z-10">
-                  <TableRow>
-                    <TableHead className="text-xs px-4 min-w-[80px]">Symbol</TableHead>
-                    <TableHead className="text-xs text-right px-4 min-w-[80px]">Bid</TableHead>
-                    <TableHead className="text-xs text-right px-4 min-w-[80px]">Ask</TableHead>
-                    <TableHead className="text-xs text-right px-4 min-w-[80px]">Spread</TableHead>
-                    <TableHead className="text-xs px-4 min-w-[90px]">Action</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredMarkets.map((market) => (
-                    <TableRow key={market.symbol} data-testid={`market-row-${market.symbol}`}>
-                      <TableCell className="font-mono font-medium text-sm">
-                        {market.symbol}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                        {market.bid.toFixed(market.digits)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                        {market.ask.toFixed(market.digits)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-xs">
-                        <span className="text-warning font-medium">
-                          {market.spread.toFixed(market.digits + 1)}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1">
-                          <Button
-                            size="sm"
-                            className="h-7 px-2 bg-success text-success-foreground text-xs"
-                            onClick={() => handleTrade(market, "BUY")}
-                            data-testid={`button-buy-${market.symbol}`}
-                          >
-                            <TrendingUp className="h-3 w-3" />
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="destructive"
-                            className="h-7 px-2 text-xs"
-                            onClick={() => handleTrade(market, "SELL")}
-                            data-testid={`button-sell-${market.symbol}`}
-                          >
-                            <TrendingDown className="h-3 w-3" />
-                          </Button>
-                        </div>
-                      </TableCell>
+            <div className="flex-1 overflow-hidden flex flex-col w-full">
+              <div className="overflow-x-auto overflow-y-auto w-full flex-1">
+                <Table className="w-max min-w-full">
+                  <TableHeader className="sticky top-0 bg-background">
+                    <TableRow>
+                      <TableHead className="text-xs px-3 py-2">Symbol</TableHead>
+                      <TableHead className="text-xs text-right px-3 py-2">Bid</TableHead>
+                      <TableHead className="text-xs text-right px-3 py-2">Ask</TableHead>
+                      <TableHead className="text-xs text-right px-3 py-2">Spread</TableHead>
+                      <TableHead className="text-xs px-3 py-2">Action</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {filteredMarkets.map((market) => (
+                      <TableRow key={market.symbol} data-testid={`market-row-${market.symbol}`}>
+                        <TableCell className="font-mono font-medium text-sm px-3 py-2">
+                          {market.symbol}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm text-muted-foreground px-3 py-2">
+                          {market.bid.toFixed(market.digits)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-sm text-muted-foreground px-3 py-2">
+                          {market.ask.toFixed(market.digits)}
+                        </TableCell>
+                        <TableCell className="text-right font-mono text-xs px-3 py-2">
+                          <span className="text-warning font-medium">
+                            {market.spread.toFixed(market.digits + 1)}
+                          </span>
+                        </TableCell>
+                        <TableCell className="px-3 py-2">
+                          <div className="flex items-center gap-1">
+                            <Button
+                              size="sm"
+                              className="h-7 px-2 bg-success text-success-foreground text-xs"
+                              onClick={() => handleTrade(market, "BUY")}
+                              data-testid={`button-buy-${market.symbol}`}
+                            >
+                              <TrendingUp className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="h-7 px-2 text-xs"
+                              onClick={() => handleTrade(market, "SELL")}
+                              data-testid={`button-sell-${market.symbol}`}
+                            >
+                              <TrendingDown className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </TableCell>
                       </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </ScrollArea>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
           )}
         </CardContent>
       </Card>

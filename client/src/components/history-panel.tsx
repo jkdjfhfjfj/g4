@@ -1,6 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Table,
   TableBody,
@@ -48,7 +47,6 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
         </div>
       </CardHeader>
 
-      {/* Statistics Row */}
       {trades.length > 0 && (
         <div className="px-4 py-2 bg-card border-b border-border grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs">
           <div>
@@ -80,75 +78,77 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
         </div>
       )}
 
-      <CardContent className="flex-1 p-0 overflow-hidden">
+      <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
         {trades.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-40 px-4 text-center">
+          <div className="flex flex-col items-center justify-center flex-1 px-4 text-center">
             <BarChart3 className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">No trade history</p>
           </div>
         ) : (
-          <ScrollArea className="h-[calc(100vh-400px)] min-h-[150px] max-h-[300px]">
-            <Table className="w-max">
-              <TableHeader className="sticky top-0 bg-background">
-                <TableRow>
-                  <TableHead className="text-xs min-w-[80px]">Date</TableHead>
-                  <TableHead className="text-xs min-w-[70px]">Symbol</TableHead>
-                  <TableHead className="text-xs min-w-[60px]">Type</TableHead>
-                  <TableHead className="text-xs text-right min-w-[70px]">Volume</TableHead>
-                  <TableHead className="text-xs text-right min-w-[80px]">Entry</TableHead>
-                  <TableHead className="text-xs text-right min-w-[80px]">Exit</TableHead>
-                  <TableHead className="text-xs text-right min-w-[70px]">P/L</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {trades.map((trade) => (
-                  <TableRow key={trade.id} data-testid={`history-row-${trade.id}`}>
-                    <TableCell className="text-xs text-muted-foreground">
-                      {format(new Date(trade.closeTime), "MMM d HH:mm")}
-                    </TableCell>
-                    <TableCell className="font-mono font-semibold text-sm">
-                      {trade.symbol}
-                    </TableCell>
-                    <TableCell>
-                      <Badge
-                        variant={trade.type === "buy" ? "default" : "destructive"}
-                        className={`text-xs flex w-fit ${
-                          trade.type === "buy"
-                            ? "bg-success text-success-foreground"
-                            : ""
-                        }`}
-                        data-testid={`badge-trade-type-${trade.id}`}
-                      >
-                        {trade.type === "buy" ? (
-                          <TrendingUp className="h-2.5 w-2.5 mr-1" />
-                        ) : (
-                          <TrendingDown className="h-2.5 w-2.5 mr-1" />
-                        )}
-                        {trade.type.toUpperCase()}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs">
-                      {trade.volume.toFixed(2)}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs">
-                      {trade.openPrice.toFixed(5)}
-                    </TableCell>
-                    <TableCell className="text-right font-mono text-xs">
-                      {trade.closePrice.toFixed(5)}
-                    </TableCell>
-                    <TableCell
-                      className={`text-right font-mono text-xs font-semibold ${
-                        trade.profit >= 0 ? "text-success" : "text-destructive"
-                      }`}
-                      data-testid={`text-profit-${trade.id}`}
-                    >
-                      {trade.profit >= 0 ? "+" : ""}{trade.profit.toFixed(2)}
-                    </TableCell>
+          <div className="flex-1 overflow-hidden flex flex-col w-full border-t border-border">
+            <div className="overflow-x-auto overflow-y-auto w-full flex-1">
+              <Table className="w-max min-w-full">
+                <TableHeader className="sticky top-0 bg-background z-10">
+                  <TableRow>
+                    <TableHead className="text-xs px-3 py-2">Date</TableHead>
+                    <TableHead className="text-xs px-3 py-2">Symbol</TableHead>
+                    <TableHead className="text-xs px-3 py-2">Type</TableHead>
+                    <TableHead className="text-xs text-right px-3 py-2">Volume</TableHead>
+                    <TableHead className="text-xs text-right px-3 py-2">Entry</TableHead>
+                    <TableHead className="text-xs text-right px-3 py-2">Exit</TableHead>
+                    <TableHead className="text-xs text-right px-3 py-2">P/L</TableHead>
                   </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </ScrollArea>
+                </TableHeader>
+                <TableBody>
+                  {trades.map((trade) => (
+                    <TableRow key={trade.id} data-testid={`history-row-${trade.id}`}>
+                      <TableCell className="text-xs text-muted-foreground px-3 py-2">
+                        {format(new Date(trade.closeTime), "MMM d HH:mm")}
+                      </TableCell>
+                      <TableCell className="font-mono font-semibold text-sm px-3 py-2">
+                        {trade.symbol}
+                      </TableCell>
+                      <TableCell className="px-3 py-2">
+                        <Badge
+                          variant={trade.type === "buy" ? "default" : "destructive"}
+                          className={`text-xs flex w-fit ${
+                            trade.type === "buy"
+                              ? "bg-success text-success-foreground"
+                              : ""
+                          }`}
+                          data-testid={`badge-trade-type-${trade.id}`}
+                        >
+                          {trade.type === "buy" ? (
+                            <TrendingUp className="h-2.5 w-2.5 mr-1" />
+                          ) : (
+                            <TrendingDown className="h-2.5 w-2.5 mr-1" />
+                          )}
+                          {trade.type.toUpperCase()}
+                        </Badge>
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-xs px-3 py-2">
+                        {trade.volume.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-xs px-3 py-2">
+                        {trade.openPrice.toFixed(5)}
+                      </TableCell>
+                      <TableCell className="text-right font-mono text-xs px-3 py-2">
+                        {trade.closePrice.toFixed(5)}
+                      </TableCell>
+                      <TableCell
+                        className={`text-right font-mono text-xs font-semibold px-3 py-2 ${
+                          trade.profit >= 0 ? "text-success" : "text-destructive"
+                        }`}
+                        data-testid={`text-profit-${trade.id}`}
+                      >
+                        {trade.profit >= 0 ? "+" : ""}{trade.profit.toFixed(2)}
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
