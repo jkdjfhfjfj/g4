@@ -99,6 +99,14 @@ The AI analyzes messages and returns:
   - Detects and clears corrupted .telegram_session file automatically
   - Reinitializes client with fresh session and retries connection
   - User gets authentication dialog as expected
+- Enhanced features (Dec 30, 2025)
+  - Manual Telegram disconnect button in header
+  - Message deduplication uses channel+messageId key (`${channelId}:${messageId}`)
+  - Cache cleared on channel switch and disconnect to prevent cross-channel suppression
+  - Global lot size setting (persisted in `.trading_settings.json`, editable via UI)
+  - AI model name displayed for each message analysis
+  - Historical messages marked as "skipped" to avoid unnecessary AI analysis
+  - Service Worker for background notifications (`notification-worker.js`)
 
 ## User Preferences
 - Dark mode by default
