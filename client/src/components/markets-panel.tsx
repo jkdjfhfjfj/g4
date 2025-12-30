@@ -199,20 +199,19 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
             </div>
           ) : (
             <ScrollArea className="h-[calc(100vh-300px)] min-h-[200px] max-h-[400px] w-full border-t border-border">
-              <div className="min-w-full overflow-x-auto">
-                <Table>
-                  <TableHeader className="sticky top-0 bg-background z-10">
-                    <TableRow>
-                      <TableHead className="text-xs px-4">Symbol</TableHead>
-                      <TableHead className="text-xs text-right px-4">Bid</TableHead>
-                      <TableHead className="text-xs text-right px-4">Ask</TableHead>
-                      <TableHead className="text-xs text-right px-4">Spread</TableHead>
-                      <TableHead className="text-xs px-4">Action</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredMarkets.map((market) => (
-                      <TableRow key={market.symbol} data-testid={`market-row-${market.symbol}`}>
+              <Table className="w-max">
+                <TableHeader className="sticky top-0 bg-background z-10">
+                  <TableRow>
+                    <TableHead className="text-xs px-4 min-w-[80px]">Symbol</TableHead>
+                    <TableHead className="text-xs text-right px-4 min-w-[80px]">Bid</TableHead>
+                    <TableHead className="text-xs text-right px-4 min-w-[80px]">Ask</TableHead>
+                    <TableHead className="text-xs text-right px-4 min-w-[80px]">Spread</TableHead>
+                    <TableHead className="text-xs px-4 min-w-[90px]">Action</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredMarkets.map((market) => (
+                    <TableRow key={market.symbol} data-testid={`market-row-${market.symbol}`}>
                       <TableCell className="font-mono font-medium text-sm">
                         {market.symbol}
                       </TableCell>
@@ -249,10 +248,9 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
                         </div>
                       </TableCell>
                       </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
+                  ))}
+                </TableBody>
+              </Table>
             </ScrollArea>
           )}
         </CardContent>
