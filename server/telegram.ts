@@ -255,22 +255,46 @@ export async function initTelegram(): Promise<void> {
 function setupMessageHandler() {
   if (!client) return;
   
+  console.log("Setting up real-time message handler...");
+  
   client.addEventHandler(async (update: Api.TypeUpdate) => {
     if (update instanceof Api.UpdateNewChannelMessage) {
       const message = update.message;
       if (message instanceof Api.Message && selectedChannelId) {
-        const channelId = message.peerId?.toString() || "";
-        if (channelId.includes(selectedChannelId.replace("-100", ""))) {
-          const telegramMessage: TelegramMessage = {
-            id: message.id,
-            channelId: selectedChannelId,
-            channelTitle: "",
-            text: message.message || "",
-            date: new Date(message.date * 1000).toISOString(),
-            senderName: undefined,
-            aiVerdict: "analyzing",
-          };
-          notifyMessage(telegramMessage);
+        const peerId = message.peerId as any;
+        let channelId = "";
+        
+        // Extract channel ID based on peer type
+        if (peerId.channelId) {
+          channelId = `-100${peerId.channelId}`;
+        } else if (peerId.chatId) {
+          channelId = `-${peerId.chatId}`;
+        } else if (peerId.userId) {
+          channelId = `${peerId.userId}`;
+        }
+        
+        // Debug logging
+        if (message.message) {
+          console.log(`New message from channel: ${channelId}, text: "${message.message.substring(0, 50)}..."`);
+          console.log(`Selected channel: ${selectedChannelId}`);
+          
+          // More flexible comparison
+          const selectedNum = selectedChannelId.replace("-100", "").replace("-", "");
+          const incomingNum = channelId.replace("-100", "").replace("-", "");
+          
+          if (incomingNum === selectedNum) {
+            console.log("✓ Message matches selected channel, notifying...");
+            const telegramMessage: TelegramMessage = {
+              id: message.id,
+              channelId: selectedChannelId,
+              channelTitle: "",
+              text: message.message || "",
+              date: new Date(message.date * 1000).toISOString(),
+              senderName: undefined,
+              aiVerdict: "analyzing",
+            };
+            notifyMessage(telegramMessage);
+          }
         }
       }
     }
