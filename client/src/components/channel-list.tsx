@@ -1,5 +1,7 @@
-import { MessageSquare, Lock } from "lucide-react";
+import { MessageSquare, Lock, Search } from "lucide-react";
 import type { TelegramChannel } from "@shared/schema";
+import { useState } from "react";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -21,8 +23,13 @@ export function ChannelList({
   onSelectChannel,
   telegramStatus,
 }: ChannelListProps) {
+  const [search, setSearch] = useState("");
   const selectedChannel = channels.find((c) => c.id === selectedChannelId);
   const isDisabled = telegramStatus !== "connected";
+
+  const filteredChannels = channels.filter((c) =>
+    c.title.toLowerCase().includes(search.toLowerCase())
+  );
 
   return (
     <div className="w-full">
@@ -46,12 +53,25 @@ export function ChannelList({
           </div>
         </SelectTrigger>
         <SelectContent className="min-w-72">
-          {channels.length === 0 ? (
+          <div className="p-2 border-b border-border sticky top-0 bg-popover z-10">
+            <div className="relative">
+              <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
+              <Input
+                placeholder="Search channels..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8 h-8 text-xs"
+                onClick={(e) => e.stopPropagation()}
+                onKeyDown={(e) => e.stopPropagation()}
+              />
+            </div>
+          </div>
+          {filteredChannels.length === 0 ? (
             <div className="p-3 text-center text-sm text-muted-foreground">
-              No channels
+              No channels found
             </div>
           ) : (
-            channels.map((channel) => (
+            filteredChannels.map((channel) => (
               <SelectItem key={channel.id} value={channel.id}>
                 <div className="flex items-center gap-2">
                   {channel.isPrivate ? (

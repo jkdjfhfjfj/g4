@@ -170,9 +170,15 @@ export default function Dashboard() {
               max="100"
               value={lotSize}
               onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || !isNaN(parseFloat(val))) {
+                  updateLotSize(val as any);
+                }
+              }}
+              onBlur={(e) => {
                 const val = parseFloat(e.target.value);
-                if (!isNaN(val)) {
-                  updateLotSize(val);
+                if (isNaN(val) || val < 0.01) {
+                  updateLotSize(0.01);
                 }
               }}
               className="w-16 h-7 text-xs font-mono px-2"

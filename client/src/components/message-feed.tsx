@@ -66,8 +66,8 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
   }, [messages.length, isPaused]);
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="pb-2">
+    <Card className="h-full flex flex-col min-h-0">
+      <CardHeader className="pb-2 flex-shrink-0">
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <MessageCircle className="h-4 w-4" />
@@ -94,11 +94,11 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
         ) : (
           <ScrollArea
             ref={scrollRef}
-            className="h-[400px]"
+            className="h-full"
             onMouseEnter={() => setIsPaused(true)}
             onMouseLeave={() => setIsPaused(false)}
           >
-            <div className="px-4 py-2 space-y-3">
+            <div className="px-4 py-2 space-y-3 pb-4">
               {messages.map((message) => (
                 <div
                   key={message.id}
