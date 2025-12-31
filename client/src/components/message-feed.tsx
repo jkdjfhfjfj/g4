@@ -113,19 +113,20 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
                       <span className="text-xs text-muted-foreground">
                         {formatDistanceToNow(new Date(message.date), { addSuffix: true })}
                       </span>
+                      {message.modelUsed && (
+                        <Badge variant="outline" className="text-[10px] h-4 px-1.5 text-muted-foreground border-muted-foreground/20 font-mono">
+                          {message.modelUsed}
+                        </Badge>
+                      )}
                     </div>
                     <VerdictBadge verdict={message.aiVerdict} />
                   </div>
                   <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                   {message.verdictDescription && (
-                    <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-2">
-                      {message.verdictDescription}
-                    </p>
-                  )}
-                  {message.modelUsed && (
-                    <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                      <Cpu className="h-3 w-3" />
-                      <span className="font-mono">{message.modelUsed}</span>
+                    <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50">
+                      <p className="text-[11px] text-muted-foreground leading-snug italic">
+                        {message.verdictDescription}
+                      </p>
                     </div>
                   )}
                 </div>

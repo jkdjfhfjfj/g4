@@ -97,6 +97,7 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
                     <TableHead className="text-xs text-right px-3 py-2">Entry</TableHead>
                     <TableHead className="text-xs text-right px-3 py-2">Exit</TableHead>
                     <TableHead className="text-xs text-right px-3 py-2">P/L</TableHead>
+                    <TableHead className="text-xs px-3 py-2">Comment</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -142,6 +143,9 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
                         data-testid={`text-profit-${trade.id}`}
                       >
                         {trade.profit >= 0 ? "+" : ""}{trade.profit.toFixed(2)}
+                      </TableCell>
+                      <TableCell className="text-[10px] text-muted-foreground max-w-[150px] truncate px-3 py-2">
+                        {trade.comment || "-"}
                       </TableCell>
                     </TableRow>
                   ))}

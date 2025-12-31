@@ -177,6 +177,11 @@ function SignalCard({
             </Badge>
           </div>
           <div className="flex items-center gap-1">
+            {signal.modelUsed && (
+              <Badge variant="outline" className="text-[10px] h-4 px-1 text-muted-foreground border-muted-foreground/20 font-mono mr-1">
+                {signal.modelUsed}
+              </Badge>
+            )}
             <Zap className="h-3.5 w-3.5 text-warning" />
             <span className="text-sm font-medium">{Math.round(signal.confidence * 100)}%</span>
           </div>
@@ -208,9 +213,20 @@ function SignalCard({
         </div>
 
         {signal.verdictDescription && (
-          <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-2 py-1">
-            {signal.verdictDescription}
-          </p>
+          <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50">
+            <p className="text-[11px] text-muted-foreground leading-snug italic">
+              {signal.verdictDescription}
+            </p>
+          </div>
+        )}
+
+        {signal.status === "failed" && signal.failureReason && (
+          <div className="mt-1 p-2 rounded bg-destructive/10 border border-destructive/20 flex items-start gap-2">
+            <AlertTriangle className="h-3 w-3 text-destructive mt-0.5" />
+            <p className="text-[11px] text-destructive leading-snug">
+              Failed: {signal.failureReason}
+            </p>
+          </div>
         )}
 
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
