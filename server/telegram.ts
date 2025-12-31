@@ -311,7 +311,7 @@ export async function getChannels(): Promise<TelegramChannel[]> {
     const channels: TelegramChannel[] = [];
 
     for (const dialog of dialogs) {
-      if (dialog.isChannel || dialog.isGroup) {
+      if (dialog.isChannel || dialog.isGroup || dialog.isChat) {
         const entity = dialog.entity;
         let participantsCount: number | undefined;
         let isPrivate = true;
@@ -321,6 +321,9 @@ export async function getChannels(): Promise<TelegramChannel[]> {
           participantsCount = entity.participantsCount;
           isPrivate = !entity.username;
           username = entity.username;
+        } else if (entity instanceof Api.Chat) {
+          participantsCount = entity.participantsCount;
+          isPrivate = true;
         }
 
         channels.push({
@@ -329,6 +332,7 @@ export async function getChannels(): Promise<TelegramChannel[]> {
           username,
           participantsCount,
           isPrivate,
+          type: dialog.isChannel ? "channel" : "group",
         });
       }
     }

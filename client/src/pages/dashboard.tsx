@@ -170,20 +170,18 @@ export default function Dashboard() {
               <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
               <span className="text-xs md:text-sm font-medium whitespace-nowrap">Lot:</span>
               <Input
-                type="number"
-                step="0.01"
-                min="0.01"
-                max="100"
+                type="text"
                 value={lotSize}
                 onChange={(e) => {
                   const val = e.target.value;
-                  if (val === "" || !isNaN(parseFloat(val))) {
+                  // Allow empty, partial decimals, or valid numbers
+                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
                     updateLotSize(val as any);
                   }
                 }}
                 onBlur={(e) => {
                   const val = parseFloat(e.target.value);
-                  if (isNaN(val) || val < 0.01) {
+                  if (isNaN(val) || val <= 0) {
                     updateLotSize(0.01);
                   }
                 }}

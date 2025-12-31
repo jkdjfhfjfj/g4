@@ -24,6 +24,7 @@ export interface TelegramChannel {
   username?: string;
   participantsCount?: number;
   isPrivate: boolean;
+  type?: 'channel' | 'group';
 }
 
 // Telegram Message
@@ -56,6 +57,7 @@ export interface ParsedSignal {
   timestamp: string;
   status: 'pending' | 'executed' | 'dismissed' | 'failed';
   rawMessage: string;
+  verdictDescription?: string;
 }
 
 // MetaAPI Account Info

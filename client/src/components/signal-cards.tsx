@@ -207,6 +207,12 @@ function SignalCard({
           )}
         </div>
 
+        {signal.verdictDescription && (
+          <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-2 py-1">
+            {signal.verdictDescription}
+          </p>
+        )}
+
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
           <span className="text-xs text-muted-foreground">
             {formatDistanceToNow(new Date(signal.timestamp), { addSuffix: true })}

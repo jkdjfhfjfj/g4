@@ -1,4 +1,4 @@
-import { MessageSquare, Lock, Search } from "lucide-react";
+import { MessageSquare, Lock, Search, Users } from "lucide-react";
 import type { TelegramChannel } from "@shared/schema";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -25,7 +25,6 @@ export function ChannelList({
   telegramStatus,
 }: ChannelListProps) {
   const [search, setSearch] = useState("");
-  const selectedChannel = channels.find((c) => c.id === selectedChannelId);
   const isDisabled = telegramStatus !== "connected";
 
   const filteredChannels = channels.filter((c) =>
@@ -40,20 +39,22 @@ export function ChannelList({
           className="w-full bg-white/15 border-white/25 text-primary-foreground hover:bg-white/20 transition-colors h-10"
           data-testid="select-channel"
         >
-          <div className="flex items-center gap-2 w-full text-left">
+          <div className="flex items-center gap-2 w-full text-left min-w-0">
             <MessageSquare className="h-4 w-4 flex-shrink-0" />
-            <SelectValue
-              placeholder={
-                telegramStatus === "needs_auth"
-                  ? "Authenticate"
-                  : telegramStatus === "connecting"
-                  ? "Connecting..."
-                  : "Select channel"
-              }
-            />
+            <div className="flex-1 truncate">
+              <SelectValue
+                placeholder={
+                  telegramStatus === "needs_auth"
+                    ? "Authenticate"
+                    : telegramStatus === "connecting"
+                    ? "Connecting..."
+                    : "Select channel"
+                }
+              />
+            </div>
           </div>
         </SelectTrigger>
-        <SelectContent className="min-w-72">
+        <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[280px] max-w-[calc(100vw-2rem)]">
           <div className="p-2 border-b border-border sticky top-0 bg-popover z-10">
             <div className="relative">
               <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
@@ -81,12 +82,16 @@ export function ChannelList({
               filteredChannels.map((channel) => (
                 <SelectItem key={channel.id} value={channel.id}>
                   <div className="flex items-center gap-2">
-                    {channel.isPrivate ? (
+                    {channel.type === "group" ? (
+                      <Users className="h-4 w-4 text-orange-400" />
+                    ) : channel.isPrivate ? (
                       <Lock className="h-4 w-4 text-destructive" />
                     ) : (
                       <MessageSquare className="h-4 w-4 text-primary" />
                     )}
-                    <span className="font-medium text-sm">{channel.title}</span>
+                    <span className="font-medium text-sm truncate max-w-[180px] sm:max-w-[220px]">
+                      {channel.title}
+                    </span>
                   </div>
                 </SelectItem>
               ))

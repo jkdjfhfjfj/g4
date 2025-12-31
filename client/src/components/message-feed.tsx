@@ -116,7 +116,7 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
                     </div>
                     <VerdictBadge verdict={message.aiVerdict} />
                   </div>
-                  <p className="text-sm whitespace-pre-wrap break-words line-clamp-3">{message.text}</p>
+                  <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                   {message.verdictDescription && (
                     <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-2">
                       {message.verdictDescription}

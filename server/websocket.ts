@@ -225,7 +225,7 @@ async function handleMessage(ws: WebSocket, data: any) {
 
       case "set_lot_size": {
         const size = parseFloat(data.lotSize);
-        if (!isNaN(size) && size >= 0.01 && size <= 100) {
+        if (!isNaN(size) && size > 0) {
           globalLotSize = size;
           saveSettings();
           broadcast({ type: "lot_size_updated", lotSize: globalLotSize });
@@ -289,6 +289,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         broadcast({ type: "new_message", message: updatedMessage });
 
         if (signal) {
+          signal.verdictDescription = verdictDescription;
           updatedMessage.parsedSignal = signal;
           signals.set(signal.id, signal);
           broadcast({ type: "signal_detected", signal });
