@@ -174,6 +174,8 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
       timestamp: new Date().toISOString(),
       status: "pending",
       rawMessage: message.text,
+      modelUsed,
+      verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`,
     };
 
     return { verdict: "valid_signal", verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`, signal, modelUsed };

@@ -12,8 +12,12 @@ import { History, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
 import type { TradeHistory } from "@shared/schema";
 import { format } from "date-fns";
 
+interface TradeHistoryExtended extends TradeHistory {
+  comment?: string;
+}
+
 interface HistoryPanelProps {
-  trades: TradeHistory[];
+  trades: TradeHistoryExtended[];
 }
 
 export function HistoryPanel({ trades }: HistoryPanelProps) {
