@@ -391,6 +391,7 @@ export async function executeTrade(
     let result;
 
     if (orderType === "LIMIT" && entryPrice) {
+      console.log(`Executing LIMIT order: ${symbol} ${direction} at ${entryPrice}`);
       if (direction === "BUY") {
         result = await connection.createLimitBuyOrder(
           symbol,
@@ -411,6 +412,7 @@ export async function executeTrade(
         );
       }
     } else {
+      console.log(`Executing MARKET order: ${symbol} ${direction}`);
       if (direction === "BUY") {
         result = await connection.createMarketBuyOrder(
           symbol,

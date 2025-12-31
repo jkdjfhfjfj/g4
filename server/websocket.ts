@@ -106,6 +106,7 @@ async function handleMessage(ws: WebSocket, data: any) {
             broadcast({ type: "trade_result", success: true, message: `${data.direction} ${data.symbol} executed successfully` });
           } else {
             signal.status = "failed";
+            signal.failureReason = result.message;
             signals.set(signal.id, signal);
             broadcast({ type: "signal_updated", signal });
             broadcast({ type: "error", message: result.message });
@@ -314,6 +315,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 broadcast({ type: "auto_trade_executed", signal, result });
               } else {
                 signal.status = "failed";
+                signal.failureReason = result.message;
                 signals.set(signal.id, signal);
                 broadcast({ type: "signal_updated", signal });
                 broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });

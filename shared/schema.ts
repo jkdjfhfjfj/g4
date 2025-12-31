@@ -58,6 +58,8 @@ export interface ParsedSignal {
   status: 'pending' | 'executed' | 'dismissed' | 'failed';
   rawMessage: string;
   verdictDescription?: string;
+  modelUsed?: string;
+  failureReason?: string;
 }
 
 // MetaAPI Account Info

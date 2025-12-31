@@ -148,7 +148,7 @@ function SignalCard({
   onDismiss,
 }: {
   signal: ParsedSignal;
-  onExecute: () => void;
+  onExecute: (volume: number, stopLoss?: number, takeProfit?: number) => void;
   onDismiss: () => void;
 }) {
   const isBuy = signal.direction === "BUY";
@@ -317,7 +317,9 @@ export function SignalCards({ signals, onExecute, onDismiss }: SignalCardsProps)
                   <SignalCard
                     key={signal.id}
                     signal={signal}
-                    onExecute={() => setExecuteSignal(signal)}
+                    onExecute={(volume, stopLoss, takeProfit) => 
+                  onExecute(signal.id, volume, stopLoss, takeProfit)
+                }
                     onDismiss={() => onDismiss(signal.id)}
                   />
                 ))}
