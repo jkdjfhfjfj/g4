@@ -1,3 +1,4 @@
+import { ChannelList } from "@/components/channel-list";
 import { useWebSocket } from "@/hooks/use-websocket";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { StatusBar, MobileStatusBar } from "@/components/connection-status";
@@ -145,24 +146,13 @@ export default function Dashboard() {
 
           {/* Channel Selector & Auto-Trade Row */}
           <div className="px-3 md:px-4 py-2 md:py-3 border-t border-border/50 bg-muted/30 flex flex-col md:flex-row gap-2 md:gap-3">
-            <div className="flex-1 flex gap-2">
-              <div className="w-full">
-                <select
-                  id="channel-select"
-                  value={selectedChannelId || ""}
-                  onChange={(e) => selectChannel(e.target.value)}
-                  disabled={telegramStatus !== "connected"}
-                  className="w-full px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border border-border bg-background text-xs md:text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent h-9 md:h-10"
-                  data-testid="select-channel"
-                >
-                  <option value="">Select channel...</option>
-                  {channels.map((ch) => (
-                    <option key={ch.id} value={ch.id}>
-                      {ch.isPrivate ? "🔒" : "📢"} {ch.title}
-                    </option>
-                  ))}
-                </select>
-              </div>
+            <div className="flex-1">
+              <ChannelList
+                channels={channels}
+                selectedChannelId={selectedChannelId}
+                onSelectChannel={selectChannel}
+                telegramStatus={telegramStatus}
+              />
             </div>
 
             <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">

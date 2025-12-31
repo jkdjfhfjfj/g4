@@ -2,6 +2,7 @@ import { MessageSquare, Lock, Search } from "lucide-react";
 import type { TelegramChannel } from "@shared/schema";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Select,
   SelectContent,
@@ -61,29 +62,36 @@ export function ChannelList({
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
                 className="pl-8 h-8 text-xs"
-                onClick={(e) => e.stopPropagation()}
-                onKeyDown={(e) => e.stopPropagation()}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                onKeyDown={(e) => {
+                  e.stopPropagation();
+                }}
               />
             </div>
           </div>
-          {filteredChannels.length === 0 ? (
-            <div className="p-3 text-center text-sm text-muted-foreground">
-              No channels found
-            </div>
-          ) : (
-            filteredChannels.map((channel) => (
-              <SelectItem key={channel.id} value={channel.id}>
-                <div className="flex items-center gap-2">
-                  {channel.isPrivate ? (
-                    <Lock className="h-4 w-4 text-destructive" />
-                  ) : (
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                  )}
-                  <span className="font-medium text-sm">{channel.title}</span>
-                </div>
-              </SelectItem>
-            ))
-          )}
+          <ScrollArea className="max-h-[300px]">
+            {filteredChannels.length === 0 ? (
+              <div className="p-3 text-center text-sm text-muted-foreground">
+                No channels found
+              </div>
+            ) : (
+              filteredChannels.map((channel) => (
+                <SelectItem key={channel.id} value={channel.id}>
+                  <div className="flex items-center gap-2">
+                    {channel.isPrivate ? (
+                      <Lock className="h-4 w-4 text-destructive" />
+                    ) : (
+                      <MessageSquare className="h-4 w-4 text-primary" />
+                    )}
+                    <span className="font-medium text-sm">{channel.title}</span>
+                  </div>
+                </SelectItem>
+              ))
+            )}
+          </ScrollArea>
         </SelectContent>
       </Select>
     </div>
