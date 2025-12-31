@@ -50,6 +50,7 @@ interface SignalAnalysis {
   reason: string;
   symbol: string | null;
   direction: "BUY" | "SELL" | null;
+  orderType: "MARKET" | "LIMIT";
   entryPrice: number | null;
   stopLoss: number | null;
   takeProfit: number[] | null;
@@ -159,6 +160,7 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
       channelId: message.channelId,
       symbol: normalizedSymbol,
       direction: analysis.direction,
+      orderType: analysis.orderType || (analysis.entryPrice ? "LIMIT" : "MARKET"),
       entryPrice: analysis.entryPrice || undefined,
       stopLoss: analysis.stopLoss || undefined,
       takeProfit: analysis.takeProfit || undefined,

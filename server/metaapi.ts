@@ -22,6 +22,8 @@ interface ExtendedRpcConnection {
   getDealsByTimeRange(startTime: Date, endTime: Date): Promise<any[]>;
   createMarketBuyOrder(symbol: string, volume: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
   createMarketSellOrder(symbol: string, volume: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
+  createLimitBuyOrder(symbol: string, volume: number, openPrice: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
+  createLimitSellOrder(symbol: string, volume: number, openPrice: number, stopLoss?: number, takeProfit?: number, options?: any): Promise<any>;
   closePosition(positionId: string): Promise<void>;
   modifyPosition(positionId: string, stopLoss?: number, takeProfit?: number): Promise<void>;
 }
@@ -377,7 +379,9 @@ export async function executeTrade(
   direction: "BUY" | "SELL",
   volume: number,
   stopLoss?: number,
-  takeProfit?: number
+  takeProfit?: number,
+  orderType: "MARKET" | "LIMIT" = "MARKET",
+  entryPrice?: number
 ): Promise<{ success: boolean; message: string; positionId?: string }> {
   if (!connection || !isConnected) {
     return { success: false, message: "Not connected to MetaAPI" };
@@ -386,29 +390,51 @@ export async function executeTrade(
   try {
     let result;
 
-    if (direction === "BUY") {
-      result = await connection.createMarketBuyOrder(
-        symbol,
-        volume,
-        stopLoss,
-        takeProfit,
-        { comment: "TradingBot Signal" }
-      );
+    if (orderType === "LIMIT" && entryPrice) {
+      if (direction === "BUY") {
+        result = await connection.createLimitBuyOrder(
+          symbol,
+          volume,
+          entryPrice,
+          stopLoss,
+          takeProfit,
+          { comment: "TradingBot Signal" }
+        );
+      } else {
+        result = await connection.createLimitSellOrder(
+          symbol,
+          volume,
+          entryPrice,
+          stopLoss,
+          takeProfit,
+          { comment: "TradingBot Signal" }
+        );
+      }
     } else {
-      result = await connection.createMarketSellOrder(
-        symbol,
-        volume,
-        stopLoss,
-        takeProfit,
-        { comment: "TradingBot Signal" }
-      );
+      if (direction === "BUY") {
+        result = await connection.createMarketBuyOrder(
+          symbol,
+          volume,
+          stopLoss,
+          takeProfit,
+          { comment: "TradingBot Signal" }
+        );
+      } else {
+        result = await connection.createMarketSellOrder(
+          symbol,
+          volume,
+          stopLoss,
+          takeProfit,
+          { comment: "TradingBot Signal" }
+        );
+      }
     }
 
     console.log("Trade executed:", result);
     return {
       success: true,
-      message: `${direction} order executed for ${symbol}`,
-      positionId: result?.positionId,
+      message: `${direction} ${orderType} order executed for ${symbol}`,
+      positionId: result?.positionId || result?.orderId,
     };
   } catch (error: any) {
     console.error("Failed to execute trade:", error);

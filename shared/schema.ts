@@ -48,6 +48,7 @@ export interface ParsedSignal {
   channelId: string;
   symbol: string;
   direction: 'BUY' | 'SELL';
+  orderType: 'MARKET' | 'LIMIT';
   entryPrice?: number;
   stopLoss?: number;
   takeProfit?: number[];
@@ -139,10 +140,12 @@ export type WSMessageType =
 
 // Insert schemas for API validation
 export const executeTradeSchema = z.object({
-  signalId: z.string(),
+  signalId: z.string().optional(),
   symbol: z.string(),
   direction: z.enum(['BUY', 'SELL']),
+  orderType: z.enum(['MARKET', 'LIMIT']).default('MARKET'),
   volume: z.number().min(0.01).max(100),
+  entryPrice: z.number().optional(),
   stopLoss: z.number().optional(),
   takeProfit: z.number().optional(),
 });

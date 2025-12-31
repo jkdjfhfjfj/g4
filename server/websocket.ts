@@ -94,7 +94,9 @@ async function handleMessage(ws: WebSocket, data: any) {
             data.direction,
             data.volume,
             data.stopLoss,
-            data.takeProfit
+            data.takeProfit,
+            data.orderType || "MARKET",
+            data.entryPrice
           );
 
           if (result.success) {
@@ -125,7 +127,9 @@ async function handleMessage(ws: WebSocket, data: any) {
           data.direction,
           data.volume,
           data.stopLoss,
-          data.takeProfit
+          data.takeProfit,
+          data.orderType || "MARKET",
+          data.entryPrice
         );
 
         if (result.success) {
@@ -290,7 +294,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
           broadcast({ type: "signal_detected", signal });
 
           if (autoTradeEnabled && signal.confidence >= 0.7) {
-            console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
+            console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (${signal.orderType}) (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
             
             // Auto-execute in background with global lot size
             metaapi.executeTrade(
@@ -298,7 +302,9 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
               signal.direction,
               globalLotSize,
               signal.stopLoss,
-              signal.takeProfit?.[0]
+              signal.takeProfit?.[0],
+              signal.orderType,
+              signal.entryPrice
             ).then(result => {
               if (result.success) {
                 signal.status = "executed";
