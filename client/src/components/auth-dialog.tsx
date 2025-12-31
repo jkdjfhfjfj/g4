@@ -24,12 +24,13 @@ interface AuthDialogProps {
 
 export function AuthDialog({
   open,
+  onOpenChange,
   step,
   error: backendError,
   onSubmitPhone,
   onSubmitCode,
   onSubmitPassword,
-}: AuthDialogProps) {
+}: AuthDialogProps & { onOpenChange?: (open: boolean) => void }) {
   const [phone, setPhone] = useState("");
   const [code, setCode] = useState("");
   const [password, setPassword] = useState("");
@@ -151,7 +152,7 @@ export function AuthDialog({
   const content = getStepContent()!;
 
   return (
-    <Dialog open={open}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center justify-between gap-2 mb-2">

@@ -53,6 +53,13 @@ export default function Dashboard() {
 
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState("signals");
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (authRequired) {
+      setAuthModalOpen(true);
+    }
+  }, [authRequired]);
 
   useEffect(() => {
     if (error) {
@@ -188,7 +195,7 @@ export default function Dashboard() {
               />
             </div>
 
-            {telegramStatus === "connected" && (
+            {telegramStatus === "connected" ? (
               <Button
                 variant="ghost"
                 size="sm"
@@ -198,6 +205,17 @@ export default function Dashboard() {
               >
                 <LogOut className="h-4 w-4" />
                 <span className="hidden md:inline">Disconnect</span>
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setAuthModalOpen(true)}
+                className="flex items-center gap-1 text-xs h-9 md:h-10"
+                data-testid="button-connect-telegram"
+              >
+                <Bot className="h-4 w-4" />
+                <span>Connect</span>
               </Button>
             )}
           </div>
@@ -320,7 +338,8 @@ export default function Dashboard() {
 
       {/* Auth Dialog */}
       <AuthDialog
-        open={authRequired}
+        open={authModalOpen}
+        onOpenChange={setAuthModalOpen}
         step={authStep}
         error={authError}
         onSubmitPhone={submitPhoneNumber}

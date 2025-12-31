@@ -332,7 +332,7 @@ export async function getChannels(): Promise<TelegramChannel[]> {
           username,
           participantsCount,
           isPrivate,
-          type: (dialog.isChannel ? "channel" : "group") as "channel" | "group",
+          type: (dialog.isChannel ? "channel" : "group"),
         });
       }
     }
