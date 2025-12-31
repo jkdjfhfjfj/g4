@@ -1,4 +1,5 @@
 {
   "autoTradeEnabled": true,
-  "savedChannelId": "-1002851205519"
+  "savedChannelId": "",
+  "lotSize": 0.01
 }

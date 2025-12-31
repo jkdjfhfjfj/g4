@@ -87,7 +87,12 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
               min="0.01"
               max="100"
               value={volume}
-              onChange={(e) => setVolume(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || !isNaN(parseFloat(val))) {
+                  setVolume(val);
+                }
+              }}
               className="col-span-3 font-mono"
               data-testid="input-market-trade-volume"
             />

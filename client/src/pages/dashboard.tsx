@@ -9,7 +9,7 @@ import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
-import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle, LogOut, Settings } from "lucide-react";
+import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle, LogOut, Settings, Search } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -84,7 +84,7 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-background to-background/50 flex flex-col">
       {/* Fixed Header - Not Scrollable */}
-      <header className="fixed top-0 left-0 right-0 z-40 bg-card border-b border-border">
+      <header className="fixed top-0 left-0 md:left-20 right-0 z-40 bg-card border-b border-border">
         {/* Main Header Row */}
         <div className="px-3 md:px-4 py-2 md:py-3 flex items-center justify-between gap-2">
           {/* Logo & Title */}
@@ -116,22 +116,40 @@ export default function Dashboard() {
 
         {/* Channel Selector & Auto-Trade Row */}
         <div className="px-3 md:px-4 py-2 md:py-3 border-t border-border/50 bg-muted/30 flex flex-col md:flex-row gap-2 md:gap-3">
-          <select
-            value={selectedChannelId || ""}
-            onChange={(e) => selectChannel(e.target.value)}
-            disabled={telegramStatus !== "connected"}
-            className="flex-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border border-border bg-background text-xs md:text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent"
-            data-testid="select-channel"
-          >
-            <option value="">Select channel...</option>
-            {channels.map((ch) => (
-              <option key={ch.id} value={ch.id}>
-                {ch.isPrivate ? "🔒" : "📢"} {ch.title}
-              </option>
-            ))}
-          </select>
+          <div className="flex-1 flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Input
+                placeholder="Search channels..."
+                className="pl-9 h-9 md:h-10 text-xs md:text-sm"
+                onChange={(e) => {
+                  const query = e.target.value.toLowerCase();
+                  const options = document.querySelectorAll('#channel-select option');
+                  options.forEach(opt => {
+                    const text = (opt as HTMLOptionElement).text.toLowerCase();
+                    (opt as HTMLOptionElement).style.display = text.includes(query) || (opt as HTMLOptionElement).value === "" ? "block" : "none";
+                  });
+                }}
+              />
+            </div>
+            <select
+              id="channel-select"
+              value={selectedChannelId || ""}
+              onChange={(e) => selectChannel(e.target.value)}
+              disabled={telegramStatus !== "connected"}
+              className="flex-1 px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg border border-border bg-background text-xs md:text-sm font-medium focus:ring-2 focus:ring-primary focus:border-transparent"
+              data-testid="select-channel"
+            >
+              <option value="">Select channel...</option>
+              {channels.map((ch) => (
+                <option key={ch.id} value={ch.id}>
+                  {ch.isPrivate ? "🔒" : "📢"} {ch.title}
+                </option>
+              ))}
+            </select>
+          </div>
 
-          <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
             <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
             <Switch
@@ -142,7 +160,7 @@ export default function Dashboard() {
             />
           </div>
 
-          <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0">
+          <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
             <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <span className="text-xs md:text-sm font-medium whitespace-nowrap">Lot:</span>
             <Input
@@ -153,7 +171,7 @@ export default function Dashboard() {
               value={lotSize}
               onChange={(e) => {
                 const val = parseFloat(e.target.value);
-                if (!isNaN(val) && val >= 0.01) {
+                if (!isNaN(val)) {
                   updateLotSize(val);
                 }
               }}
@@ -167,7 +185,7 @@ export default function Dashboard() {
               variant="ghost"
               size="sm"
               onClick={disconnectTelegram}
-              className="flex items-center gap-1 text-xs text-destructive"
+              className="flex items-center gap-1 text-xs text-destructive h-9 md:h-10"
               data-testid="button-disconnect-telegram"
             >
               <LogOut className="h-4 w-4" />
@@ -178,7 +196,7 @@ export default function Dashboard() {
       </header>
 
       {/* Main Content - Account for fixed header */}
-      <main className="flex-1 overflow-auto pt-[120px] md:pt-[150px]">
+      <main className="flex-1 overflow-auto pt-[160px] md:pt-[180px] md:pl-20">
         <div className="max-w-7xl mx-auto px-4 py-6 space-y-6 pb-28 md:pb-6">
           {/* Account Info Card */}
           {account && (
