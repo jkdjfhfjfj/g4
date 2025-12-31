@@ -174,10 +174,8 @@ export default function Dashboard() {
                 value={lotSize}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Allow empty, partial decimals, or valid numbers
-                  if (val === "" || /^\d*\.?\d*$/.test(val)) {
-                    updateLotSize(val as any);
-                  }
+                  // Allow any characters to prevent prefixing/restrictions during typing
+                  updateLotSize(val as any);
                 }}
                 onBlur={(e) => {
                   const val = parseFloat(e.target.value);

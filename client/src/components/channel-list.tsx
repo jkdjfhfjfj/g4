@@ -54,8 +54,8 @@ export function ChannelList({
             </div>
           </div>
         </SelectTrigger>
-        <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[280px] max-w-[calc(100vw-2rem)]">
-          <div className="p-2 border-b border-border sticky top-0 bg-popover z-10">
+        <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[280px] max-w-[calc(100vw-2rem)] overflow-hidden flex flex-col">
+          <div className="p-2 border-b border-border bg-popover z-10">
             <div className="relative">
               <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -73,29 +73,31 @@ export function ChannelList({
               />
             </div>
           </div>
-          <ScrollArea className="max-h-[300px]">
-            {filteredChannels.length === 0 ? (
-              <div className="p-3 text-center text-sm text-muted-foreground">
-                No channels found
-              </div>
-            ) : (
-              filteredChannels.map((channel) => (
-                <SelectItem key={channel.id} value={channel.id}>
-                  <div className="flex items-center gap-2">
-                    {channel.type === "group" ? (
-                      <Users className="h-4 w-4 text-orange-400" />
-                    ) : channel.isPrivate ? (
-                      <Lock className="h-4 w-4 text-destructive" />
-                    ) : (
-                      <MessageSquare className="h-4 w-4 text-primary" />
-                    )}
-                    <span className="font-medium text-sm truncate max-w-[180px] sm:max-w-[220px]">
-                      {channel.title}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))
-            )}
+          <ScrollArea className="flex-1 overflow-y-auto max-h-[300px]">
+            <div className="p-1">
+              {filteredChannels.length === 0 ? (
+                <div className="p-3 text-center text-sm text-muted-foreground">
+                  No channels found
+                </div>
+              ) : (
+                filteredChannels.map((channel) => (
+                  <SelectItem key={channel.id} value={channel.id} className="cursor-pointer">
+                    <div className="flex items-center gap-2">
+                      {channel.type === "group" ? (
+                        <Users className="h-4 w-4 text-orange-400" />
+                      ) : channel.isPrivate ? (
+                        <Lock className="h-4 w-4 text-destructive" />
+                      ) : (
+                        <MessageSquare className="h-4 w-4 text-primary" />
+                      )}
+                      <span className="font-medium text-sm truncate max-w-[180px] sm:max-w-[220px]">
+                        {channel.title}
+                      </span>
+                    </div>
+                  </SelectItem>
+                ))
+              )}
+            </div>
           </ScrollArea>
         </SelectContent>
       </Select>
