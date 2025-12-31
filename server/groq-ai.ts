@@ -33,10 +33,16 @@ Respond in JSON format only:
   "reason": string (brief 10-20 word explanation of why this is or isn't a valid signal),
   "symbol": string or null,
   "direction": "BUY" or "SELL" or null,
+  "orderType": "MARKET" or "LIMIT",
   "entryPrice": number or null,
   "stopLoss": number or null,
   "takeProfit": [number] or null
 }
+
+Rules for orderType:
+- Use "LIMIT" ONLY if a specific entry price/level is explicitly mentioned (e.g., "Buy Limit at 1.0850", "Sell at 1.0850", "Entry: 1.0850").
+- Use "MARKET" if the message says "Buy Now", "Sell Now", "Buy [SYMBOL] now", or if no specific entry price is provided.
+- If it's just "Buy [SYMBOL]" or "Sell [SYMBOL]" without an "at [PRICE]" or "Limit" keyword, default to "MARKET".
 
 For "reason", explain concisely:
 - If valid: what signal was detected (e.g., "Clear BUY signal for EURUSD with entry at 1.0850 and SL/TP levels")
