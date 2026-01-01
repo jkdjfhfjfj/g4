@@ -335,7 +335,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
             signals.set(signal.id, signal);
             broadcast({ type: "signal_detected", signal });
 
-            if (autoTradeEnabled && signal.confidence >= 0.7) {
+            if (autoTradeEnabled) {
               console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (${signal.orderType}) (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
               
               // Use signal.id as the lock key to prevent duplicate execution of the SAME signal

@@ -155,29 +155,33 @@ export async function initTelegram(): Promise<void> {
       console.log("Telegram network connected, checking auth...");
     } catch (connectError: any) {
       const errorMsg = connectError?.message || String(connectError);
+      console.error("Connection error:", errorMsg);
       
-      // Handle corrupted session (AUTH_KEY_DUPLICATED)
-      if (errorMsg.includes("AUTH_KEY_DUPLICATED")) {
+      // Handle corrupted session (AUTH_KEY_DUPLICATED or other key errors)
+      if (errorMsg.includes("AUTH_KEY_DUPLICATED") || errorMsg.includes("Session error")) {
         console.log("Corrupted session detected, clearing and retrying...");
         
         // Clear corrupted session
         try {
-          fs.unlinkSync(SESSION_FILE);
+          if (fs.existsSync(SESSION_FILE)) {
+            fs.unlinkSync(SESSION_FILE);
+          }
         } catch (e) {
-          // File may not exist
+          // Ignore unlink errors
         }
         
-        // Reset to empty session
+        // Reset to empty session and client
         stringSession = new StringSession("");
         client = new TelegramClient(stringSession, apiId, apiHash, {
           connectionRetries: 5,
           retryDelay: 1000,
         });
         
-        // Try connecting again with fresh session
         await client.connect();
-        console.log("Telegram network connected with fresh session, checking auth...");
+        console.log("Telegram network connected with fresh session");
+        notifyAuthError("Previous session was invalid. Please log in again.");
       } else {
+        notifyAuthError(`Connection failed: ${errorMsg}`);
         throw connectError;
       }
     }
