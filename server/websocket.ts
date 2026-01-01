@@ -1,16 +1,3 @@
-/**
- * WebSocket Server Module
- * 
- * Handles real-time bidirectional communication between the server and clients.
- * Manages trading settings, message processing, AI analysis integration,
- * and automated trade execution.
- * 
- * Links:
- * - telegram.ts: Receives real-time messages and status updates.
- * - groq-ai.ts: Sends messages for AI signal analysis.
- * - metaapi.ts: Executes trades, fetches account info, and positions.
- */
-
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server } from "http";
 import type {
@@ -28,18 +15,15 @@ let wss: WebSocketServer | null = null;
 const clients: Set<WebSocket> = new Set();
 const signals: Map<string, ParsedSignal> = new Map();
 
-// Persistence for trading settings
 const SETTINGS_FILE = path.join(process.cwd(), ".trading_settings.json");
 let autoTradeEnabled = false;
+let savedChannelId: string | null = null;
 let globalLotSize = 0.01;
+const processedMessageIds = new Set<string>();
+let currentChannelId: string | null = null;
+
 let savedChannelIds: string[] = [];
 
-// To prevent duplicate analysis of the same message
-const processedMessageIds = new Set<string>();
-
-/**
- * Loads trading settings from the local JSON file.
- */
 function loadSettings() {
   try {
     if (fs.existsSync(SETTINGS_FILE)) {
@@ -54,9 +38,6 @@ function loadSettings() {
   }
 }
 
-/**
- * Saves trading settings to the local JSON file.
- */
 function saveSettings() {
   try {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify({
@@ -71,9 +52,6 @@ function saveSettings() {
 
 loadSettings();
 
-/**
- * Broadcasts a message to all connected WebSocket clients.
- */
 function broadcast(message: WSMessageType) {
   const data = JSON.stringify(message);
   clients.forEach((client) => {
@@ -83,26 +61,41 @@ function broadcast(message: WSMessageType) {
   });
 }
 
-/**
- * Handles incoming messages from WebSocket clients.
- */
 async function handleMessage(ws: WebSocket, data: any) {
   try {
     switch (data.type) {
       case "select_channel": {
+        // Multi-channel selection
         const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
+        
+        // Update current local selection for real-time handler
         savedChannelIds = channelIds;
         saveSettings();
         
+        // Handle message processing for all selected channels
         for (const channelId of channelIds) {
           const messages = await telegram.selectChannel(channelId);
-          // Only show last hour of messages to prevent flooding on connect
+          
+          // Only show last hour of messages (real-time), skip older history
           const oneHourAgo = Date.now() - 60 * 60 * 1000;
           const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
+          // Show historical messages
+          console.log(`Sending ${recentMessages.length} recent messages for channel ${channelId}`);
           for (const message of recentMessages) {
+            console.log(`Sending historical message: ${message.id} from ${message.channelId}`);
             ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
-            processedMessageIds.add(`${message.channelId}:${message.id}`);
+          }
+
+          // Don't call processMessage here as it broadcasts to all clients again
+          // and triggers duplicate processing. Just analyze in background if needed.
+          for (const message of recentMessages) {
+            const messageKey = `${message.channelId}:${message.id}`;
+            if (!processedMessageIds.has(messageKey)) {
+              processedMessageIds.add(messageKey);
+              // Historical messages are skipped for AI by default in processMessage,
+              // so we don't need to do anything else here.
+            }
           }
         }
         break;
@@ -111,6 +104,7 @@ async function handleMessage(ws: WebSocket, data: any) {
       case "execute_trade": {
         const signal = signals.get(data.signalId);
         if (signal) {
+          // Use signal ID as lock key even for manual execution to prevent collision with auto-trade
           const result = await metaapi.executeTrade(
             data.symbol,
             data.direction,
@@ -119,21 +113,24 @@ async function handleMessage(ws: WebSocket, data: any) {
             data.takeProfit,
             data.orderType || "MARKET",
             data.entryPrice,
-            signal.id 
+            signal.id // Use signal.id as lock key
           );
 
           if (result.success) {
             signal.status = "executed";
+            signals.set(signal.id, signal);
             broadcast({ type: "signal_updated", signal });
             broadcast({ type: "trade_result", success: true, message: `${data.direction} ${data.symbol} executed successfully` });
           } else {
             signal.status = "failed";
             signal.failureReason = result.message;
+            signals.set(signal.id, signal);
             broadcast({ type: "signal_updated", signal });
+            broadcast({ type: "error", message: result.message });
             broadcast({ type: "trade_result", success: false, message: result.message });
           }
 
-          // Trigger data refresh
+          // Refresh positions and account
           const positions = await metaapi.getPositions();
           broadcast({ type: "positions", positions });
           const account = await metaapi.refreshAccount();
@@ -142,7 +139,6 @@ async function handleMessage(ws: WebSocket, data: any) {
         break;
       }
 
-      // Other cases (manual_trade, dismiss_signal, close_position, etc.) handled similarly...
       case "manual_trade": {
         const result = await metaapi.executeTrade(
           data.symbol,
@@ -153,11 +149,15 @@ async function handleMessage(ws: WebSocket, data: any) {
           data.orderType || "MARKET",
           data.entryPrice
         );
+
         if (result.success) {
           broadcast({ type: "trade_result", success: true, message: `${data.direction} ${data.symbol} executed successfully` });
         } else {
+          broadcast({ type: "error", message: result.message });
           broadcast({ type: "trade_result", success: false, message: result.message });
         }
+
+        // Refresh positions and account
         const positions = await metaapi.getPositions();
         broadcast({ type: "positions", positions });
         const account = await metaapi.refreshAccount();
@@ -169,6 +169,7 @@ async function handleMessage(ws: WebSocket, data: any) {
         const signal = signals.get(data.signalId);
         if (signal) {
           signal.status = "dismissed";
+          signals.set(signal.id, signal);
           broadcast({ type: "signal_updated", signal });
         }
         break;
@@ -178,9 +179,13 @@ async function handleMessage(ws: WebSocket, data: any) {
         const result = await metaapi.closePosition(data.positionId);
         if (result.success) {
           broadcast({ type: "position_closed", positionId: data.positionId });
+          broadcast({ type: "trade_result", success: true, message: "Position closed successfully" });
         } else {
+          broadcast({ type: "error", message: result.message });
           broadcast({ type: "trade_result", success: false, message: result.message });
         }
+
+        // Refresh positions and account
         const positions = await metaapi.getPositions();
         broadcast({ type: "positions", positions });
         const account = await metaapi.refreshAccount();
@@ -188,22 +193,77 @@ async function handleMessage(ws: WebSocket, data: any) {
         break;
       }
 
-      case "phone_number": telegram.submitPhone(data.phone); break;
-      case "auth_code": telegram.submitCode(data.code); break;
-      case "password": telegram.submitPassword(data.password); break;
-      case "reconnect_telegram": await telegram.reconnect(); break;
-      case "disconnect_telegram": {
-        await telegram.disconnect();
-        processedMessageIds.clear();
-        broadcast({ type: "telegram_disconnected" });
+      case "modify_position": {
+        const result = await metaapi.modifyPosition(
+          data.positionId,
+          data.stopLoss,
+          data.takeProfit
+        );
+        if (result.success) {
+          broadcast({ type: "trade_result", success: true, message: "Position modified successfully" });
+        } else {
+          broadcast({ type: "error", message: result.message });
+          broadcast({ type: "trade_result", success: false, message: result.message });
+        }
+
+        // Refresh positions
+        const positions = await metaapi.getPositions();
+        broadcast({ type: "positions", positions });
         break;
       }
+
+      case "phone_number": {
+        telegram.submitPhone(data.phone);
+        break;
+      }
+
+      case "auth_code": {
+        telegram.submitCode(data.code);
+        break;
+      }
+
+      case "password": {
+        telegram.submitPassword(data.password);
+        break;
+      }
+
+      case "reconnect_telegram": {
+        await telegram.reconnect();
+        
+        // After reconnection, re-select channels to sync messages
+        if (savedChannelIds.length > 0) {
+          console.log("Re-selecting saved channels after manual reconnect:", savedChannelIds);
+          for (const channelId of savedChannelIds) {
+            const messages = await telegram.selectChannel(channelId);
+            const oneHourAgo = Date.now() - 60 * 60 * 1000;
+            const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+            
+            for (const message of recentMessages) {
+              ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
+              // Prevent duplicate broadcast/processing
+              const messageKey = `${message.channelId}:${message.id}`;
+              processedMessageIds.add(messageKey);
+            }
+          }
+        }
+        break;
+      }
+
+      case "save_channel": {
+        const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
+        savedChannelIds = channelIds;
+        saveSettings();
+        broadcast({ type: "saved_channel", channelId: savedChannelIds[0] });
+        break;
+      }
+
       case "toggle_auto_trade": {
         autoTradeEnabled = data.enabled;
         saveSettings();
         broadcast({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
         break;
       }
+
       case "set_lot_size": {
         const size = parseFloat(data.lotSize);
         if (!isNaN(size) && size > 0) {
@@ -213,32 +273,60 @@ async function handleMessage(ws: WebSocket, data: any) {
         }
         break;
       }
+
+      case "disconnect_telegram": {
+        await telegram.disconnect();
+        processedMessageIds.clear();
+        currentChannelId = null;
+        broadcast({ type: "telegram_disconnected" });
+        break;
+      }
     }
   } catch (error) {
     console.error("Error handling WebSocket message:", error);
+    broadcast({
+      type: "error",
+      message: error instanceof Error ? error.message : "Unknown error",
+    });
   }
 }
 
-/**
- * Processes a Telegram message: broadcasts it and analyzes it for signals.
- */
 async function processMessage(message: TelegramMessage, isRealtime: boolean = false) {
   try {
     const updatedMessage = { ...message, isRealtime };
+    
+    // Create unique key using channel + message ID
     const messageKey = `${message.channelId}:${message.id}`;
     
-    if (processedMessageIds.has(messageKey)) return;
+    // Check for duplicate message processing
+    if (processedMessageIds.has(messageKey)) {
+      console.log(`Skipping duplicate message: ${messageKey}`);
+      return;
+    }
     
+    // For all messages, broadcast immediately (don't wait for analysis)
     broadcast({ type: "new_message", message: updatedMessage });
 
+    // Only analyze real-time messages asynchronously, skip historical ones
     if (isRealtime) {
+      // Mark message as being processed to prevent duplicates
       processedMessageIds.add(messageKey);
       
-      // AI Analysis
+      // Limit cache size to prevent memory leaks
+      if (processedMessageIds.size > 1000) {
+        const idsArray = Array.from(processedMessageIds);
+        for (let i = 0; i < 500; i++) {
+          processedMessageIds.delete(idsArray[i]);
+        }
+      }
+      
+      // Don't await - process analysis in background
       analyzeMessage(message).then(({ verdict, verdictDescription, signals: detectedSignals, modelUsed }) => {
         updatedMessage.aiVerdict = verdict;
         updatedMessage.verdictDescription = verdictDescription;
         updatedMessage.modelUsed = modelUsed;
+        
+        // Broadcast updated message with analysis
         broadcast({ type: "new_message", message: updatedMessage });
 
         if (detectedSignals && detectedSignals.length > 0) {
@@ -247,9 +335,11 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
             signals.set(signal.id, signal);
             broadcast({ type: "signal_detected", signal });
 
-            // Auto-Trade Logic
             if (autoTradeEnabled) {
-              console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction}`);
+              console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (${signal.orderType}) (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
+              
+              // Use signal.id as the lock key to prevent duplicate execution of the SAME signal
+              // Even if globalLotSize changes, the signal ID is unique to this specific detection
               metaapi.executeTrade(
                 signal.symbol,
                 signal.direction,
@@ -258,86 +348,253 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 signal.takeProfit?.[0],
                 signal.orderType === "LIMIT" ? "LIMIT" : "MARKET",
                 signal.entryPrice,
-                signal.id 
+                signal.id // Pass signalId as lock key
               ).then(result => {
                 if (result.success) {
                   signal.status = "executed";
+                  signals.set(signal.id, signal);
                   broadcast({ type: "signal_updated", signal });
+                  broadcast({ type: "auto_trade_executed", signal, result });
                 } else {
                   signal.status = "failed";
                   signal.failureReason = result.message;
+                  signals.set(signal.id, signal);
                   broadcast({ type: "signal_updated", signal });
+                  broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
                 }
-                metaapi.getPositions().then(p => broadcast({ type: "positions", positions: p }));
+
+                metaapi.getPositions().then(positions => {
+                  broadcast({ type: "positions", positions });
+                });
               });
             }
           });
         }
+      }).catch(error => {
+        console.error("Background analysis error:", error);
+        updatedMessage.aiVerdict = "error";
+        updatedMessage.verdictDescription = "Analysis timeout or error";
+        broadcast({ type: "new_message", message: updatedMessage });
       });
     } else {
+      // For historical messages, mark as skipped with reason
       updatedMessage.aiVerdict = "skipped";
+      updatedMessage.verdictDescription = "Historical message - only real-time messages are analyzed for signals";
       broadcast({ type: "new_message", message: updatedMessage });
     }
   } catch (error) {
     console.error("Error processing message:", error);
+    const updatedMessage = { ...message, aiVerdict: "error" as const, verdictDescription: "Processing error", isRealtime };
+    broadcast({ type: "new_message", message: updatedMessage });
   }
 }
 
-/**
- * Initial synchronization for newly connected WebSocket clients.
- */
 async function sendInitialData(ws: WebSocket) {
   const wsMessage = (msg: WSMessageType) => {
-    if (ws.readyState === WebSocket.OPEN) ws.send(JSON.stringify(msg));
+    if (ws.readyState === WebSocket.OPEN) {
+      ws.send(JSON.stringify(msg));
+    }
   };
 
   wsMessage({ type: "saved_channel", channelId: savedChannelIds[0] || null });
+  
+  // Also broadcast all saved IDs for multi-channel support
+  savedChannelIds.forEach(id => {
+    wsMessage({ type: "saved_channel", channelId: id });
+  });
+
   wsMessage({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
   wsMessage({ type: "lot_size_updated", lotSize: globalLotSize });
   
+  // Re-emit last hour signals
+  signals.forEach((signal) => {
+    const oneHourAgo = Date.now() - 60 * 60 * 1000;
+    if (new Date(signal.timestamp).getTime() > oneHourAgo) {
+      wsMessage({ type: "signal_detected", signal });
+    }
+  });
+
   const telegramStatus = telegram.getTelegramStatus();
   wsMessage({ type: "telegram_status", status: telegramStatus });
   wsMessage({ type: "metaapi_status", status: metaapi.getMetaApiStatus() });
+  
+  // Broadcast saved channels immediately so the client ref is updated before history arrives
+  savedChannelIds.forEach(id => {
+    wsMessage({ type: "saved_channel", channelId: id });
+  });
 
-  if (telegramStatus === "connected") {
+  if (telegramStatus === "needs_auth") {
+    wsMessage({ type: "auth_required" });
+    wsMessage({ type: "auth_step", step: "phone" });
+  } else if (telegramStatus === "connected") {
     const channels = await telegram.getChannels();
     wsMessage({ type: "channels", channels });
+
+    // Automatically select saved channels on connect if any
+    if (savedChannelIds.length > 0) {
+      console.log("Automatically selecting saved channels:", savedChannelIds);
+      // Wait for client state to settle (broadcasts sent above)
+      setTimeout(async () => {
+        console.log("Processing saved channels history after delay:", savedChannelIds);
+        for (const channelId of savedChannelIds) {
+          try {
+            const messages = await telegram.selectChannel(channelId);
+            const oneHourAgo = Date.now() - 60 * 60 * 1000;
+            const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+            
+            console.log(`Sending ${recentMessages.length} recent messages for channel ${channelId}`);
+            for (const message of recentMessages) {
+              console.log(`Sending historical message from saved channel: ${message.id} from ${message.channelId}`);
+              ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
+              
+              // Prevent duplicate broadcast/processing
+              const messageKey = `${message.channelId}:${message.id}`;
+              processedMessageIds.add(messageKey);
+            }
+          } catch (err) {
+            console.error(`Error selecting saved channel ${channelId}:`, err);
+          }
+        }
+      }, 1500); // Slightly longer delay to ensure WS is fully stable
+    }
   }
 
-  // Refresh and send market data
   const account = await metaapi.getAccountInfo();
-  if (account) wsMessage({ type: "account_info", account });
+  if (account) {
+    wsMessage({ type: "account_info", account });
+  }
+
   const positions = await metaapi.getPositions();
   wsMessage({ type: "positions", positions });
+
   const markets = await metaapi.getMarkets();
   wsMessage({ type: "markets", markets });
+
+  const history = await metaapi.getHistory();
+  wsMessage({ type: "history", trades: history });
+
+  signals.forEach((signal) => {
+    // Only send signals from the last 24 hours to keep UI clean
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    if (new Date(signal.timestamp).getTime() > oneDayAgo) {
+      wsMessage({ type: "signal_detected", signal });
+    }
+  });
 }
+
+// Real-time position updates via MetaAPI event handler
+metaapi.onPositionsUpdate((positions) => {
+  broadcast({ type: "positions", positions });
+});
+
+// Periodic history fetch every 2 minutes
+setInterval(async () => {
+  if (clients.size > 0) {
+    try {
+      const history = await metaapi.getHistory();
+      broadcast({ type: "history", trades: history });
+    } catch (e) {
+      console.log("History fetch error:", e);
+    }
+  }
+}, 120000);
 
 export function initWebSocket(server: Server) {
   wss = new WebSocketServer({ server, path: "/ws" });
 
   wss.on("connection", async (ws: WebSocket) => {
+    console.log("WebSocket client connected");
     clients.add(ws);
+
     ws.on("message", async (data: Buffer) => {
       try {
         const message = JSON.parse(data.toString());
+        if (!message || typeof message !== 'object' || !message.type) {
+          console.error("Invalid WebSocket message format");
+          return;
+        }
         await handleMessage(ws, message);
-      } catch (e) {}
+      } catch (error) {
+        console.error("Failed to parse WebSocket message:", error);
+      }
     });
-    ws.on("close", () => clients.delete(ws));
+
+    ws.on("close", () => {
+      console.log("WebSocket client disconnected");
+      clients.delete(ws);
+    });
+
+    ws.on("error", (error) => {
+      console.error("WebSocket error:", error);
+      clients.delete(ws);
+    });
+
+    // Send initial data
     await sendInitialData(ws);
   });
 
-  telegram.onMessage((m) => processMessage(m, true));
-  telegram.onStatusChange((s) => {
-    broadcast({ type: "telegram_status", status: s });
-    if (s === "needs_auth") broadcast({ type: "auth_required" });
+  // Set up Telegram message handler for REAL-TIME messages
+  telegram.onMessage(async (message) => {
+    console.log(`Received real-time message from Telegram: ${message.channelId}:${message.id}`);
+    const realtimeMessage = { ...message, isRealtime: true };
+    
+    // Broadcast immediately to all connected clients
+    broadcast({ type: "new_message", message: realtimeMessage });
+    
+    // Process for AI analysis and auto-trading
+    processMessage(realtimeMessage, true);
   });
-  telegram.onAuthRequired((t) => broadcast({ type: "auth_step", step: t }));
-  telegram.onAuthError((e) => broadcast({ type: "auth_error", message: e }));
 
-  metaapi.onPositionsUpdate((p) => broadcast({ type: "positions", positions: p }));
-  metaapi.onMarketsUpdate((m) => broadcast({ type: "markets", markets: m }));
+  // Set up real-time market data updates via MetaAPI
+  metaapi.onMarketsUpdate((markets) => {
+    broadcast({ type: "markets", markets });
+  });
+
+  // Set up Telegram status handler
+  telegram.onStatusChange(async (status) => {
+    broadcast({ type: "telegram_status", status });
+    if (status === "needs_auth") {
+      broadcast({ type: "auth_required" });
+    } else if (status === "connected") {
+      broadcast({ type: "auth_step", step: "done" });
+      // Fetch and broadcast channels after successful authentication
+      const channels = await telegram.getChannels();
+      broadcast({ type: "channels", channels });
+    }
+  });
+
+  // Set up Telegram auth handler
+  telegram.onAuthRequired((authType) => {
+    broadcast({ type: "auth_step", step: authType });
+  });
+
+  // Set up Telegram auth error handler
+  telegram.onAuthError((errorMessage) => {
+    broadcast({ type: "auth_error", message: errorMessage });
+  });
+
+  // Set up MetaAPI status handler
+  metaapi.onStatusChange((status) => {
+    broadcast({ type: "metaapi_status", status });
+  });
+
+  // Set up MetaAPI positions handler
+  metaapi.onPositionsUpdate((positions) => {
+    broadcast({ type: "positions", positions });
+  });
+
+  // Periodic updates
+  setInterval(async () => {
+    // Update account info
+    const account = await metaapi.getAccountInfo();
+    if (account) {
+      broadcast({ type: "account_info", account });
+    }
+
+    // Update markets
+    const markets = await metaapi.getMarkets();
+    broadcast({ type: "markets", markets });
+  }, 10000);
 
   console.log("WebSocket server initialized");
 }
