@@ -141,7 +141,7 @@ export default function Dashboard() {
                 <Bot className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-xs font-bold truncate md:text-sm">Trading Bot</h1>
+                <h1 className="text-xs font-bold truncate md:text-sm hidden sm:block">Trading Bot</h1>
               </div>
             </div>
 
@@ -212,7 +212,7 @@ export default function Dashboard() {
                   data-testid="button-connect-telegram"
                   title="Connect Telegram"
                 >
-                  <Bot className="h-4 w-4" />
+                  <Signal className="h-4 w-4 text-muted-foreground" />
                   <span className="hidden md:inline">Connect</span>
                 </Button>
               </div>

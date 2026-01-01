@@ -8,9 +8,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { History, TrendingUp, TrendingDown, BarChart3 } from "lucide-react";
+import { History, TrendingUp, TrendingDown, BarChart3, AlertCircle } from "lucide-react";
 import type { TradeHistory } from "@shared/schema";
 import { format } from "date-fns";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TradeHistoryExtended extends TradeHistory {
   comment?: string;
@@ -33,10 +34,25 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <History className="h-4 w-4" />
-            Trade History ({trades.length})
-          </CardTitle>
+          <div className="flex flex-col">
+            <CardTitle className="text-sm font-medium flex items-center gap-2">
+              <History className="h-4 w-4" />
+              Trade History ({trades.length})
+            </CardTitle>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Rate limits apply (120s sync)</span>
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent className="max-w-[200px]">
+                  <p>History data syncs periodically to stay within usage limits. Recent trades may take a moment to appear.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
           <div className="flex items-center gap-2 text-xs">
             <Badge variant="outline" className="font-mono">
               Wins: {winningTrades}/{trades.length}

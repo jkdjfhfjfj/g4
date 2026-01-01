@@ -19,8 +19,9 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { BarChart3, TrendingUp, TrendingDown, Search } from "lucide-react";
+import { BarChart3, TrendingUp, TrendingDown, Search, AlertCircle } from "lucide-react";
 import type { MarketSymbol } from "@shared/schema";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface MarketsPanelProps {
   markets: MarketSymbol[];
@@ -177,10 +178,25 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
       <Card className="h-full flex flex-col">
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between gap-2 flex-wrap">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Market Symbols ({markets.length})
-            </CardTitle>
+            <div className="flex flex-col">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                Market Symbols ({markets.length})
+              </CardTitle>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
+                      <AlertCircle className="h-3 w-3" />
+                      <span>Rate limits apply (60s updates)</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[200px]">
+                    <p>Market data updates are limited to stay within usage limits. Some symbols may be delayed.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
             <div className="flex-1 max-w-xs">
               <div className="relative">
                 <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />

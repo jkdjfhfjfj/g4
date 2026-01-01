@@ -54,7 +54,7 @@ export function ConnectionStatus({ label, status, onReconnect }: ConnectionStatu
             status === "connecting" ? "animate-pulse" : ""
           }`}
         />
-        {(label === "TG") && onReconnect && (
+        {(label === "TG") && (
           <Button
             variant="ghost"
             size="icon"
@@ -62,7 +62,7 @@ export function ConnectionStatus({ label, status, onReconnect }: ConnectionStatu
             className="h-5 w-5 md:h-6 md:w-6 no-default-hover-elevate"
             title="Reconnect Telegram"
           >
-            <Zap className={`h-3 w-3 ${status === "connected" ? "text-primary" : (status === "disconnected" ? "text-destructive" : "text-muted-foreground")}`} />
+            <RefreshCw className={`h-3 w-3 ${status === "connected" ? "text-primary" : (status === "disconnected" ? "text-destructive" : "text-muted-foreground")}`} />
           </Button>
         )}
       </div>
