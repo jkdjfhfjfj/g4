@@ -66,6 +66,7 @@ async function handleMessage(ws: WebSocket, data: any) {
         // Multi-channel selection
         const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
         
+        // Handle message processing for all selected channels
         for (const channelId of channelIds) {
           const messages = await telegram.selectChannel(channelId);
           

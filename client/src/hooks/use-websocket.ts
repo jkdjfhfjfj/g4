@@ -270,6 +270,10 @@ export function useWebSocket() {
     wsClient.send({ type: "disconnect_telegram" });
   }, []);
 
+  const reconnectTelegram = useCallback(() => {
+    wsClient.send({ type: "select_channel", channelId: selectedChannelIds });
+  }, [selectedChannelIds]);
+
   return {
     connectionStatus,
     telegramStatus,
@@ -302,6 +306,7 @@ export function useWebSocket() {
     lotSize,
     updateLotSize,
     disconnectTelegram,
+    reconnectTelegram,
   };
 }
 

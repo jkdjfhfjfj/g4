@@ -21,7 +21,7 @@ import {
   DialogTrigger,
   DialogClose,
 } from "@/components/ui/dialog";
-import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle, LogOut, Settings, Search } from "lucide-react";
+import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle, LogOut, Settings, Search, Zap } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -60,6 +60,7 @@ export default function Dashboard() {
     lotSize,
     updateLotSize,
     disconnectTelegram,
+    reconnectTelegram,
   } = useWebSocket();
 
   const { toast } = useToast();
@@ -203,7 +204,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            {telegramStatus === "connected" && (
+            {telegramStatus === "connected" ? (
               <Button
                 variant="ghost"
                 size="icon"
@@ -213,6 +214,31 @@ export default function Dashboard() {
               >
                 <LogOut className="h-4 w-4" />
               </Button>
+            ) : (
+              <div className="flex items-center gap-2">
+                {telegramStatus === "disconnected" && (
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    onClick={reconnectTelegram}
+                    className="flex items-center gap-1 text-xs h-9"
+                    data-testid="button-reconnect-telegram"
+                  >
+                    <Zap className="h-4 w-4" />
+                    <span>Reconnect</span>
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setAuthModalOpen(true)}
+                  className="flex items-center gap-1 text-xs h-9"
+                  data-testid="button-connect-telegram"
+                >
+                  <Bot className="h-4 w-4" />
+                  <span>Connect</span>
+                </Button>
+              </div>
             )}
           </div>
 
