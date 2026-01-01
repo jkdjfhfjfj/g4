@@ -178,16 +178,19 @@ export default function Dashboard() {
               <span className="text-xs md:text-sm font-medium whitespace-nowrap">Lot:</span>
               <Input
                 type="text"
+                inputMode="decimal"
                 value={lotSize}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Allow any characters to prevent prefixing/restrictions during typing
-                  updateLotSize(val as any);
+                  // Allow empty string or decimal numbers
+                  if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                    updateLotSize(val as any);
+                  }
                 }}
                 onBlur={(e) => {
                   const val = parseFloat(e.target.value);
                   if (isNaN(val) || val <= 0) {
-                    updateLotSize(0.01);
+                    updateLotSize("0.01" as any);
                   }
                 }}
                 className="w-16 h-7 text-xs font-mono px-2"

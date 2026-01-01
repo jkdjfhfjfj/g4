@@ -250,7 +250,7 @@ function SignalCard({
               </Button>
               <Button
                 size="sm"
-                onClick={onExecute}
+                onClick={() => onExecute(Number(signal.id), 0.01)}
                 className={
                   isBuy
                     ? "bg-success text-success-foreground"

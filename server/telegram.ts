@@ -311,7 +311,7 @@ export async function getChannels(): Promise<TelegramChannel[]> {
     const channels: TelegramChannel[] = [];
 
     for (const dialog of dialogs) {
-      if (dialog.isChannel || dialog.isGroup || dialog.isChat) {
+      if (dialog.isChannel || dialog.isGroup) {
         const entity = dialog.entity;
         let participantsCount: number | undefined;
         let isPrivate = true;
