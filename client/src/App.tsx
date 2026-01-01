@@ -31,9 +31,11 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Toaster />
-        <Router />
-        <LogsFAB logs={logs} />
+        <div className="relative min-h-screen">
+          <Toaster />
+          <Router />
+          <LogsFAB logs={logs} />
+        </div>
       </TooltipProvider>
     </QueryClientProvider>
   );

@@ -31,7 +31,7 @@ export function LogsFAB({ logs }: LogsFABProps) {
     <>
       <Button
         size="icon"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50 bg-primary hover:bg-primary/90 transition-all hover:scale-110 active:scale-95"
+        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-[9999] bg-primary hover:bg-primary/90 transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
         onClick={() => setIsOpen(true)}
         data-testid="button-open-logs"
       >
