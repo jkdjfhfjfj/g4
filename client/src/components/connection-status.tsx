@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Zap, Server, Globe, Signal } from "lucide-react";
+import { RefreshCw, Server, Globe, Signal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ConnectionStatusProps {

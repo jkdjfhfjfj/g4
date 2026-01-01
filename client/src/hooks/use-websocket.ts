@@ -174,7 +174,7 @@ export function useWebSocket() {
           setAutoTradeEnabled(message.enabled);
           break;
         case "auto_trade_executed":
-          playNotificationSound(`Auto Trade Executed: ${message.symbol} ${message.direction}`);
+          playNotificationSound(`Auto Trade Executed: ${message.signal.symbol} ${message.signal.direction}`);
           break;
         case "trade_result":
           setTradeResult({ success: message.success, message: message.message });
