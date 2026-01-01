@@ -40,15 +40,15 @@ export function ConnectionStatus({ label, status, onReconnect }: ConnectionStatu
           }`}
         />
         <span className="text-xs font-medium">{config.text}</span>
-        {label === "Telegram" && status === "disconnected" && onReconnect && (
+        {label === "Telegram" && (status === "disconnected" || status === "connected") && onReconnect && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onReconnect}
             className="h-6 w-6 ml-1"
-            title="Reconnect Telegram"
+            title={status === "connected" ? "Reconnect Telegram" : "Connect Telegram"}
           >
-            <Power className="h-3 w-3" />
+            <Power className={`h-3 w-3 ${status === "connected" ? "text-primary" : ""}`} />
           </Button>
         )}
       </div>

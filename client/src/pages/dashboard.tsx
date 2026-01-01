@@ -150,9 +150,8 @@ export default function Dashboard() {
                 telegramStatus={telegramStatus}
                 metaapiStatus={metaapiStatus}
                 onReconnectTelegram={() => {
-                   if (telegramStatus === "disconnected") {
-                     submitPhoneNumber(""); 
-                   }
+                   // Force a reconnection attempt by triggering the auth flow
+                   submitPhoneNumber(""); 
                 }}
               />
               <MobileStatusBar
@@ -160,9 +159,8 @@ export default function Dashboard() {
                 telegramStatus={telegramStatus}
                 metaapiStatus={metaapiStatus}
                 onReconnectTelegram={() => {
-                   if (telegramStatus === "disconnected") {
-                     submitPhoneNumber(""); 
-                   }
+                   // Force a reconnection attempt by triggering the auth flow
+                   submitPhoneNumber(""); 
                 }}
               />
               <ThemeToggle />
@@ -208,12 +206,12 @@ export default function Dashboard() {
             {telegramStatus === "connected" && (
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={disconnectTelegram}
-                className="h-9 text-destructive hover:bg-destructive/10 gap-2 px-3"
+                className="h-9 w-9 text-destructive hover:bg-destructive/10"
+                title="Disconnect Telegram"
               >
                 <LogOut className="h-4 w-4" />
-                <span className="text-xs font-medium">Disconnect</span>
               </Button>
             )}
           </div>

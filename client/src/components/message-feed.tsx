@@ -58,12 +58,15 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
   const [isPaused, setIsPaused] = useState(false);
   const prevMessagesLength = useRef(messages.length);
 
+  // Filter messages based on selected channel IDs
+  const filteredMessages = messages.filter(m => selectedChannelIds.includes(m.channelId));
+
   useEffect(() => {
-    if (!isPaused && messages.length > prevMessagesLength.current) {
+    if (!isPaused && filteredMessages.length > prevMessagesLength.current) {
       scrollRef.current?.scrollTo({ top: 0, behavior: "smooth" });
     }
-    prevMessagesLength.current = messages.length;
-  }, [messages.length, isPaused]);
+    prevMessagesLength.current = filteredMessages.length;
+  }, [filteredMessages.length, isPaused]);
 
   return (
     <Card className="h-full flex flex-col min-h-0">
@@ -74,7 +77,7 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
             Message Feed
           </CardTitle>
           <Badge variant="outline" className="text-xs">
-            {messages.length} messages
+            {filteredMessages.length} messages
           </Badge>
         </div>
       </CardHeader>
@@ -86,7 +89,7 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
               Select one or more channels to view messages
             </p>
           </div>
-        ) : messages.length === 0 ? (
+        ) : filteredMessages.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-4 text-center">
             <Loader2 className="h-8 w-8 text-muted-foreground mb-2 animate-spin" />
             <p className="text-sm text-muted-foreground">Waiting for messages...</p>
@@ -99,7 +102,7 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
             onMouseLeave={() => setIsPaused(false)}
           >
             <div className="px-4 py-2 space-y-3 pb-4">
-              {messages.map((message) => (
+              {filteredMessages.map((message) => (
                 <div
                   key={message.id}
                   className="p-3 rounded-md bg-muted/50 space-y-2"
