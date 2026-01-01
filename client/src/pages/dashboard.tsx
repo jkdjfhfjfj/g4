@@ -136,12 +136,12 @@ export default function Dashboard() {
         <header className="flex-shrink-0 z-40 bg-card border-b border-border w-full">
           {/* Main Header Row: Logo, Status, Theme */}
           <div className="px-3 md:px-4 py-2 flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="p-1.5 bg-primary/15 rounded-lg flex-shrink-0">
+            <div className="flex items-center gap-1.5 md:gap-2 flex-1 min-w-0">
+              <div className="p-1 bg-primary/15 rounded-md flex-shrink-0 md:p-1.5 md:rounded-lg">
                 <Bot className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-sm font-bold truncate">Trading Bot</h1>
+                <h1 className="text-xs font-bold truncate md:text-sm">Trading Bot</h1>
               </div>
             </div>
 
@@ -206,13 +206,14 @@ export default function Dashboard() {
               <div className="flex items-center gap-2">
                 <Button
                   variant="outline"
-                  size="sm"
+                  size="icon"
                   onClick={() => setAuthModalOpen(true)}
-                  className="flex items-center gap-1 text-xs h-9"
+                  className="md:w-auto md:px-3 md:gap-1 text-xs h-9"
                   data-testid="button-connect-telegram"
+                  title="Connect Telegram"
                 >
                   <Bot className="h-4 w-4" />
-                  <span>Connect</span>
+                  <span className="hidden md:inline">Connect</span>
                 </Button>
               </div>
             )}

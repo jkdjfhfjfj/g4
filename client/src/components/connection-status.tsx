@@ -31,22 +31,24 @@ export function ConnectionStatus({ label, status, onReconnect }: ConnectionStatu
   const config = statusConfig[status];
 
   return (
-    <div className="flex items-center gap-2">
-      <span className="text-xs text-muted-foreground">{label}</span>
-      <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-1.5 flex-shrink-0">
+      <div 
+        className="flex items-center gap-1.5 px-1.5 py-1 rounded-md bg-secondary/50 border border-border"
+        title={label}
+      >
         <span
           className={`h-2 w-2 rounded-full ${config.color} ${
             status === "connecting" ? "animate-pulse" : ""
           }`}
         />
-        <span className="text-xs font-medium">{config.text}</span>
-        {(label === "Telegram") && onReconnect && (
+        <span className="hidden md:inline text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
+        {(label === "TG") && onReconnect && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onReconnect}
-            className="h-6 w-6 ml-1"
-            title={status === "connected" ? "Reconnect Telegram" : "Connect Telegram"}
+            className="h-5 w-5 md:h-6 md:w-6"
+            title="Reconnect"
           >
             <Zap className={`h-3 w-3 ${status === "connected" ? "text-primary" : (status === "disconnected" ? "text-destructive" : "text-muted-foreground")}`} />
           </Button>
@@ -65,7 +67,7 @@ interface StatusBarProps {
 
 export function StatusBar({ wsStatus, telegramStatus, metaapiStatus, onReconnectTelegram }: StatusBarProps) {
   return (
-    <div className="flex items-center gap-2 md:gap-4 px-2">
+    <div className="flex items-center gap-1 md:gap-4 px-2">
       <ConnectionStatus label="WS" status={wsStatus} />
       <ConnectionStatus label="TG" status={telegramStatus} onReconnect={onReconnectTelegram} />
       <ConnectionStatus label="MT" status={metaapiStatus} />

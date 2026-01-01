@@ -81,7 +81,7 @@ async function handleMessage(ws: WebSocket, data: any) {
           const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
           for (const message of recentMessages) {
-            broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
+            ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
           }
 
           for (const message of recentMessages) {
@@ -228,7 +228,7 @@ async function handleMessage(ws: WebSocket, data: any) {
             const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
             
             for (const message of recentMessages) {
-              broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
+              ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
               processMessage({ ...message, isRealtime: false }, false);
             }
           }
@@ -400,17 +400,23 @@ async function sendInitialData(ws: WebSocket) {
       console.log("Automatically selecting saved channels:", savedChannelIds);
       // Wait for client to be ready to receive messages
       setTimeout(async () => {
+        console.log("Processing saved channels after delay:", savedChannelIds);
         for (const channelId of savedChannelIds) {
-          const messages = await telegram.selectChannel(channelId);
-          const oneHourAgo = Date.now() - 60 * 60 * 1000;
-          const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
-          
-          for (const message of recentMessages) {
-            broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
-            processMessage({ ...message, isRealtime: false }, false);
+          try {
+            const messages = await telegram.selectChannel(channelId);
+            const oneHourAgo = Date.now() - 60 * 60 * 1000;
+            const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+            
+            console.log(`Sending ${recentMessages.length} recent messages for channel ${channelId}`);
+            for (const message of recentMessages) {
+              ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
+              processMessage({ ...message, isRealtime: false }, false);
+            }
+          } catch (err) {
+            console.error(`Error selecting saved channel ${channelId}:`, err);
           }
         }
-      }, 1000);
+      }, 1500); // Slightly longer delay to ensure WS is fully stable
     }
   }
 
