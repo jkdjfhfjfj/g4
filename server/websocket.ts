@@ -104,6 +104,7 @@ async function handleMessage(ws: WebSocket, data: any) {
       case "execute_trade": {
         const signal = signals.get(data.signalId);
         if (signal) {
+          // Use signal ID as lock key even for manual execution to prevent collision with auto-trade
           const result = await metaapi.executeTrade(
             data.symbol,
             data.direction,
@@ -112,7 +113,7 @@ async function handleMessage(ws: WebSocket, data: any) {
             data.takeProfit,
             data.orderType || "MARKET",
             data.entryPrice,
-            data.signalId // Pass signalId as lock key
+            signal.id // Use signal.id as lock key
           );
 
           if (result.success) {
