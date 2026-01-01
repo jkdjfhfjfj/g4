@@ -145,7 +145,26 @@ export default function Dashboard() {
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              <StatusBar wsStatus={connectionStatus} telegramStatus={telegramStatus} metaapiStatus={metaapiStatus} />
+              <StatusBar
+                wsStatus={connectionStatus}
+                telegramStatus={telegramStatus}
+                metaapiStatus={metaapiStatus}
+                onReconnectTelegram={() => {
+                   if (telegramStatus === "disconnected") {
+                     submitPhoneNumber(""); 
+                   }
+                }}
+              />
+              <MobileStatusBar
+                wsStatus={connectionStatus}
+                telegramStatus={telegramStatus}
+                metaapiStatus={metaapiStatus}
+                onReconnectTelegram={() => {
+                   if (telegramStatus === "disconnected") {
+                     submitPhoneNumber(""); 
+                   }
+                }}
+              />
               <ThemeToggle />
             </div>
           </div>
