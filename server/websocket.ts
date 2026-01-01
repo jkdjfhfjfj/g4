@@ -384,19 +384,28 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
             broadcast({ type: "signal_detected", signal });
 
             if (autoTradeEnabled) {
-              console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (${signal.orderType}) (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
+              const tradeParams = {
+                symbol: signal.symbol,
+                direction: signal.direction,
+                volume: globalLotSize,
+                stopLoss: signal.stopLoss,
+                takeProfit: signal.takeProfit?.[0],
+                orderType: signal.orderType === "LIMIT" ? "LIMIT" : "MARKET",
+                entryPrice: signal.entryPrice,
+                signalId: signal.id
+              };
               
-              // Use signal.id as the lock key to prevent duplicate execution of the SAME signal
-              // Even if globalLotSize changes, the signal ID is unique to this specific detection
+              console.log(`[MT-EXEC] Executing: ${JSON.stringify(tradeParams)}`);
+              
               metaapi.executeTrade(
-                signal.symbol,
-                signal.direction,
-                globalLotSize,
-                signal.stopLoss,
-                signal.takeProfit?.[0],
-                signal.orderType === "LIMIT" ? "LIMIT" : "MARKET",
-                signal.entryPrice,
-                signal.id // Pass signalId as lock key
+                tradeParams.symbol,
+                tradeParams.direction,
+                tradeParams.volume,
+                tradeParams.stopLoss,
+                tradeParams.takeProfit,
+                tradeParams.orderType as any,
+                tradeParams.entryPrice,
+                tradeParams.signalId
               ).then(result => {
                 if (result.success) {
                   signal.status = "executed";

@@ -53,20 +53,41 @@ export function LogsFAB({ logs }: LogsFABProps) {
             </div>
           </DialogHeader>
 
-          <div className="flex-1 bg-[#0d1117] p-0 font-mono text-sm leading-relaxed overflow-hidden">
-            <ScrollArea ref={scrollRef} className="h-full w-full">
-              <div className="p-4 space-y-1">
+          <div className="flex-1 bg-[#0d1117] p-0 font-mono text-sm leading-relaxed overflow-hidden flex flex-col">
+            <div className="bg-[#161b22] px-4 py-2 border-b border-border/50 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+              <span>Output</span>
+              <div className="flex items-center gap-3">
+                <span className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" /> Live</span>
+                <span>30m Retention</span>
+              </div>
+            </div>
+            <ScrollArea ref={scrollRef} className="flex-1 w-full">
+              <div className="p-4 space-y-1.5">
                 {logs.length === 0 ? (
-                  <div className="text-muted-foreground italic py-4">Waiting for system activity...</div>
+                  <div className="text-muted-foreground italic py-4 flex flex-col items-center gap-2">
+                    <div className="h-8 w-8 rounded-full border-2 border-dashed border-muted-foreground/30 animate-spin" />
+                    Waiting for system activity...
+                  </div>
                 ) : (
                   logs.map((log, i) => {
                     const isError = log.includes("ERROR:");
+                    const isTrade = log.includes("[MT-EXEC]");
+                    const timestamp = log.match(/\[(.*?)\]/)?.[1] || "";
+                    const content = log.replace(/\[.*?\]\s*/, "");
+                    
                     return (
                       <div 
                         key={i} 
-                        className={`whitespace-pre-wrap break-all ${isError ? "text-red-400" : "text-gray-300"}`}
+                        className={`group border-l-2 pl-3 py-0.5 transition-colors ${
+                          isError ? "border-red-500 bg-red-500/5 text-red-300" : 
+                          isTrade ? "border-primary bg-primary/5 text-primary-foreground" :
+                          "border-transparent hover:bg-white/5 text-gray-300"
+                        }`}
                       >
-                        {log}
+                        <span className="text-[10px] opacity-40 mr-2 select-none font-sans">
+                          {timestamp.split('T')[1]?.split('.')[0] || timestamp}
+                        </span>
+                        <span className="whitespace-pre-wrap break-all">{content}</span>
                       </div>
                     );
                   })
