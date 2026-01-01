@@ -222,7 +222,7 @@ async function handleMessage(ws: WebSocket, data: any) {
         const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
         savedChannelIds = channelIds;
         saveSettings();
-        broadcast({ type: "saved_channel", channelId: savedChannelIds[0], channelIds: savedChannelIds });
+        broadcast({ type: "saved_channel", channelId: savedChannelIds[0] });
         break;
       }
 
@@ -362,7 +362,7 @@ async function sendInitialData(ws: WebSocket) {
     }
   };
 
-  wsMessage({ type: "saved_channel", channelId: savedChannelIds[0] || null, channelIds: savedChannelIds });
+  wsMessage({ type: "saved_channel", channelId: savedChannelIds[0] || null });
   wsMessage({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
   wsMessage({ type: "lot_size_updated", lotSize: globalLotSize });
 

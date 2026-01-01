@@ -382,7 +382,15 @@ export async function reconnect(): Promise<void> {
   if (client) {
     try {
       notifyStatus("connecting");
-      const isAuthorized = await client.isUserAuthorized();
+      
+      // Use a timeout for authorization check to handle network hangs
+      const authPromise = client.isUserAuthorized();
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error("Authorization check timed out")), 10000)
+      );
+      
+      const isAuthorized = await Promise.race([authPromise, timeoutPromise]) as boolean;
+      
       if (isAuthorized) {
         isConnected = true;
         notifyStatus("connected");
@@ -395,8 +403,10 @@ export async function reconnect(): Promise<void> {
         // Re-run init to start fresh start() flow
         await initTelegram();
       }
-    } catch (e) {
+    } catch (e: any) {
       console.error("Error during Telegram reconnect:", e);
+      const errorMessage = e instanceof Error ? e.message : String(e);
+      notifyAuthError(`Reconnection failed: ${errorMessage}`);
       notifyStatus("disconnected");
     }
   } else {

@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Power } from "lucide-react";
+import { RefreshCw, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ConnectionStatusProps {
@@ -48,7 +48,7 @@ export function ConnectionStatus({ label, status, onReconnect }: ConnectionStatu
             className="h-6 w-6 ml-1"
             title={status === "connected" ? "Reconnect Telegram" : "Connect Telegram"}
           >
-            <Power className={`h-3 w-3 ${status === "connected" ? "text-primary" : (status === "disconnected" ? "text-destructive" : "text-muted-foreground")}`} />
+            <Zap className={`h-3 w-3 ${status === "connected" ? "text-primary" : (status === "disconnected" ? "text-destructive" : "text-muted-foreground")}`} />
           </Button>
         )}
       </div>
@@ -65,7 +65,7 @@ interface StatusBarProps {
 
 export function StatusBar({ wsStatus, telegramStatus, metaapiStatus, onReconnectTelegram }: StatusBarProps) {
   return (
-    <div className="hidden md:flex items-center gap-4">
+    <div className="flex items-center gap-4">
       <ConnectionStatus label="WS" status={wsStatus} />
       <ConnectionStatus label="Telegram" status={telegramStatus} onReconnect={onReconnectTelegram} />
       <ConnectionStatus label="MetaAPI" status={metaapiStatus} />
@@ -75,36 +75,5 @@ export function StatusBar({ wsStatus, telegramStatus, metaapiStatus, onReconnect
 
 // Compact mobile status indicator
 export function MobileStatusBar({ wsStatus, telegramStatus, metaapiStatus, onReconnectTelegram }: StatusBarProps) {
-  const getOverallStatus = () => {
-    if (wsStatus === "connected" && telegramStatus === "connected" && metaapiStatus === "connected") {
-      return { color: "bg-status-online", text: "All Connected" };
-    }
-    if (wsStatus === "disconnected" || telegramStatus === "disconnected" || metaapiStatus === "disconnected") {
-      return { color: "bg-status-busy", text: "Some Offline" };
-    }
-    return { color: "bg-status-away", text: "Connecting..." };
-  };
-
-  const status = getOverallStatus();
-
-  return (
-    <div className="md:hidden flex items-center gap-1.5">
-      <span
-        className={`h-2 w-2 rounded-full ${status.color} ${
-          wsStatus === "connecting" || telegramStatus === "connecting" || metaapiStatus === "connecting" ? "animate-pulse" : ""
-        }`}
-      />
-      <span className="text-xs font-medium">{status.text}</span>
-      {telegramStatus === "disconnected" && onReconnectTelegram && (
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={onReconnectTelegram}
-          className="h-6 w-6 ml-1"
-        >
-          <Power className="h-3 w-3" />
-        </Button>
-      )}
-    </div>
-  );
+  return null;
 }

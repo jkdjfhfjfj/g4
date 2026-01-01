@@ -150,19 +150,7 @@ export default function Dashboard() {
                 wsStatus={connectionStatus}
                 telegramStatus={telegramStatus}
                 metaapiStatus={metaapiStatus}
-                onReconnectTelegram={() => {
-                   // Force a reconnection attempt by triggering the auth flow
-                   submitPhoneNumber(""); 
-                }}
-              />
-              <MobileStatusBar
-                wsStatus={connectionStatus}
-                telegramStatus={telegramStatus}
-                metaapiStatus={metaapiStatus}
-                onReconnectTelegram={() => {
-                   // Force a reconnection attempt by triggering the auth flow
-                   submitPhoneNumber(""); 
-                }}
+                onReconnectTelegram={reconnectTelegram}
               />
               <ThemeToggle />
             </div>
@@ -216,18 +204,6 @@ export default function Dashboard() {
               </Button>
             ) : (
               <div className="flex items-center gap-2">
-                {telegramStatus === "disconnected" && (
-                  <Button
-                    variant="secondary"
-                    size="icon"
-                    onClick={reconnectTelegram}
-                    className="h-9 w-9"
-                    data-testid="button-reconnect-telegram"
-                    title="Reconnect Telegram"
-                  >
-                    <Zap className="h-4 w-4" />
-                  </Button>
-                )}
                 <Button
                   variant="outline"
                   size="sm"
