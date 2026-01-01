@@ -94,7 +94,8 @@ export function useWebSocket() {
             }
             // Play sound for real-time messages
             if (message.message.isRealtime) {
-              playNotificationSound(`New message in channel`);
+              const channelName = channels.find(c => c.id === message.message.channelId)?.title || 'Channel';
+              playNotificationSound(`New message in ${channelName}`);
             }
             // console.log("Adding new message to feed:", message.message.id);
             return [message.message, ...prev].slice(0, 100);
@@ -173,12 +174,14 @@ export function useWebSocket() {
           setAutoTradeEnabled(message.enabled);
           break;
         case "auto_trade_executed":
-          playNotificationSound('Trade executed automatically');
+          playNotificationSound(`Auto Trade Executed: ${message.symbol} ${message.direction}`);
           break;
         case "trade_result":
           setTradeResult({ success: message.success, message: message.message });
           if (message.success) {
             playNotificationSound(message.message);
+          } else {
+            playNotificationSound(`Trade Failed: ${message.message}`);
           }
           setTimeout(() => setTradeResult(null), 5000);
           break;

@@ -239,6 +239,7 @@ export function PositionsPanel({ positions, onClosePosition, onModifyPosition }:
                           className={`text-right font-mono text-sm font-medium px-3 py-2 ${
                             position.profit >= 0 ? "text-success" : "text-destructive"
                           }`}
+                          data-testid={`position-profit-${position.id}`}
                         >
                           {position.profit >= 0 ? "+" : ""}${position.profit.toFixed(2)}
                         </TableCell>
