@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Key, Lock, CheckCircle2, Loader2, ArrowLeft } from "lucide-react";
+import { Phone, Key, Lock, CheckCircle2, Loader2, ArrowLeft, AlertCircle } from "lucide-react";
 
 interface AuthDialogProps {
   open: boolean;
