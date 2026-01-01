@@ -39,19 +39,28 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
               <History className="h-4 w-4" />
               Trade History ({trades.length})
             </CardTitle>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
-                    <AlertCircle className="h-3 w-3" />
-                    <span>Rate limits apply (120s sync)</span>
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent className="max-w-[200px]">
-                  <p>History data syncs periodically to stay within usage limits. Recent trades may take a moment to appear.</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
+            <div className="flex flex-col gap-1 mt-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
+                      <AlertCircle className="h-3 w-3" />
+                      <span>Rate limits apply (120s sync)</span>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent className="max-w-[250px]">
+                    <p className="font-semibold mb-1">Why is my history not updating?</p>
+                    <p className="text-xs">MetaAPI requires separate history sync requests which are heavily rate-limited on free accounts. We sync last 7 days of history every 2 minutes to prevent API bans.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              {trades.length === 0 && (
+                <div className="flex items-center gap-1 text-[10px] text-destructive animate-pulse">
+                  <AlertCircle className="h-3 w-3" />
+                  <span>Requesting history sync... (may take 120s)</span>
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <Badge variant="outline" className="font-mono">

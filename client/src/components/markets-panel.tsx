@@ -183,19 +183,28 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
                 <BarChart3 className="h-4 w-4" />
                 Market Symbols ({markets.length})
               </CardTitle>
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 mt-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
-                      <AlertCircle className="h-3 w-3" />
-                      <span>Rate limits apply (60s updates)</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[200px]">
-                    <p>Market data updates are limited to stay within usage limits. Some symbols may be delayed.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <div className="flex flex-col gap-1 mt-1">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <div className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
+                        <AlertCircle className="h-3 w-3" />
+                        <span>Rate limits apply (60s updates)</span>
+                      </div>
+                    </TooltipTrigger>
+                    <TooltipContent className="max-w-[250px]">
+                      <p className="font-semibold mb-1">Why am I seeing limited data?</p>
+                      <p className="text-xs">MetaAPI free tier allows limited requests per second. To ensure stable execution of your trades, market price updates are throttled to once per minute.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+                {markets.length === 0 && (
+                  <div className="flex items-center gap-1 text-[10px] text-destructive animate-pulse">
+                    <AlertCircle className="h-3 w-3" />
+                    <span>Syncing from MetaAPI... (may take 60s)</span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="flex-1 max-w-xs">
               <div className="relative">
