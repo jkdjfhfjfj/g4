@@ -133,76 +133,74 @@ export default function Dashboard() {
       <div className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden relative">
         {/* Header */}
         <header className="flex-shrink-0 z-40 bg-card border-b border-border w-full">
-          {/* Main Header Row */}
-          <div className="px-3 md:px-4 py-2 md:py-3 flex items-center justify-between gap-2">
-            {/* Logo & Title */}
+          {/* Main Header Row: Logo, Status, Theme */}
+          <div className="px-3 md:px-4 py-2 flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <div className="p-1.5 md:p-2 bg-primary/15 rounded-lg flex-shrink-0">
-                <Bot className="h-4 md:h-5 w-4 md:w-5 text-primary" />
+              <div className="p-1.5 bg-primary/15 rounded-lg flex-shrink-0">
+                <Bot className="h-4 w-4 text-primary" />
               </div>
               <div className="min-w-0">
-                <h1 className="text-sm md:text-lg font-bold truncate">Trading Bot</h1>
-                <p className="text-xs text-muted-foreground hidden md:block">Real-time signal executor</p>
+                <h1 className="text-sm font-bold truncate">Trading Bot</h1>
               </div>
             </div>
 
-            {/* Status & Theme Toggle */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="flex items-center gap-2 px-2 py-1 bg-background rounded-lg border border-border h-9 md:h-10">
+              <StatusBar wsStatus={connectionStatus} telegramStatus={telegramStatus} metaapiStatus={metaapiStatus} />
+              <ThemeToggle />
+            </div>
+          </div>
+
+          {/* Quick Settings Row: Lot, Auto, Disconnect */}
+          <div className="px-3 md:px-4 py-2 border-t border-border/50 bg-muted/20 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 px-2 py-1 bg-background rounded-lg border border-border h-9">
                 <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Lot</span>
                 <Input
                   id="quick-lot"
                   type="text"
                   inputMode="decimal"
                   value={lotSize === 0 ? "" : lotSize}
-                  onChange={(e) => updateLotSize(e.target.value as any)}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                      updateLotSize(val as any);
+                    }
+                  }}
                   onBlur={(e) => {
                     const val = parseFloat(e.target.value);
                     if (!isNaN(val) && val > 0) updateLotSize(val);
+                    else if (e.target.value === "") updateLotSize(0);
                   }}
-                  className="w-16 h-7 text-xs font-mono border-none focus-visible:ring-0 p-1"
+                  className="w-20 h-7 text-xs font-mono border-none focus-visible:ring-0 p-1 bg-transparent"
                 />
               </div>
 
-              <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
-                <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
+              <div className="flex items-center gap-2 px-3 py-1 bg-background rounded-lg border border-border h-9">
+                <Bot className="h-4 w-4 text-muted-foreground" />
+                <span className="text-xs font-medium">Auto</span>
                 <Switch
                   checked={autoTradeEnabled}
                   onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
-                  data-testid="toggle-auto-trade"
-                  className="scale-75 origin-right md:scale-100"
+                  className="scale-75"
                 />
               </div>
-
-              {telegramStatus === "connected" && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={disconnectTelegram}
-                  className="h-9 w-9 md:h-10 md:w-10 text-destructive hover:bg-destructive/10"
-                  title="Disconnect Telegram"
-                >
-                  <LogOut className="h-4 w-4" />
-                </Button>
-              )}
-
-              <StatusBar
-                wsStatus={connectionStatus}
-                telegramStatus={telegramStatus}
-                metaapiStatus={metaapiStatus}
-              />
-              <MobileStatusBar
-                wsStatus={connectionStatus}
-                telegramStatus={telegramStatus}
-                metaapiStatus={metaapiStatus}
-              />
-              <ThemeToggle />
             </div>
+
+            {telegramStatus === "connected" && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={disconnectTelegram}
+                className="h-9 text-destructive hover:bg-destructive/10 gap-2 px-3"
+              >
+                <LogOut className="h-4 w-4" />
+                <span className="text-xs font-medium">Disconnect</span>
+              </Button>
+            )}
           </div>
 
           {/* Channel Selector Row */}
-          <div className="px-3 md:px-4 py-2 md:py-3 border-t border-border/50 bg-muted/30">
+          <div className="px-3 md:px-4 py-2 border-t border-border/50 bg-muted/40">
             <ChannelList
               channels={channels}
               selectedChannelIds={selectedChannelIds}
@@ -277,7 +275,7 @@ export default function Dashboard() {
                 />
               )}
               {activeTab === "messages" && (
-                <MessageFeed messages={messages} selectedChannelId={selectedChannelIds.length > 0 ? selectedChannelIds[0] : null} />
+                <MessageFeed messages={messages} selectedChannelIds={selectedChannelIds} />
               )}
               {activeTab === "markets" && (
                 <MarketsPanel markets={markets} onTrade={manualTrade} />

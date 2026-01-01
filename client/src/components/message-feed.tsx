@@ -8,7 +8,7 @@ import { format } from "date-fns";
 
 interface MessageFeedProps {
   messages: TelegramMessage[];
-  selectedChannelId: string | null;
+  selectedChannelIds: string[];
 }
 
 function VerdictBadge({ verdict }: { verdict?: TelegramMessage["aiVerdict"] }) {
@@ -53,7 +53,7 @@ function VerdictBadge({ verdict }: { verdict?: TelegramMessage["aiVerdict"] }) {
   }
 }
 
-export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
+export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const prevMessagesLength = useRef(messages.length);
@@ -79,11 +79,11 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
         </div>
       </CardHeader>
       <CardContent className="flex-1 p-0 overflow-hidden">
-        {!selectedChannelId ? (
+        {selectedChannelIds.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full px-4 text-center">
             <MessageCircle className="h-8 w-8 text-muted-foreground mb-2" />
             <p className="text-sm text-muted-foreground">
-              Select a channel to view messages
+              Select one or more channels to view messages
             </p>
           </div>
         ) : messages.length === 0 ? (
