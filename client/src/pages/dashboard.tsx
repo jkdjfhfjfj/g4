@@ -179,7 +179,7 @@ export default function Dashboard() {
               <Input
                 type="text"
                 inputMode="decimal"
-                value={lotSize}
+                value={lotSize === 0 ? "" : lotSize}
                 onChange={(e) => {
                   const val = e.target.value;
                   // Allow empty string or decimal numbers
