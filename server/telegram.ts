@@ -277,7 +277,10 @@ function setupMessageHandler() {
         const incomingNum = channelId.replace("-100", "").replace("-", "");
         const isSelected = selectedChannelId && (
           Array.isArray(selectedChannelId) 
-            ? selectedChannelId.some(id => id.replace("-100", "").replace("-", "") === incomingNum)
+            ? selectedChannelId.some(id => {
+                const targetNum = id.replace("-100", "").replace("-", "");
+                return targetNum === incomingNum;
+              })
             : selectedChannelId.toString().replace("-100", "").replace("-", "") === incomingNum
         );
         
