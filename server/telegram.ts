@@ -353,7 +353,7 @@ export async function selectChannel(channelId: string): Promise<TelegramMessage[
 
   try {
     const entity = await client.getEntity(channelId);
-    const messages = await client.getMessages(entity, { limit: 50 });
+    const messages = await client.getMessages(entity, { limit: 100 });
 
     return messages
       .filter((msg) => msg.message)
