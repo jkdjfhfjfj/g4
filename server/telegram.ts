@@ -197,7 +197,7 @@ export async function initTelegram(): Promise<void> {
       notifyAuth("phone");
       
       // Start auth flow in background
-      client.start({
+    client.start({
         phoneNumber: async () => {
           return new Promise<string>((resolve) => {
             phoneResolver = resolve;
@@ -216,24 +216,16 @@ export async function initTelegram(): Promise<void> {
           });
         },
         onError: (err: any) => {
-          console.error("Telegram auth error:", err);
+          console.error("Telegram auth error callback:", err);
           const errorMessage = err instanceof Error ? err.message : String(err);
           
-          // Check for flood wait errors and extract wait time
           if (err?.seconds) {
             const waitSeconds = err.seconds;
-            const userMessage = `Too many login attempts. Please wait ${waitSeconds} seconds before trying again.`;
-            notifyAuthError(userMessage);
+            notifyAuthError(`Too many login attempts. Please wait ${waitSeconds} seconds.`);
             return;
           }
           
-          // Helpful message for common errors
-          if (errorMessage.includes("API_ID_INVALID")) {
-            console.error("ERROR: API_ID_INVALID - Your TELEGRAM_API_ID or TELEGRAM_API_HASH is incorrect.");
-            console.error("Fix: Go to https://my.telegram.org/apps and verify your API credentials match exactly.");
-            console.error("Note: Make sure you're using a production app, not a test app.");
-          }
-          
+          // Clear loading state on client by sending error
           notifyAuthError(errorMessage);
         },
       }).then(() => {

@@ -208,7 +208,10 @@ export function AuthDialog({
             />
             <p className="text-xs text-muted-foreground">{content.hint}</p>
             {error && (
-              <p className="text-xs text-destructive">{error}</p>
+              <div className="bg-destructive/10 border border-destructive/20 text-destructive text-[11px] p-2.5 rounded-md flex items-start gap-2 animate-in fade-in slide-in-from-top-1">
+                <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <p>{error}</p>
+              </div>
             )}
           </div>
         </div>
