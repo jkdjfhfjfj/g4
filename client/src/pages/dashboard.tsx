@@ -148,8 +148,8 @@ export default function Dashboard() {
 
             {/* Status & Theme Toggle */}
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="hidden md:flex items-center gap-2 px-2 py-1 bg-background rounded-lg border border-border h-9 md:h-10">
-                <Label htmlFor="quick-lot" className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Lot</Label>
+              <div className="flex items-center gap-2 px-2 py-1 bg-background rounded-lg border border-border h-9 md:h-10">
+                <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Lot</span>
                 <Input
                   id="quick-lot"
                   type="text"
@@ -164,7 +164,7 @@ export default function Dashboard() {
                 />
               </div>
 
-              <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
+              <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
                 <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
                 <Switch

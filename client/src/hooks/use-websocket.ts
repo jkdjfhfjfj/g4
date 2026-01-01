@@ -135,7 +135,11 @@ export function useWebSocket() {
         case "saved_channel":
           setSavedChannelId(message.channelId);
           if (message.channelId) {
-            setSelectedChannelIds(prev => [...new Set([...prev, message.channelId!])]);
+            setSelectedChannelIds(prev => {
+              const ids = new Set(prev);
+              ids.add(message.channelId!);
+              return Array.from(ids);
+            });
             wsClient.send({ type: "select_channel", channelId: [message.channelId] });
           }
           break;
