@@ -62,14 +62,18 @@ export function useWebSocket() {
           break;
         case "new_message":
           setMessages((prev) => {
+            // Only add messages from selected channels
+            if (!selectedChannelIds.includes(message.message.channelId)) {
+              return prev;
+            }
             const exists = prev.some((m) => m.id === message.message.id);
             if (exists) {
               return prev.map((m) =>
                 m.id === message.message.id ? message.message : m
               );
             }
-            // Play sound for real-time messages from selected channels
-            if (message.message.isRealtime && selectedChannelIds.includes(message.message.channelId)) {
+            // Play sound for real-time messages
+            if (message.message.isRealtime) {
               playNotificationSound(`New message in channel`);
             }
             return [message.message, ...prev].slice(0, 100);
@@ -167,12 +171,18 @@ export function useWebSocket() {
 
   const selectChannel = useCallback((channelId: string) => {
     setSelectedChannelIds(prev => {
-      const next = prev.includes(channelId) 
+      const isDeselecting = prev.includes(channelId);
+      const next = isDeselecting
         ? prev.filter(id => id !== channelId) 
         : [...prev, channelId];
       
+      // If deselecting, clear messages from that channel
+      if (isDeselecting) {
+        setMessages(current => current.filter(m => m.channelId !== channelId));
+      }
+      
       wsClient.send({ type: "select_channel", channelId: next });
-      wsClient.send({ type: "save_channel", channelId: next.length > 0 ? next[0] : null }); // Save primary for now
+      wsClient.send({ type: "save_channel", channelId: next.length > 0 ? next[0] : null });
       return next;
     });
   }, []);

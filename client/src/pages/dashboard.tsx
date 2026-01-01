@@ -148,6 +148,45 @@ export default function Dashboard() {
 
             {/* Status & Theme Toggle */}
             <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="hidden md:flex items-center gap-2 px-2 py-1 bg-background rounded-lg border border-border h-9 md:h-10">
+                <Label htmlFor="quick-lot" className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Lot</Label>
+                <Input
+                  id="quick-lot"
+                  type="text"
+                  inputMode="decimal"
+                  value={lotSize === 0 ? "" : lotSize}
+                  onChange={(e) => updateLotSize(e.target.value as any)}
+                  onBlur={(e) => {
+                    const val = parseFloat(e.target.value);
+                    if (!isNaN(val) && val > 0) updateLotSize(val);
+                  }}
+                  className="w-16 h-7 text-xs font-mono border-none focus-visible:ring-0 p-1"
+                />
+              </div>
+
+              <div className="hidden md:flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
+                <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
+                <Switch
+                  checked={autoTradeEnabled}
+                  onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
+                  data-testid="toggle-auto-trade"
+                  className="scale-75 origin-right md:scale-100"
+                />
+              </div>
+
+              {telegramStatus === "connected" && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={disconnectTelegram}
+                  className="h-9 w-9 md:h-10 md:w-10 text-destructive hover:bg-destructive/10"
+                  title="Disconnect Telegram"
+                >
+                  <LogOut className="h-4 w-4" />
+                </Button>
+              )}
+
               <StatusBar
                 wsStatus={connectionStatus}
                 telegramStatus={telegramStatus}
@@ -162,106 +201,14 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Channel Selector & Auto-Trade Row */}
-          <div className="px-3 md:px-4 py-2 md:py-3 border-t border-border/50 bg-muted/30 flex flex-col md:flex-row gap-2 md:gap-3">
-            <div className="flex-1">
-              <ChannelList
-                channels={channels}
-                selectedChannelIds={selectedChannelIds}
-                onSelectChannel={selectChannel}
-                telegramStatus={telegramStatus}
-              />
-            </div>
-
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <Dialog>
-                <DialogTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-9 md:h-10 gap-2">
-                    <Settings className="h-4 w-4" />
-                    <span className="text-xs md:text-sm">Lot: {lotSize}</span>
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="sm:max-w-[425px]">
-                  <DialogHeader>
-                    <DialogTitle>Trading Settings</DialogTitle>
-                    <DialogDescription>
-                      Configure your global lot size and account connection.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <div className="grid gap-6 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="lot-size" className="text-right">
-                        Lot Size
-                      </Label>
-                      <Input
-                        id="lot-size"
-                        type="text"
-                        inputMode="decimal"
-                        value={lotSize === 0 ? "" : lotSize}
-                        placeholder="Enter lot size (e.g. 0.01)"
-                        onChange={(e) => {
-                          const val = e.target.value;
-                          // Allow any characters to bypass restrictions, handle parsing on blur
-                          updateLotSize(val as any);
-                        }}
-                        onBlur={(e) => {
-                          const val = parseFloat(e.target.value);
-                          if (!isNaN(val) && val > 0) {
-                            updateLotSize(val);
-                          } else if (e.target.value === "") {
-                            updateLotSize(0);
-                          }
-                        }}
-                        className="col-span-3 font-mono"
-                      />
-                    </div>
-
-                    <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                      <Label className="text-sm font-medium">Telegram Connection</Label>
-                      {telegramStatus === "connected" ? (
-                        <Button
-                          variant="destructive"
-                          size="sm"
-                          onClick={disconnectTelegram}
-                          className="w-full flex items-center justify-center gap-2"
-                          data-testid="button-disconnect-telegram"
-                        >
-                          <LogOut className="h-4 w-4" />
-                          <span>Disconnect Telegram</span>
-                        </Button>
-                      ) : (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setAuthModalOpen(true)}
-                          className="w-full flex items-center justify-center gap-2"
-                          data-testid="button-connect-telegram"
-                        >
-                          <Bot className="h-4 w-4" />
-                          <span>Connect Telegram</span>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                  <DialogFooter>
-                    <DialogClose asChild>
-                      <Button type="button">Close</Button>
-                    </DialogClose>
-                  </DialogFooter>
-                </DialogContent>
-              </Dialog>
-
-              <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
-                <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-                <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
-                <Switch
-                  checked={autoTradeEnabled}
-                  onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
-                  data-testid="toggle-auto-trade"
-                  className="scale-75 origin-right md:scale-100"
-                />
-              </div>
-            </div>
+          {/* Channel Selector Row */}
+          <div className="px-3 md:px-4 py-2 md:py-3 border-t border-border/50 bg-muted/30">
+            <ChannelList
+              channels={channels}
+              selectedChannelIds={selectedChannelIds}
+              onSelectChannel={selectChannel}
+              telegramStatus={telegramStatus}
+            />
           </div>
         </header>
 
