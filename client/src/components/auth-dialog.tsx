@@ -40,6 +40,12 @@ export function AuthDialog({
   const error = backendError || localError;
 
   useEffect(() => {
+    // Reset loading state when step changes, so the "Please wait" doesn't stick
+    setIsLoading(false);
+    setLocalError("");
+  }, [step]);
+
+  useEffect(() => {
     if (open) {
       setPhone("");
       setCode("");

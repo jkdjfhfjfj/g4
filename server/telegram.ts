@@ -108,22 +108,31 @@ function notifyAuthError(message: string) {
 
 export function submitPhone(phone: string) {
   if (phoneResolver) {
+    console.log("Resolving phone number...");
     phoneResolver(phone);
     phoneResolver = null;
+  } else {
+    console.warn("Phone submitted but no resolver active");
   }
 }
 
 export function submitCode(code: string) {
   if (codeResolver) {
+    console.log("Resolving auth code...");
     codeResolver(code);
     codeResolver = null;
+  } else {
+    console.warn("Code submitted but no resolver active");
   }
 }
 
 export function submitPassword(password: string) {
   if (passwordResolver) {
+    console.log("Resolving 2FA password...");
     passwordResolver(password);
     passwordResolver = null;
+  } else {
+    console.warn("Password submitted but no resolver active");
   }
 }
 
