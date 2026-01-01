@@ -189,12 +189,12 @@ export function MarketsPanel({ markets, onTrade }: MarketsPanelProps) {
                     <TooltipTrigger asChild>
                       <div className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
                         <AlertCircle className="h-3 w-3" />
-                        <span>Rate limits apply (60s updates)</span>
+                        <span>Showing top 20 symbols (Rate limited)</span>
                       </div>
                     </TooltipTrigger>
                     <TooltipContent className="max-w-[250px]">
-                      <p className="font-semibold mb-1">Why am I seeing limited data?</p>
-                      <p className="text-xs">MetaAPI free tier allows limited requests per second. To ensure stable execution of your trades, market price updates are throttled to once per minute.</p>
+                      <p className="font-semibold mb-1">Why am I only seeing 20 symbols?</p>
+                      <p className="text-xs">To stay within MetaAPI free tier limits and ensure your orders execute instantly, we prioritize the top 20 most liquid market symbols.</p>
                     </TooltipContent>
                   </Tooltip>
                 </TooltipProvider>

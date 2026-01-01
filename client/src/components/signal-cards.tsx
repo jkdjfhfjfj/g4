@@ -174,12 +174,17 @@ function SignalCard({
               <TrendingDown className="h-5 w-5 text-destructive" />
             )}
             <span className="font-semibold text-lg">{signal.symbol}</span>
-            <Badge
-              variant={isBuy ? "default" : "destructive"}
-              className={isBuy ? "bg-success text-success-foreground" : ""}
-            >
-              {signal.direction}
-            </Badge>
+            <div className="flex items-center gap-1">
+              <Badge
+                variant={isBuy ? "default" : "destructive"}
+                className={isBuy ? "bg-success text-success-foreground" : ""}
+              >
+                {signal.direction}
+              </Badge>
+              <Badge variant="outline" className="text-[10px] font-bold">
+                {signal.orderType}
+              </Badge>
+            </div>
           </div>
           <div className="flex items-center gap-1">
             {signal.modelUsed && (

@@ -234,6 +234,8 @@ export function useWebSocket() {
         signalId,
         symbol: signal.symbol,
         direction: signal.direction,
+        orderType: signal.orderType,
+        entryPrice: signal.entryPrice,
         volume,
         stopLoss,
         takeProfit,
