@@ -1,16 +1,31 @@
+/**
+ * Telegram Integration Module
+ * 
+ * This module manages the connection to Telegram via GramJS (telegram package).
+ * It handles authentication (phone, code, 2FA), session persistence, 
+ * channel discovery, and real-time message monitoring.
+ * 
+ * Links:
+ * - websocket.ts: Uses this module to relay Telegram messages and status to the frontend.
+ * - routes.ts: Provides HTTP endpoints for channel listing.
+ */
+
 import { TelegramClient, Api } from "telegram";
 import { StringSession } from "telegram/sessions";
 import type { TelegramChannel, TelegramMessage } from "@shared/schema";
 import * as fs from "fs";
 import * as path from "path";
 
-// Telegram API credentials (hardcoded)
+// Telegram API credentials (hardcoded for simplicity)
 const apiId = 34108253;
 const apiHash = "dacfc4bfece509097693f6d96d3420b8";
 
-// Session persistence
+// Session persistence file path
 const SESSION_FILE = path.join(process.cwd(), ".telegram_session");
 
+/**
+ * Loads the saved session string from disk if it exists.
+ */
 function loadSession(): string {
   try {
     if (fs.existsSync(SESSION_FILE)) {
@@ -26,6 +41,9 @@ function loadSession(): string {
   return "";
 }
 
+/**
+ * Saves the session string to disk for persistence across restarts.
+ */
 function saveSession(session: string) {
   try {
     fs.writeFileSync(SESSION_FILE, session, "utf-8");
@@ -41,6 +59,7 @@ let isConnected = false;
 let selectedChannelId: string | null = null;
 let currentStatus: "connected" | "disconnected" | "connecting" | "needs_auth" = "disconnected";
 
+// Callbacks for notifying other modules (like websocket.ts) about events
 type MessageCallback = (message: TelegramMessage) => void;
 type StatusCallback = (status: "connected" | "disconnected" | "connecting" | "needs_auth") => void;
 type AuthCallback = (type: "phone" | "code" | "password") => void;
@@ -55,6 +74,7 @@ let codeResolver: ((code: string) => void) | null = null;
 let passwordResolver: ((password: string) => void) | null = null;
 let currentAuthStep: "phone" | "code" | "password" | null = null;
 
+// Subscription methods for events
 export function onMessage(callback: MessageCallback) {
   messageCallbacks.push(callback);
   return () => {
@@ -83,33 +103,43 @@ export function onAuthError(callback: AuthErrorCallback) {
   };
 }
 
+/**
+ * Notifies all status subscribers about a status change.
+ */
 function notifyStatus(status: "connected" | "disconnected" | "connecting" | "needs_auth") {
   currentStatus = status;
   statusCallbacks.forEach((cb) => cb(status));
 }
 
+/**
+ * Notifies all message subscribers when a new message arrives from a selected channel.
+ */
 function notifyMessage(message: TelegramMessage) {
   messageCallbacks.forEach((cb) => cb(message));
 }
 
+/**
+ * Notifies all auth subscribers when a specific auth step is required.
+ */
 function notifyAuth(type: "phone" | "code" | "password") {
   currentAuthStep = type;
   authCallbacks.forEach((cb) => cb(type));
 }
 
+/**
+ * Handles auth errors and re-triggers the current auth step for retry.
+ */
 function notifyAuthError(message: string) {
   authErrorCallbacks.forEach((cb) => cb(message));
-  // Don't re-emit if it's a critical error or we're disconnected
   if (currentStatus === "disconnected") return;
   
-  // Always re-emit the current auth step so user can retry
-  // This allows them to wait out flood timeouts and try again
   if (currentAuthStep) {
     console.log(`Auth error reported, re-emitting step: ${currentAuthStep}`);
     setTimeout(() => notifyAuth(currentAuthStep!), 500);
   }
 }
 
+// Submitters for the auth flow, resolving promises created in initTelegram
 export function submitPhone(phone: string) {
   if (phoneResolver) {
     console.log("Resolving phone number...");
@@ -140,6 +170,9 @@ export function submitPassword(password: string) {
   }
 }
 
+/**
+ * Initializes the Telegram client, handles connection, and starts the auth flow if needed.
+ */
 export async function initTelegram(): Promise<void> {
   try {
     console.log(`Initializing Telegram with API_ID: ${apiId}, API_HASH: ${apiHash.substring(0, 8)}...`);
@@ -149,7 +182,7 @@ export async function initTelegram(): Promise<void> {
       retryDelay: 1000,
     });
 
-    // Connect first (establishes connection without auth)
+    // Establish network connection
     try {
       await client.connect();
       console.log("Telegram network connected, checking auth...");
@@ -157,20 +190,16 @@ export async function initTelegram(): Promise<void> {
       const errorMsg = connectError?.message || String(connectError);
       console.error("Connection error:", errorMsg);
       
-      // Handle corrupted session (AUTH_KEY_DUPLICATED or other key errors)
+      // Handle corrupted session keys
       if (errorMsg.includes("AUTH_KEY_DUPLICATED") || errorMsg.includes("Session error")) {
         console.log("Corrupted session detected, clearing and retrying...");
         
-        // Clear corrupted session
         try {
           if (fs.existsSync(SESSION_FILE)) {
             fs.unlinkSync(SESSION_FILE);
           }
-        } catch (e) {
-          // Ignore unlink errors
-        }
+        } catch (e) {}
         
-        // Reset to empty session and client
         stringSession = new StringSession("");
         client = new TelegramClient(stringSession, apiId, apiHash, {
           connectionRetries: 5,
@@ -186,7 +215,7 @@ export async function initTelegram(): Promise<void> {
       }
     }
 
-    // Check if already authorized
+    // Check authorization status
     const isAuthorized = await client.isUserAuthorized();
     
     if (isAuthorized) {
@@ -195,13 +224,12 @@ export async function initTelegram(): Promise<void> {
       console.log("Telegram already authorized");
       setupMessageHandler();
     } else {
-      // Need authentication
       console.log("Telegram requires authentication");
       notifyStatus("needs_auth");
       notifyAuth("phone");
       
-      // Start auth flow in background
-    client.start({
+      // GramJS client.start() handles the auth loop via interactive callbacks
+      client.start({
         phoneNumber: async () => {
           return new Promise<string>((resolve) => {
             phoneResolver = resolve;
@@ -229,7 +257,6 @@ export async function initTelegram(): Promise<void> {
             return;
           }
           
-          // Clear loading state on client by sending error
           notifyAuthError(errorMessage);
         },
       }).then(() => {
@@ -237,7 +264,6 @@ export async function initTelegram(): Promise<void> {
         currentAuthStep = null;
         notifyStatus("connected");
         console.log("Telegram authenticated successfully");
-        // Save session for persistence
         if (client) {
           const sessionString = client.session.save() as unknown as string;
           saveSession(sessionString);
@@ -247,8 +273,6 @@ export async function initTelegram(): Promise<void> {
         console.error("Telegram auth failed:", err);
         const errorMessage = err instanceof Error ? err.message : String(err);
         notifyAuthError(errorMessage);
-        // Keep needs_auth status so dialog stays open for retry
-        // Reset to phone step for fresh attempt
         currentAuthStep = "phone";
         notifyStatus("needs_auth");
         notifyAuth("phone");
@@ -261,6 +285,9 @@ export async function initTelegram(): Promise<void> {
   }
 }
 
+/**
+ * Sets up the event handler for incoming channel messages.
+ */
 function setupMessageHandler() {
   if (!client) return;
   
@@ -273,7 +300,6 @@ function setupMessageHandler() {
         const peerId = message.peerId as any;
         let channelId = "";
         
-        // Extract channel ID based on peer type
         if (peerId.channelId) {
           channelId = `-100${peerId.channelId}`;
         } else if (peerId.chatId) {
@@ -282,7 +308,6 @@ function setupMessageHandler() {
           channelId = `${peerId.userId}`;
         }
         
-        // More flexible comparison
         const incomingNum = channelId.replace("-100", "").replace("-", "");
         const isSelected = selectedChannelId && (
           Array.isArray(selectedChannelId) 
@@ -293,13 +318,10 @@ function setupMessageHandler() {
             : selectedChannelId.toString().replace("-100", "").replace("-", "") === incomingNum
         );
         
-        console.log(`Checking real-time message from ${channelId} (num: ${incomingNum}) against selection:`, selectedChannelId, "Match:", !!isSelected);
-        
         if (isSelected) {
-          console.log("✓ Message matches selected channel, notifying...");
           const telegramMessage: TelegramMessage = {
             id: message.id,
-            channelId: channelId, // Use the actual channel ID from the message
+            channelId: channelId,
             channelTitle: "",
             text: message.message || "",
             date: new Date(message.date * 1000).toISOString(),
@@ -313,6 +335,9 @@ function setupMessageHandler() {
   });
 }
 
+/**
+ * Fetches a list of dialogs (channels/groups) for the user.
+ */
 export async function getChannels(): Promise<TelegramChannel[]> {
   if (!client || !isConnected) {
     return [];
@@ -356,6 +381,9 @@ export async function getChannels(): Promise<TelegramChannel[]> {
   }
 }
 
+/**
+ * Selects a channel to monitor and fetches recent historical messages.
+ */
 export async function selectChannel(channelId: string): Promise<TelegramMessage[]> {
   if (!client || !isConnected) {
     return [];
@@ -392,12 +420,14 @@ export function getSelectedChannelId(): string | null {
   return selectedChannelId;
 }
 
+/**
+ * Attempts to reconnect the Telegram client.
+ */
 export async function reconnect(): Promise<void> {
   if (client) {
     try {
       notifyStatus("connecting");
       
-      // Use a timeout for authorization check to handle network hangs
       const authPromise = client.isUserAuthorized();
       const timeoutPromise = new Promise((_, reject) => 
         setTimeout(() => reject(new Error("Authorization check timed out")), 10000)
@@ -414,7 +444,6 @@ export async function reconnect(): Promise<void> {
         console.log("Session invalid, starting fresh auth...");
         notifyStatus("needs_auth");
         notifyAuth("phone");
-        // Re-run init to start fresh start() flow
         await initTelegram();
       }
     } catch (e: any) {
@@ -428,6 +457,9 @@ export async function reconnect(): Promise<void> {
   }
 }
 
+/**
+ * Disconnects the Telegram client manually.
+ */
 export async function disconnect(): Promise<void> {
   if (client) {
     try {
