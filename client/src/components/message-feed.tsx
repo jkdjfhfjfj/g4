@@ -59,7 +59,10 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
   const prevMessagesLength = useRef(messages.length);
 
   // Filter messages based on selected channel IDs
-  const filteredMessages = messages.filter(m => selectedChannelIds.includes(m.channelId));
+  const filteredMessages = messages.filter(m => {
+    const isSelected = selectedChannelIds.includes(m.channelId);
+    return isSelected;
+  });
 
   useEffect(() => {
     if (!isPaused && filteredMessages.length > prevMessagesLength.current) {

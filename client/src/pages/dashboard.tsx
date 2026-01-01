@@ -291,8 +291,11 @@ export default function Dashboard() {
                   autoTradeEnabled={autoTradeEnabled}
                 />
               )}
-              {activeTab === "messages" && (
-                <MessageFeed messages={messages} selectedChannelIds={selectedChannelIds} />
+            {activeTab === "messages" && (
+                <MessageFeed 
+                  messages={messages} 
+                  selectedChannelIds={selectedChannelIds} 
+                />
               )}
               {activeTab === "markets" && (
                 <MarketsPanel markets={markets} onTrade={manualTrade} />
