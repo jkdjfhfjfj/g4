@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MessageCircle, Loader2, CheckCircle, XCircle, AlertCircle, Clock, Cpu } from "lucide-react";
 import type { TelegramMessage } from "@shared/schema";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface MessageFeedProps {
   messages: TelegramMessage[];
@@ -111,7 +111,7 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
                         <span className="text-xs font-medium">{message.senderName}</span>
                       )}
                       <span className="text-xs text-muted-foreground">
-                        {formatDistanceToNow(new Date(message.date), { addSuffix: true })}
+                        {format(new Date(message.date), "MMM d, HH:mm:ss")}
                       </span>
                       {message.modelUsed && (
                         <Badge variant="outline" className="text-[10px] h-4 px-1.5 text-muted-foreground border-muted-foreground/20 font-mono">

@@ -24,7 +24,7 @@ import {
   StopCircle,
 } from "lucide-react";
 import type { ParsedSignal } from "@shared/schema";
-import { formatDistanceToNow } from "date-fns";
+import { format } from "date-fns";
 
 interface SignalCardsProps {
   signals: ParsedSignal[];
@@ -236,7 +236,7 @@ function SignalCard({
 
         <div className="flex items-center justify-between gap-2 pt-2 border-t border-border">
           <span className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(signal.timestamp), { addSuffix: true })}
+            {format(new Date(signal.timestamp), "MMM d, HH:mm:ss")}
           </span>
           {isPending && (
             <div className="flex items-center gap-2">
