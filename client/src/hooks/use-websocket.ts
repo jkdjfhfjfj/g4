@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { wsClient } from "@/lib/websocket";
 import type {
   WSMessageType,
@@ -23,6 +23,11 @@ export function useWebSocket() {
   >("disconnected");
   const [channels, setChannels] = useState<TelegramChannel[]>([]);
   const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
+  const selectedIdsRef = useRef<string[]>([]);
+
+  useEffect(() => {
+    selectedIdsRef.current = selectedChannelIds;
+  }, [selectedChannelIds]);
   const [messages, setMessages] = useState<TelegramMessage[]>([]);
   const [signals, setSignals] = useState<ParsedSignal[]>([]);
   const [account, setAccount] = useState<TradingAccount | null>(null);
@@ -62,18 +67,27 @@ export function useWebSocket() {
           break;
         case "new_message":
           setMessages((prev) => {
+            const currentSelected = selectedIdsRef.current;
+            // Log incoming message for debugging
+            console.log("Incoming message:", message.message.channelId, message.message.id, "IsRealtime:", message.message.isRealtime);
+            
             // Only add messages from selected channels
-            const isSelected = selectedChannelIds.includes(message.message.channelId);
+            const isSelected = currentSelected.includes(message.message.channelId);
             
             // Check for loose match if direct ID match fails (handling -100 prefix inconsistency)
             const incomingNum = message.message.channelId.replace("-100", "").replace("-", "");
-            const looseMatch = !isSelected && selectedChannelIds.some(id => id.replace("-100", "").replace("-", "") === incomingNum);
+            const looseMatch = !isSelected && currentSelected.some((id: string) => {
+              const targetNum = id.replace("-100", "").replace("-", "");
+              return targetNum === incomingNum;
+            });
 
             if (!isSelected && !looseMatch) {
+              console.log("Skipping message - channel not selected:", message.message.channelId, "Selected:", currentSelected, "IncomingNum:", incomingNum);
               return prev;
             }
             const exists = prev.some((m) => m.id === message.message.id);
             if (exists) {
+              console.log("Updating existing message:", message.message.id);
               return prev.map((m) =>
                 m.id === message.message.id ? message.message : m
               );
@@ -82,6 +96,7 @@ export function useWebSocket() {
             if (message.message.isRealtime) {
               playNotificationSound(`New message in channel`);
             }
+            // console.log("Adding new message to feed:", message.message.id);
             return [message.message, ...prev].slice(0, 100);
           });
           break;
@@ -140,10 +155,13 @@ export function useWebSocket() {
           break;
         case "saved_channel":
           if (message.channelId) {
+            console.log("Setting saved channel:", message.channelId);
             setSelectedChannelIds(prev => {
-              const ids = new Set(prev);
-              ids.add(message.channelId!);
-              return Array.from(ids);
+              const currentIds = Array.isArray(prev) ? prev : [];
+              if (currentIds.includes(message.channelId!)) return currentIds;
+              const next = [...currentIds, message.channelId!];
+              selectedIdsRef.current = next;
+              return next;
             });
           }
           break;

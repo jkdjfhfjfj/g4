@@ -80,13 +80,22 @@ async function handleMessage(ws: WebSocket, data: any) {
           const oneHourAgo = Date.now() - 60 * 60 * 1000;
           const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
+          // Show historical messages
           console.log(`Sending ${recentMessages.length} recent messages for channel ${channelId}`);
           for (const message of recentMessages) {
+            console.log(`Sending historical message: ${message.id} from ${message.channelId}`);
             ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
           }
 
+          // Don't call processMessage here as it broadcasts to all clients again
+          // and triggers duplicate processing. Just analyze in background if needed.
           for (const message of recentMessages) {
-            processMessage({ ...message, isRealtime: false }, false);
+            const messageKey = `${message.channelId}:${message.id}`;
+            if (!processedMessageIds.has(messageKey)) {
+              processedMessageIds.add(messageKey);
+              // Historical messages are skipped for AI by default in processMessage,
+              // so we don't need to do anything else here.
+            }
           }
         }
         break;
@@ -230,7 +239,9 @@ async function handleMessage(ws: WebSocket, data: any) {
             
             for (const message of recentMessages) {
               ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
-              processMessage({ ...message, isRealtime: false }, false);
+              // Prevent duplicate broadcast/processing
+              const messageKey = `${message.channelId}:${message.id}`;
+              processedMessageIds.add(messageKey);
             }
           }
         }
@@ -382,13 +393,32 @@ async function sendInitialData(ws: WebSocket) {
   };
 
   wsMessage({ type: "saved_channel", channelId: savedChannelIds[0] || null });
+  
+  // Also broadcast all saved IDs for multi-channel support
+  savedChannelIds.forEach(id => {
+    wsMessage({ type: "saved_channel", channelId: id });
+  });
+
   wsMessage({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
   wsMessage({ type: "lot_size_updated", lotSize: globalLotSize });
+  
+  // Re-emit last hour signals
+  signals.forEach((signal) => {
+    const oneHourAgo = Date.now() - 60 * 60 * 1000;
+    if (new Date(signal.timestamp).getTime() > oneHourAgo) {
+      wsMessage({ type: "signal_detected", signal });
+    }
+  });
 
   const telegramStatus = telegram.getTelegramStatus();
   wsMessage({ type: "telegram_status", status: telegramStatus });
   wsMessage({ type: "metaapi_status", status: metaapi.getMetaApiStatus() });
   
+  // Broadcast saved channels immediately so the client ref is updated before history arrives
+  savedChannelIds.forEach(id => {
+    wsMessage({ type: "saved_channel", channelId: id });
+  });
+
   if (telegramStatus === "needs_auth") {
     wsMessage({ type: "auth_required" });
     wsMessage({ type: "auth_step", step: "phone" });
@@ -399,9 +429,9 @@ async function sendInitialData(ws: WebSocket) {
     // Automatically select saved channels on connect if any
     if (savedChannelIds.length > 0) {
       console.log("Automatically selecting saved channels:", savedChannelIds);
-      // Wait for client to be ready to receive messages
+      // Wait for client state to settle (broadcasts sent above)
       setTimeout(async () => {
-        console.log("Processing saved channels after delay:", savedChannelIds);
+        console.log("Processing saved channels history after delay:", savedChannelIds);
         for (const channelId of savedChannelIds) {
           try {
             const messages = await telegram.selectChannel(channelId);
@@ -410,8 +440,12 @@ async function sendInitialData(ws: WebSocket) {
             
             console.log(`Sending ${recentMessages.length} recent messages for channel ${channelId}`);
             for (const message of recentMessages) {
+              console.log(`Sending historical message from saved channel: ${message.id} from ${message.channelId}`);
               ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
-              processMessage({ ...message, isRealtime: false }, false);
+              
+              // Prevent duplicate broadcast/processing
+              const messageKey = `${message.channelId}:${message.id}`;
+              processedMessageIds.add(messageKey);
             }
           } catch (err) {
             console.error(`Error selecting saved channel ${channelId}:`, err);
@@ -436,7 +470,11 @@ async function sendInitialData(ws: WebSocket) {
   wsMessage({ type: "history", trades: history });
 
   signals.forEach((signal) => {
-    wsMessage({ type: "signal_detected", signal });
+    // Only send signals from the last 24 hours to keep UI clean
+    const oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    if (new Date(signal.timestamp).getTime() > oneDayAgo) {
+      wsMessage({ type: "signal_detected", signal });
+    }
   });
 }
 
@@ -493,9 +531,13 @@ export function initWebSocket(server: Server) {
 
   // Set up Telegram message handler for REAL-TIME messages
   telegram.onMessage(async (message) => {
-    console.log(`Broadcasting real-time message from ${message.channelId}`);
+    console.log(`Received real-time message from Telegram: ${message.channelId}:${message.id}`);
     const realtimeMessage = { ...message, isRealtime: true };
+    
+    // Broadcast immediately to all connected clients
     broadcast({ type: "new_message", message: realtimeMessage });
+    
+    // Process for AI analysis and auto-trading
     processMessage(realtimeMessage, true);
   });
 
