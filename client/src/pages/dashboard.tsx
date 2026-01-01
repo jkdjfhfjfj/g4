@@ -219,13 +219,13 @@ export default function Dashboard() {
                 {telegramStatus === "disconnected" && (
                   <Button
                     variant="secondary"
-                    size="sm"
+                    size="icon"
                     onClick={reconnectTelegram}
-                    className="flex items-center gap-1 text-xs h-9"
+                    className="h-9 w-9"
                     data-testid="button-reconnect-telegram"
+                    title="Reconnect Telegram"
                   >
                     <Zap className="h-4 w-4" />
-                    <span>Reconnect</span>
                   </Button>
                 )}
                 <Button

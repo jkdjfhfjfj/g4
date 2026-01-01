@@ -22,14 +22,16 @@ let globalLotSize = 0.01;
 const processedMessageIds = new Set<string>();
 let currentChannelId: string | null = null;
 
+let savedChannelIds: string[] = [];
+
 function loadSettings() {
   try {
     if (fs.existsSync(SETTINGS_FILE)) {
       const data = JSON.parse(fs.readFileSync(SETTINGS_FILE, "utf-8"));
       autoTradeEnabled = data.autoTradeEnabled ?? false;
-      savedChannelId = data.savedChannelId ?? null;
+      savedChannelIds = data.savedChannelIds ?? (data.savedChannelId ? [data.savedChannelId] : []);
       globalLotSize = data.lotSize ?? 0.01;
-      console.log("Loaded settings:", { autoTradeEnabled, savedChannelId, globalLotSize });
+      console.log("Loaded settings:", { autoTradeEnabled, savedChannelIds, globalLotSize });
     }
   } catch (e) {
     console.error("Failed to load settings:", e);
@@ -40,7 +42,7 @@ function saveSettings() {
   try {
     fs.writeFileSync(SETTINGS_FILE, JSON.stringify({
       autoTradeEnabled,
-      savedChannelId,
+      savedChannelIds,
       lotSize: globalLotSize,
     }, null, 2), "utf-8");
   } catch (e) {
@@ -211,10 +213,16 @@ async function handleMessage(ws: WebSocket, data: any) {
         break;
       }
 
+      case "reconnect_telegram": {
+        await telegram.reconnect();
+        break;
+      }
+
       case "save_channel": {
-        savedChannelId = data.channelId;
+        const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
+        savedChannelIds = channelIds;
         saveSettings();
-        broadcast({ type: "saved_channel", channelId: savedChannelId });
+        broadcast({ type: "saved_channel", channelId: savedChannelIds[0], channelIds: savedChannelIds });
         break;
       }
 
@@ -354,7 +362,7 @@ async function sendInitialData(ws: WebSocket) {
     }
   };
 
-  wsMessage({ type: "saved_channel", channelId: savedChannelId });
+  wsMessage({ type: "saved_channel", channelId: savedChannelIds[0] || null, channelIds: savedChannelIds });
   wsMessage({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
   wsMessage({ type: "lot_size_updated", lotSize: globalLotSize });
 
@@ -368,6 +376,21 @@ async function sendInitialData(ws: WebSocket) {
   } else if (telegramStatus === "connected") {
     const channels = await telegram.getChannels();
     wsMessage({ type: "channels", channels });
+
+    // Automatically select saved channels on connect if any
+    if (savedChannelIds.length > 0) {
+      console.log("Automatically selecting saved channels:", savedChannelIds);
+      for (const channelId of savedChannelIds) {
+        const messages = await telegram.selectChannel(channelId);
+        const oneHourAgo = Date.now() - 60 * 60 * 1000;
+        const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+        
+        for (const message of recentMessages) {
+          broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
+          processMessage({ ...message, isRealtime: false }, false);
+        }
+      }
+    }
   }
 
   const account = await metaapi.getAccountInfo();

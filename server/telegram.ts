@@ -273,28 +273,26 @@ function setupMessageHandler() {
           channelId = `${peerId.userId}`;
         }
         
-        // Debug logging
-        if (message.message) {
-          console.log(`New message from channel: ${channelId}, text: "${message.message.substring(0, 50)}..."`);
-          console.log(`Selected channel: ${selectedChannelId}`);
-          
-          // More flexible comparison
-          const selectedNum = selectedChannelId.replace("-100", "").replace("-", "");
-          const incomingNum = channelId.replace("-100", "").replace("-", "");
-          
-          if (incomingNum === selectedNum) {
-            console.log("✓ Message matches selected channel, notifying...");
-            const telegramMessage: TelegramMessage = {
-              id: message.id,
-              channelId: selectedChannelId,
-              channelTitle: "",
-              text: message.message || "",
-              date: new Date(message.date * 1000).toISOString(),
-              senderName: undefined,
-              aiVerdict: "analyzing",
-            };
-            notifyMessage(telegramMessage);
-          }
+        // More flexible comparison
+        const incomingNum = channelId.replace("-100", "").replace("-", "");
+        const isSelected = selectedChannelId && (
+          Array.isArray(selectedChannelId) 
+            ? selectedChannelId.some(id => id.replace("-100", "").replace("-", "") === incomingNum)
+            : selectedChannelId.replace("-100", "").replace("-", "") === incomingNum
+        );
+        
+        if (isSelected) {
+          console.log("✓ Message matches selected channel, notifying...");
+          const telegramMessage: TelegramMessage = {
+            id: message.id,
+            channelId: channelId, // Use the actual channel ID from the message
+            channelTitle: "",
+            text: message.message || "",
+            date: new Date(message.date * 1000).toISOString(),
+            senderName: undefined,
+            aiVerdict: "analyzing",
+          };
+          notifyMessage(telegramMessage);
         }
       }
     }
@@ -378,6 +376,32 @@ export function getTelegramStatus(): "connected" | "disconnected" | "connecting"
 
 export function getSelectedChannelId(): string | null {
   return selectedChannelId;
+}
+
+export async function reconnect(): Promise<void> {
+  if (client) {
+    try {
+      notifyStatus("connecting");
+      const isAuthorized = await client.isUserAuthorized();
+      if (isAuthorized) {
+        isConnected = true;
+        notifyStatus("connected");
+        console.log("Telegram reconnected using valid session");
+        setupMessageHandler();
+      } else {
+        console.log("Session invalid, starting fresh auth...");
+        notifyStatus("needs_auth");
+        notifyAuth("phone");
+        // Re-run init to start fresh start() flow
+        await initTelegram();
+      }
+    } catch (e) {
+      console.error("Error during Telegram reconnect:", e);
+      notifyStatus("disconnected");
+    }
+  } else {
+    await initTelegram();
+  }
 }
 
 export async function disconnect(): Promise<void> {
