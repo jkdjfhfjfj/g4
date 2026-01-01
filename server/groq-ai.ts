@@ -1,3 +1,16 @@
+/**
+ * GROQ AI SIGNAL DETECTION (server/groq-ai.ts)
+ * 
+ * This module uses Groq's high-speed inference engine to analyze Telegram 
+ * messages for trading signals. It implements a fallback system to ensure 
+ * analysis happens even if some models are rate-limited.
+ * 
+ * DATA FLOW:
+ * 1. Input: Raw TelegramMessage text.
+ * 2. Processing: Multi-model fallback chain (Llama 3.3 -> 3.1 -> Mixtral).
+ * 3. Output: ParsedSignal objects containing symbol, direction, and price levels.
+ */
+
 import Groq from "groq-sdk";
 import type { ParsedSignal, TelegramMessage } from "@shared/schema";
 import { randomUUID } from "crypto";

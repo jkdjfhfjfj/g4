@@ -1,3 +1,21 @@
+/**
+ * WEBSOCKET SERVER (server/websocket.ts)
+ * 
+ * This is the central communication hub of the application.
+ * It manages real-time bidirectional data flow between the backend and all 
+ * connected React frontend clients.
+ * 
+ * DATA FLOW:
+ * 1. Backend -> Frontend: 
+ *    - New Telegram messages (via telegram.onMessage)
+ *    - AI analysis verdicts (via analyzeMessage)
+ *    - MetaAPI account/position updates
+ * 2. Frontend -> Backend:
+ *    - Telegram auth steps (phone, code, password)
+ *    - Channel selection & saved settings
+ *    - Trade execution commands (manual or signal-based)
+ */
+
 import { WebSocketServer, WebSocket } from "ws";
 import type { Server } from "http";
 import type {

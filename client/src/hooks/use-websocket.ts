@@ -1,3 +1,16 @@
+/**
+ * WEBSOCKET HOOK (client/src/hooks/use-websocket.ts)
+ * 
+ * This React hook manages the frontend's connection to the backend WebSocket server.
+ * It synchronizes local React state with the real-time data stream coming from 
+ * the server (messages, signals, positions, account info).
+ * 
+ * DATA FLOW:
+ * 1. SUBSCRIBE: Listen for WSMessageType events and update appropriate state variables.
+ * 2. PUBLISH: Provide callback functions (selectChannel, executeTrade, etc.) that 
+ *    send command messages back to the server.
+ */
+
 import { useEffect, useState, useCallback, useRef } from "react";
 import { wsClient } from "@/lib/websocket";
 import type {

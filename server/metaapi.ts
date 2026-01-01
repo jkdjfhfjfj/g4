@@ -1,3 +1,16 @@
+/**
+ * METATRADER INTEGRATION (server/metaapi.ts)
+ * 
+ * This module manages the connection to MetaTrader 4/5 accounts via MetaAPI.cloud.
+ * It provides methods for fetching account info, positions, market prices, 
+ * and executing trades (market and limit orders).
+ * 
+ * DATA FLOW:
+ * 1. initMetaApi() establishes RPC connection.
+ * 2. executeTrade() sends orders to MetaAPI -> MetaTrader.
+ * 3. getPositions() & getAccountInfo() poll MetaAPI for state updates.
+ */
+
 import MetaApiPkg from "metaapi.cloud-sdk/node";
 const MetaApi = (MetaApiPkg as any).default || MetaApiPkg;
 import type {
