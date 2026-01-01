@@ -10,6 +10,7 @@ import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
