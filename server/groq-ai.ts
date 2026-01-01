@@ -23,6 +23,8 @@ const groq = new Groq({
 
 // Models to try in order (fallback system) - faster models first
 const MODELS = [
+  "gpt-oss-20b",
+  "gpt-oss-120b",
   "llama-3.3-70b-versatile",
   "meta-llama/llama-4-scout-17b-16e-instruct",
   "meta-llama/llama-4-maverick-17b-128e-instruct",
@@ -33,9 +35,10 @@ const MODELS = [
 ];
 
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
+You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
 
 A valid trading signal must include:
-- A currency pair (e.g., EURUSD, GBPJPY, XAUUSD, etc.)
+- Strictly currency pair must be clear no hallucinations no price guessing to determine pair(e.g., EURUSD, GBPJPY, XAUUSD, etc.) 
 - A direction (BUY/SELL or LONG/SHORT)
 - Optionally: entry price, stop loss, take profit levels
 
@@ -45,7 +48,7 @@ Respond in JSON format only with an array of signals (one or more):
     {
       "isSignal": boolean,
       "confidence": number (0-1),
-      "reason": string (DETAILED 20-40 word explanation covering the technical rationale, currency pair detected, and specific direction logic),
+      "reason": string (DETAILED  word explanation covering the technical rationale, currency pair detected, and specific direction logic and why it's considered a valid signal),
       "symbol": string or null,
       "direction": "BUY" or "SELL" or null,
       "orderType": "MARKET" or "LIMIT",
@@ -63,8 +66,8 @@ Rules for orderType:
 - A single message might contain multiple signals (e.g. "Buy EURUSD now and Sell GBPUSD limit"). In such cases, provide multiple objects in the "signals" array.
 
 For "reason", explain concisely:
-- If valid: what signal was detected (e.g., "Clear BUY signal for EURUSD with entry at 1.0850 and SL/TP levels")
-- If not valid: why it's not a signal (e.g., "General market commentary without actionable trade direction" or "Missing currency pair information")
+- If valid: explain why
+- If not valid: why it's not a signal 
 
 Only respond with the JSON, no additional text.`;
 
