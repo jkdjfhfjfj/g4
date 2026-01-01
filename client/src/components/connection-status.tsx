@@ -1,5 +1,5 @@
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Zap } from "lucide-react";
+import { RefreshCw, Zap, Server, Globe, Signal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface ConnectionStatusProps {
@@ -28,27 +28,39 @@ export function ConnectionStatus({ label, status, onReconnect }: ConnectionStatu
     },
   };
 
+  const getIcon = () => {
+    switch (label) {
+      case "WS": return <Globe className="h-3 w-3" />;
+      case "TG": return <Signal className="h-3 w-3" />;
+      case "MT": return <Server className="h-3 w-3" />;
+      default: return null;
+    }
+  };
+
   const config = statusConfig[status];
 
   return (
     <div className="flex items-center gap-1.5 flex-shrink-0">
       <div 
         className="flex items-center gap-1.5 px-1.5 py-1 rounded-md bg-secondary/50 border border-border"
-        title={label}
+        title={label === "WS" ? "WebSocket Server" : label === "TG" ? "Telegram" : "MetaTrader API"}
       >
+        <div className="flex items-center gap-1 text-muted-foreground">
+          {getIcon()}
+          <span className="text-[10px] font-bold uppercase tracking-wider">{label}</span>
+        </div>
         <span
           className={`h-2 w-2 rounded-full ${config.color} ${
             status === "connecting" ? "animate-pulse" : ""
           }`}
         />
-        <span className="hidden md:inline text-[10px] font-bold uppercase tracking-wider text-muted-foreground">{label}</span>
         {(label === "TG") && onReconnect && (
           <Button
             variant="ghost"
             size="icon"
             onClick={onReconnect}
-            className="h-5 w-5 md:h-6 md:w-6"
-            title="Reconnect"
+            className="h-5 w-5 md:h-6 md:w-6 no-default-hover-elevate"
+            title="Reconnect Telegram"
           >
             <Zap className={`h-3 w-3 ${status === "connected" ? "text-primary" : (status === "disconnected" ? "text-destructive" : "text-muted-foreground")}`} />
           </Button>

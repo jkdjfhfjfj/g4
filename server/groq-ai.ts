@@ -26,23 +26,28 @@ A valid trading signal must include:
 - A direction (BUY/SELL or LONG/SHORT)
 - Optionally: entry price, stop loss, take profit levels
 
-Respond in JSON format only:
+Respond in JSON format only with an array of signals (one or more):
 {
-  "isSignal": boolean,
-  "confidence": number (0-1),
-  "reason": string (DETAILED 20-40 word explanation covering the technical rationale, currency pair detected, and specific direction logic),
-  "symbol": string or null,
-  "direction": "BUY" or "SELL" or null,
-  "orderType": "MARKET" or "LIMIT",
-  "entryPrice": number or null,
-  "stopLoss": number or null,
-  "takeProfit": [number] or null
+  "signals": [
+    {
+      "isSignal": boolean,
+      "confidence": number (0-1),
+      "reason": string (DETAILED 20-40 word explanation covering the technical rationale, currency pair detected, and specific direction logic),
+      "symbol": string or null,
+      "direction": "BUY" or "SELL" or null,
+      "orderType": "MARKET" or "LIMIT",
+      "entryPrice": number or null,
+      "stopLoss": number or null,
+      "takeProfit": [number] or null
+    }
+  ]
 }
 
 Rules for orderType:
 - Use "LIMIT" ONLY if a specific entry price/level is explicitly mentioned (e.g., "Buy Limit at 1.0850", "Sell at 1.0850", "Entry: 1.0850").
 - Use "MARKET" if the message says "Buy Now", "Sell Now", "Buy [SYMBOL] now", or if no specific entry price is provided.
 - If it's just "Buy [SYMBOL]" or "Sell [SYMBOL]" without an "at [PRICE]" or "Limit" keyword, default to "MARKET".
+- A single message might contain multiple signals (e.g. "Buy EURUSD now and Sell GBPUSD limit"). In such cases, provide multiple objects in the "signals" array.
 
 For "reason", explain concisely:
 - If valid: what signal was detected (e.g., "Clear BUY signal for EURUSD with entry at 1.0850 and SL/TP levels")
@@ -62,6 +67,10 @@ interface SignalAnalysis {
   takeProfit: number[] | null;
 }
 
+interface MultiSignalAnalysis {
+  signals: SignalAnalysis[];
+}
+
 // Helper to add timeout to promises - 5 second timeout for fast fallback
 function withTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T | null> {
   return Promise.race([
@@ -76,7 +85,7 @@ const MODEL_TIMEOUT_MS = 5000;
 async function tryAnalyzeWithModel(
   model: string,
   messageText: string
-): Promise<SignalAnalysis | null> {
+): Promise<MultiSignalAnalysis | null> {
   try {
     // 5 second timeout per model for faster fallback
     const response = await withTimeout(
@@ -87,7 +96,7 @@ async function tryAnalyzeWithModel(
           { role: "user", content: messageText },
         ],
         temperature: 0.1,
-        max_tokens: 500,
+        max_tokens: 1000,
         response_format: { type: "json_object" },
       }),
       MODEL_TIMEOUT_MS
@@ -101,7 +110,7 @@ async function tryAnalyzeWithModel(
     const content = response.choices[0]?.message?.content;
     if (!content) return null;
 
-    const parsed = JSON.parse(content) as SignalAnalysis;
+    const parsed = JSON.parse(content) as MultiSignalAnalysis;
     return parsed;
   } catch (error: any) {
     // Check if it's a rate limit or model unavailable error
@@ -122,65 +131,76 @@ async function tryAnalyzeWithModel(
 export async function analyzeMessage(message: TelegramMessage): Promise<{
   verdict: TelegramMessage["aiVerdict"];
   verdictDescription: string;
-  signal: ParsedSignal | null;
+  signals: ParsedSignal[];
   modelUsed?: string;
 }> {
   if (!message.text || message.text.trim().length < 3) {
-    return { verdict: "no_signal", verdictDescription: "Message too short to contain trading signal", signal: null, modelUsed: undefined };
+    return { verdict: "no_signal", verdictDescription: "Message too short to contain trading signal", signals: [], modelUsed: undefined };
   }
 
   if (!GROQ_API_KEY) {
     console.error("GROQ_API_KEY not set");
-    return { verdict: "error", verdictDescription: "AI analysis unavailable", signal: null, modelUsed: undefined };
+    return { verdict: "error", verdictDescription: "AI analysis unavailable", signals: [], modelUsed: undefined };
   }
 
-  let analysis: SignalAnalysis | null = null;
+  let analysis: MultiSignalAnalysis | null = null;
   let modelUsed: string | undefined = undefined;
 
   try {
     for (const model of MODELS) {
       analysis = await tryAnalyzeWithModel(model, message.text);
-      if (analysis !== null) {
+      if (analysis !== null && Array.isArray(analysis.signals)) {
         modelUsed = model.split('/').pop() || model;
         console.log(`Successfully analyzed with model: ${modelUsed}`);
         break;
       }
     }
 
-    if (!analysis) {
-      console.error("All models failed to analyze message");
-      return { verdict: "error", verdictDescription: "AI analysis failed after trying all models", signal: null, modelUsed: undefined };
+    if (!analysis || !Array.isArray(analysis.signals)) {
+      console.error("All models failed to analyze message or returned invalid format");
+      return { verdict: "error", verdictDescription: "AI analysis failed after trying all models", signals: [], modelUsed: undefined };
     }
 
-    if (!analysis.isSignal || !analysis.symbol || !analysis.direction) {
-      return { verdict: "no_signal", verdictDescription: analysis.reason || "No actionable trading signal detected", signal: null, modelUsed };
+    const validSignals = analysis.signals.filter(s => s.isSignal && s.symbol && s.direction);
+
+    if (validSignals.length === 0) {
+      const firstReason = analysis.signals[0]?.reason || "No actionable trading signal detected";
+      return { verdict: "no_signal", verdictDescription: firstReason, signals: [], modelUsed };
     }
 
-    const normalizedSymbol = analysis.symbol
-      .replace(/[\/\s-]/g, "")
-      .toUpperCase();
+    const parsedSignals: ParsedSignal[] = validSignals.map((s, index) => {
+      const normalizedSymbol = s.symbol!
+        .replace(/[\/\s-]/g, "")
+        .toUpperCase();
 
-    const signal: ParsedSignal = {
-      id: randomUUID(),
-      messageId: message.id,
-      channelId: message.channelId,
-      symbol: normalizedSymbol,
-      direction: analysis.direction,
-      orderType: analysis.orderType || (analysis.entryPrice ? "LIMIT" : "MARKET"),
-      entryPrice: analysis.entryPrice || undefined,
-      stopLoss: analysis.stopLoss || undefined,
-      takeProfit: analysis.takeProfit || undefined,
-      confidence: analysis.confidence,
-      timestamp: new Date().toISOString(),
-      status: "pending",
-      rawMessage: message.text,
-      modelUsed,
-      verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`,
+      return {
+        id: `${message.channelId}:${message.id}:${index}`,
+        messageId: message.id,
+        channelId: message.channelId,
+        symbol: normalizedSymbol,
+        direction: s.direction!,
+        orderType: s.orderType || (s.entryPrice ? "LIMIT" : "MARKET"),
+        entryPrice: s.entryPrice || undefined,
+        stopLoss: s.stopLoss || undefined,
+        takeProfit: s.takeProfit || undefined,
+        confidence: s.confidence,
+        timestamp: new Date().toISOString(),
+        status: "pending",
+        rawMessage: message.text,
+        modelUsed,
+        verdictDescription: s.reason || `${s.direction} signal detected for ${s.symbol}`,
+      };
+    });
+
+    const summary = parsedSignals.map(s => `${s.direction} ${s.symbol}`).join(", ");
+    return { 
+      verdict: "valid_signal", 
+      verdictDescription: `${parsedSignals.length} signal(s) detected: ${summary}`, 
+      signals: parsedSignals, 
+      modelUsed 
     };
-
-    return { verdict: "valid_signal", verdictDescription: analysis.reason || `${analysis.direction} signal detected for ${analysis.symbol}`, signal, modelUsed };
   } catch (error: any) {
     console.error("Message analysis failed:", error?.message || error);
-    return { verdict: "error", verdictDescription: "Analysis error occurred", signal: null, modelUsed: undefined };
+    return { verdict: "error", verdictDescription: "Analysis error occurred", signals: [], modelUsed: undefined };
   }
 }

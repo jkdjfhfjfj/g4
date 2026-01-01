@@ -101,7 +101,11 @@ export function useWebSocket() {
           });
           break;
         case "signal_detected":
-          setSignals((prev) => [message.signal, ...prev].slice(0, 50));
+          setSignals((prev) => {
+            const exists = prev.some(s => s.id === message.signal.id);
+            if (exists) return prev;
+            return [message.signal, ...prev].slice(0, 50);
+          });
           break;
         case "signal_updated":
           setSignals((prev) =>

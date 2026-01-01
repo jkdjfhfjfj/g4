@@ -320,7 +320,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
       }
       
       // Don't await - process analysis in background
-      analyzeMessage(message).then(({ verdict, verdictDescription, signal, modelUsed }) => {
+      analyzeMessage(message).then(({ verdict, verdictDescription, signals: detectedSignals, modelUsed }) => {
         updatedMessage.aiVerdict = verdict;
         updatedMessage.verdictDescription = verdictDescription;
         updatedMessage.modelUsed = modelUsed;
@@ -328,43 +328,46 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         // Broadcast updated message with analysis
         broadcast({ type: "new_message", message: updatedMessage });
 
-        if (signal) {
-          signal.verdictDescription = verdictDescription;
-          updatedMessage.parsedSignal = signal;
-          signals.set(signal.id, signal);
-          broadcast({ type: "signal_detected", signal });
+        if (detectedSignals && detectedSignals.length > 0) {
+          detectedSignals.forEach(signal => {
+            signal.verdictDescription = verdictDescription;
+            signals.set(signal.id, signal);
+            broadcast({ type: "signal_detected", signal });
 
-          if (autoTradeEnabled && signal.confidence >= 0.7) {
-            console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (${signal.orderType}) (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
-            
-            // Auto-execute in background with global lot size
-            metaapi.executeTrade(
-              signal.symbol,
-              signal.direction,
-              globalLotSize,
-              signal.stopLoss,
-              signal.takeProfit?.[0],
-              signal.orderType,
-              signal.entryPrice
-            ).then(result => {
-              if (result.success) {
-                signal.status = "executed";
-                signals.set(signal.id, signal);
-                broadcast({ type: "signal_updated", signal });
-                broadcast({ type: "auto_trade_executed", signal, result });
-              } else {
-                signal.status = "failed";
-                signal.failureReason = result.message;
-                signals.set(signal.id, signal);
-                broadcast({ type: "signal_updated", signal });
-                broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
-              }
+            if (autoTradeEnabled && signal.confidence >= 0.7) {
+              console.log(`Auto-executing trade: ${signal.symbol} ${signal.direction} (${signal.orderType}) (confidence: ${signal.confidence}, lot: ${globalLotSize})`);
+              
+              // Use signal.id as the lock key to prevent duplicate execution of the SAME signal
+              // Even if globalLotSize changes, the signal ID is unique to this specific detection
+              metaapi.executeTrade(
+                signal.symbol,
+                signal.direction,
+                globalLotSize,
+                signal.stopLoss,
+                signal.takeProfit?.[0],
+                signal.orderType,
+                signal.entryPrice,
+                signal.id // Pass signalId as lock key
+              ).then(result => {
+                if (result.success) {
+                  signal.status = "executed";
+                  signals.set(signal.id, signal);
+                  broadcast({ type: "signal_updated", signal });
+                  broadcast({ type: "auto_trade_executed", signal, result });
+                } else {
+                  signal.status = "failed";
+                  signal.failureReason = result.message;
+                  signals.set(signal.id, signal);
+                  broadcast({ type: "signal_updated", signal });
+                  broadcast({ type: "error", message: `Auto-trade failed: ${result.message}` });
+                }
 
-              metaapi.getPositions().then(positions => {
-                broadcast({ type: "positions", positions });
+                metaapi.getPositions().then(positions => {
+                  broadcast({ type: "positions", positions });
+                });
               });
-            });
-          }
+            }
+          });
         }
       }).catch(error => {
         console.error("Background analysis error:", error);
