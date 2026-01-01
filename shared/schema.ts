@@ -1,14 +1,30 @@
+/**
+ * DATA MODELS & SCHEMAS (shared/schema.ts)
+ * 
+ * This file defines the core data structures used by both the frontend (React) 
+ * and backend (Express). It serves as the single source of truth for the 
+ * shape of data flowing through the application via WebSockets and REST APIs.
+ */
+
 import { pgTable, text, varchar, integer, real, boolean, timestamp } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 import { sql } from "drizzle-orm";
 
+/**
+ * DATABASE SCHEMA: Users
+ * Defines the persistent storage structure for user accounts.
+ */
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   username: text("username").notNull().unique(),
   password: text("password").notNull(),
 });
 
+/**
+ * ZOD SCHEMAS: Validation & Types
+ * Used by the backend to validate incoming data and the frontend to define state types.
+ */
 export const insertUserSchema = createInsertSchema(users).pick({
   username: true,
   password: true,
@@ -17,53 +33,63 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export type InsertUser = z.infer<typeof insertUserSchema>;
 export type User = typeof users.$inferSelect;
 
-// Telegram Channel
+/**
+ * TELEGRAM DATA MODELS
+ * Representations of data retrieved from the Telegram client (GramJS).
+ */
+
+// A channel or group the user is a member of
 export interface TelegramChannel {
-  id: string;
-  title: string;
-  username?: string;
+  id: string; // Internal Telegram ID
+  title: string; // Visible name
+  username?: string; // @username if public
   participantsCount?: number;
   isPrivate: boolean;
   type?: 'channel' | 'group';
 }
 
-// Telegram Message
+// A raw message received from a Telegram channel
 export interface TelegramMessage {
-  id: number;
-  channelId: string;
-  channelTitle: string;
+  id: number; // Message ID within the channel
+  channelId: string; // Source channel ID
+  channelTitle: string; // Name of the source channel
   channelName?: string;
-  text: string;
-  date: string;
+  text: string; // Raw text content
+  date: string; // ISO timestamp
   senderName?: string;
-  aiVerdict?: 'valid_signal' | 'no_signal' | 'analyzing' | 'error' | 'skipped';
-  verdictDescription?: string;
-  parsedSignal?: ParsedSignal | null;
-  isRealtime?: boolean;
-  modelUsed?: string;
+  aiVerdict?: 'valid_signal' | 'no_signal' | 'analyzing' | 'error' | 'skipped'; // Status of AI analysis
+  verdictDescription?: string; // AI's explanation for the verdict
+  parsedSignal?: ParsedSignal | null; // The signal extracted from the text
+  isRealtime?: boolean; // True if received live, false if from history
+  modelUsed?: string; // The LLM model that performed analysis
 }
 
-// Parsed Trading Signal
+/**
+ * TRADING DATA MODELS
+ * Representations of signals and MetaTrader execution data.
+ */
+
+// A signal parsed from a message by Groq AI
 export interface ParsedSignal {
-  id: string;
+  id: string; // Unique ID (usually channelId:messageId)
   messageId: number;
   channelId: string;
-  symbol: string;
+  symbol: string; // e.g., "EURUSD"
   direction: 'BUY' | 'SELL';
   orderType: 'MARKET' | 'LIMIT';
   entryPrice?: number;
   stopLoss?: number;
   takeProfit?: number[];
-  confidence: number;
+  confidence: number; // 0.0 to 1.0 score from AI
   timestamp: string;
   status: 'pending' | 'executed' | 'dismissed' | 'failed';
   rawMessage: string;
   verdictDescription?: string;
   modelUsed?: string;
-  failureReason?: string;
+  failureReason?: string; // Error message if execution fails
 }
 
-// MetaAPI Account Info
+// Trading account state from MetaAPI
 export interface TradingAccount {
   id: string;
   name: string;
@@ -78,31 +104,31 @@ export interface TradingAccount {
   connected: boolean;
 }
 
-// Trading Position
+// An open trade in the MetaTrader account
 export interface Position {
   id: string;
   symbol: string;
   type: 'buy' | 'sell';
-  volume: number;
+  volume: number; // Lot size
   openPrice: number;
   currentPrice: number;
   stopLoss?: number;
   takeProfit?: number;
-  profit: number;
+  profit: number; // Floating P/L in account currency
   swap: number;
   openTime: string;
 }
 
-// Market Symbol
+// Real-time market price data
 export interface MarketSymbol {
   symbol: string;
   bid: number;
   ask: number;
   spread: number;
-  digits: number;
+  digits: number; // Decimal precision (e.g., 5 for pips)
 }
 
-// Trade History
+// A closed trade from account history
 export interface TradeHistory {
   id: string;
   symbol: string;
@@ -117,7 +143,13 @@ export interface TradeHistory {
   swap: number;
 }
 
-// WebSocket Message Types
+/**
+ * WEBSOCKET COMMUNICATION (WSMessageType)
+ * 
+ * This union type defines every possible message that can be sent 
+ * from the backend to the frontend. This is the "backbone" of the 
+ * real-time data flow.
+ */
 export type WSMessageType = 
   | { type: 'connection_status'; status: 'connected' | 'disconnected' | 'connecting' }
   | { type: 'telegram_status'; status: 'connected' | 'disconnected' | 'connecting' | 'needs_auth' }
@@ -143,7 +175,7 @@ export type WSMessageType =
   | { type: 'lot_size_updated'; lotSize: number }
   | { type: 'telegram_disconnected' };
 
-// Insert schemas for API validation
+// Validation schemas for frontend-to-backend commands
 export const executeTradeSchema = z.object({
   signalId: z.string().optional(),
   symbol: z.string(),
