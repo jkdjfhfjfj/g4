@@ -65,10 +65,10 @@ interface StatusBarProps {
 
 export function StatusBar({ wsStatus, telegramStatus, metaapiStatus, onReconnectTelegram }: StatusBarProps) {
   return (
-    <div className="flex items-center gap-4">
+    <div className="flex items-center gap-2 md:gap-4 px-2">
       <ConnectionStatus label="WS" status={wsStatus} />
-      <ConnectionStatus label="Telegram" status={telegramStatus} onReconnect={onReconnectTelegram} />
-      <ConnectionStatus label="MetaAPI" status={metaapiStatus} />
+      <ConnectionStatus label="TG" status={telegramStatus} onReconnect={onReconnectTelegram} />
+      <ConnectionStatus label="MT" status={metaapiStatus} />
     </div>
   );
 }

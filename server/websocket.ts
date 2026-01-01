@@ -68,6 +68,10 @@ async function handleMessage(ws: WebSocket, data: any) {
         // Multi-channel selection
         const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
         
+        // Update current local selection for real-time handler
+        savedChannelIds = channelIds;
+        saveSettings();
+        
         // Handle message processing for all selected channels
         for (const channelId of channelIds) {
           const messages = await telegram.selectChannel(channelId);
@@ -77,8 +81,7 @@ async function handleMessage(ws: WebSocket, data: any) {
           const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
           for (const message of recentMessages) {
-            const realtimeMessage = { ...message, isRealtime: false };
-            broadcast({ type: "new_message", message: realtimeMessage });
+            broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
           }
 
           for (const message of recentMessages) {
@@ -215,6 +218,21 @@ async function handleMessage(ws: WebSocket, data: any) {
 
       case "reconnect_telegram": {
         await telegram.reconnect();
+        
+        // After reconnection, re-select channels to sync messages
+        if (savedChannelIds.length > 0) {
+          console.log("Re-selecting saved channels after manual reconnect:", savedChannelIds);
+          for (const channelId of savedChannelIds) {
+            const messages = await telegram.selectChannel(channelId);
+            const oneHourAgo = Date.now() - 60 * 60 * 1000;
+            const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+            
+            for (const message of recentMessages) {
+              broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
+              processMessage({ ...message, isRealtime: false }, false);
+            }
+          }
+        }
         break;
       }
 
@@ -380,16 +398,19 @@ async function sendInitialData(ws: WebSocket) {
     // Automatically select saved channels on connect if any
     if (savedChannelIds.length > 0) {
       console.log("Automatically selecting saved channels:", savedChannelIds);
-      for (const channelId of savedChannelIds) {
-        const messages = await telegram.selectChannel(channelId);
-        const oneHourAgo = Date.now() - 60 * 60 * 1000;
-        const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
-        
-        for (const message of recentMessages) {
-          broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
-          processMessage({ ...message, isRealtime: false }, false);
+      // Wait for client to be ready to receive messages
+      setTimeout(async () => {
+        for (const channelId of savedChannelIds) {
+          const messages = await telegram.selectChannel(channelId);
+          const oneHourAgo = Date.now() - 60 * 60 * 1000;
+          const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+          
+          for (const message of recentMessages) {
+            broadcast({ type: "new_message", message: { ...message, isRealtime: false } });
+            processMessage({ ...message, isRealtime: false }, false);
+          }
         }
-      }
+      }, 1000);
     }
   }
 
