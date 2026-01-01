@@ -179,7 +179,7 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
         channelId: message.channelId,
         symbol: normalizedSymbol,
         direction: s.direction!,
-        orderType: s.orderType || (s.entryPrice ? "LIMIT" : "MARKET"),
+        orderType: s.orderType === "LIMIT" ? "LIMIT" : "MARKET",
         entryPrice: s.entryPrice || undefined,
         stopLoss: s.stopLoss || undefined,
         takeProfit: s.takeProfit || undefined,

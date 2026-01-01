@@ -346,7 +346,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 globalLotSize,
                 signal.stopLoss,
                 signal.takeProfit?.[0],
-                signal.orderType,
+                signal.orderType === "LIMIT" ? "LIMIT" : "MARKET",
                 signal.entryPrice,
                 signal.id // Pass signalId as lock key
               ).then(result => {

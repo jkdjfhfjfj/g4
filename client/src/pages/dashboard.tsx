@@ -74,6 +74,16 @@ export default function Dashboard() {
   }, [authRequired]);
 
   useEffect(() => {
+    if (authError) {
+      toast({
+        variant: "destructive",
+        title: "Authentication Error",
+        description: authError,
+      });
+    }
+  }, [authError, toast]);
+
+  useEffect(() => {
     if (error) {
       toast({
         variant: "destructive",

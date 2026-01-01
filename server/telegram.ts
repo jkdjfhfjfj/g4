@@ -99,9 +99,13 @@ function notifyAuth(type: "phone" | "code" | "password") {
 
 function notifyAuthError(message: string) {
   authErrorCallbacks.forEach((cb) => cb(message));
+  // Don't re-emit if it's a critical error or we're disconnected
+  if (currentStatus === "disconnected") return;
+  
   // Always re-emit the current auth step so user can retry
   // This allows them to wait out flood timeouts and try again
   if (currentAuthStep) {
+    console.log(`Auth error reported, re-emitting step: ${currentAuthStep}`);
     setTimeout(() => notifyAuth(currentAuthStep!), 500);
   }
 }
