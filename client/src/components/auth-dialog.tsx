@@ -50,17 +50,20 @@ export function AuthDialog({
   }, [open]);
 
   useEffect(() => {
-    setIsLoading(false);
-    setLocalError("");
-  }, [step]);
-
-  useEffect(() => {
     if (backendError) {
       setIsLoading(false);
+      // Don't clear localError here, let the UI show backendError which is preferred via:
+      // const error = backendError || localError;
     }
   }, [backendError]);
 
+  useEffect(() => {
+    // Only reset local error if step changes or dialog opens
+    // Don't reset on every render or small state change
+  }, [step, open]);
+
   const handleSubmit = () => {
+    // Keep backend error visible until new attempt starts
     setLocalError("");
     
     switch (step) {

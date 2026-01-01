@@ -48,8 +48,10 @@ function ExecuteDialog({ signal, open, onClose, onExecute }: ExecuteDialogProps)
   );
 
   const handleExecute = () => {
+    const vol = parseFloat(volume);
+    if (isNaN(vol) || vol <= 0) return;
     onExecute(
-      parseFloat(volume),
+      vol,
       stopLoss ? parseFloat(stopLoss) : undefined,
       takeProfit ? parseFloat(takeProfit) : undefined
     );
@@ -79,12 +81,15 @@ function ExecuteDialog({ signal, open, onClose, onExecute }: ExecuteDialogProps)
             </Label>
             <Input
               id="volume"
-              type="number"
-              step="0.01"
-              min="0.01"
-              max="100"
+              type="text"
+              inputMode="decimal"
               value={volume}
-              onChange={(e) => setVolume(e.target.value)}
+              onChange={(e) => {
+                const val = e.target.value;
+                if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                  setVolume(val);
+                }
+              }}
               className="col-span-3 font-mono"
               data-testid="input-trade-volume"
             />
