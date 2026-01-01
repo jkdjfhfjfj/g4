@@ -10,6 +10,16 @@ import { HistoryPanel } from "@/components/history-panel";
 import { AuthDialog } from "@/components/auth-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose,
+} from "@/components/ui/dialog";
 import { TrendingUp, MessageSquare, Wallet, BarChart3, History, Bot, AlertCircle, LogOut, Settings, Search } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -162,40 +172,65 @@ export default function Dashboard() {
               />
             </div>
 
-            <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
-              <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
-              <Switch
-                checked={autoTradeEnabled}
-                onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
-                data-testid="toggle-auto-trade"
-                className="scale-75 origin-right md:scale-100"
-              />
-            </div>
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-9 md:h-10 gap-2">
+                    <Settings className="h-4 w-4" />
+                    <span className="text-xs md:text-sm">Lot: {lotSize}</span>
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-[425px]">
+                  <DialogHeader>
+                    <DialogTitle>Trading Settings</DialogTitle>
+                    <DialogDescription>
+                      Configure your global lot size for all trades.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="lot-size" className="text-right">
+                        Lot Size
+                      </Label>
+                      <Input
+                        id="lot-size"
+                        type="text"
+                        inputMode="decimal"
+                        value={lotSize === 0 ? "" : lotSize}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
+                            updateLotSize(val as any);
+                          }
+                        }}
+                        onBlur={(e) => {
+                          const val = parseFloat(e.target.value);
+                          if (isNaN(val) || val <= 0) {
+                            updateLotSize(0.01 as any);
+                          }
+                        }}
+                        className="col-span-3 font-mono"
+                      />
+                    </div>
+                  </div>
+                  <DialogFooter>
+                    <DialogClose asChild>
+                      <Button type="button">Close</Button>
+                    </DialogClose>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
 
-            <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
-              <Settings className="h-4 w-4 text-muted-foreground flex-shrink-0" />
-              <span className="text-xs md:text-sm font-medium whitespace-nowrap">Lot:</span>
-              <Input
-                type="text"
-                inputMode="decimal"
-                value={lotSize === 0 ? "" : lotSize}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  // Allow empty string or decimal numbers
-                  if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
-                    updateLotSize(val as any);
-                  }
-                }}
-                onBlur={(e) => {
-                  const val = parseFloat(e.target.value);
-                  if (isNaN(val) || val <= 0) {
-                    updateLotSize("0.01" as any);
-                  }
-                }}
-                className="w-16 h-7 text-xs font-mono px-2"
-                data-testid="input-lot-size"
-              />
+              <div className="flex items-center gap-2 px-2.5 py-1.5 md:px-3 md:py-2 bg-background rounded-lg border border-border flex-shrink-0 h-9 md:h-10">
+                <Bot className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                <span className="text-xs md:text-sm font-medium whitespace-nowrap">Auto</span>
+                <Switch
+                  checked={autoTradeEnabled}
+                  onCheckedChange={() => toggleAutoTrade(!autoTradeEnabled)}
+                  data-testid="toggle-auto-trade"
+                  className="scale-75 origin-right md:scale-100"
+                />
+              </div>
             </div>
 
             {telegramStatus === "connected" ? (

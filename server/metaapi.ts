@@ -383,17 +383,18 @@ export async function executeTrade(
   stopLoss?: number,
   takeProfit?: number,
   orderType: "MARKET" | "LIMIT" = "MARKET",
-  entryPrice?: number
+  entryPrice?: number,
+  lockKeyOverride?: string
 ): Promise<{ success: boolean; message: string; positionId?: string }> {
-  const lockKey = `${symbol}-${direction}-${volume}-${orderType}`;
+  const lockKey = lockKeyOverride || `${symbol}-${direction}-${volume}-${orderType}`;
   if (executionLocks.has(lockKey)) {
     console.log(`[MetaAPI] Trade for ${lockKey} is already being executed, skipping duplicate.`);
     return { success: false, message: "Execution already in progress" };
   }
 
   executionLocks.add(lockKey);
-  // Remove lock after 5 seconds to allow subsequent trades but prevent double-tap
-  setTimeout(() => executionLocks.delete(lockKey), 5000);
+  // Remove lock after 10 seconds to allow subsequent trades but prevent double-tap
+  setTimeout(() => executionLocks.delete(lockKey), 10000);
 
   if (!connection || !isConnected) {
     return { success: false, message: "Not connected to MetaAPI" };

@@ -96,7 +96,8 @@ async function handleMessage(ws: WebSocket, data: any) {
             data.stopLoss,
             data.takeProfit,
             data.orderType || "MARKET",
-            data.entryPrice
+            data.entryPrice,
+            data.signalId // Pass signalId as lock key
           );
 
           if (result.success) {
