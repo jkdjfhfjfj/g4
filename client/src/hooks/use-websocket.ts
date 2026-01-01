@@ -63,7 +63,13 @@ export function useWebSocket() {
         case "new_message":
           setMessages((prev) => {
             // Only add messages from selected channels
-            if (!selectedChannelIds.includes(message.message.channelId)) {
+            const isSelected = selectedChannelIds.includes(message.message.channelId);
+            
+            // Check for loose match if direct ID match fails (handling -100 prefix inconsistency)
+            const incomingNum = message.message.channelId.replace("-100", "").replace("-", "");
+            const looseMatch = !isSelected && selectedChannelIds.some(id => id.replace("-100", "").replace("-", "") === incomingNum);
+
+            if (!isSelected && !looseMatch) {
               return prev;
             }
             const exists = prev.some((m) => m.id === message.message.id);

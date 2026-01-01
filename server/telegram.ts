@@ -281,6 +281,8 @@ function setupMessageHandler() {
             : selectedChannelId.toString().replace("-100", "").replace("-", "") === incomingNum
         );
         
+        console.log(`Checking real-time message from ${channelId} (num: ${incomingNum}) against selection:`, selectedChannelId, "Match:", !!isSelected);
+        
         if (isSelected) {
           console.log("✓ Message matches selected channel, notifying...");
           const telegramMessage: TelegramMessage = {

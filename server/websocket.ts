@@ -492,6 +492,7 @@ export function initWebSocket(server: Server) {
 
   // Set up Telegram message handler for REAL-TIME messages
   telegram.onMessage(async (message) => {
+    console.log(`Broadcasting real-time message from ${message.channelId}`);
     const realtimeMessage = { ...message, isRealtime: true };
     broadcast({ type: "new_message", message: realtimeMessage });
     processMessage(realtimeMessage, true);
