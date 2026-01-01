@@ -1,4 +1,5 @@
-import { MessageSquare, Lock, Search, Users } from "lucide-react";
+import { MessageSquare, Lock, Search, Users, Check } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { TelegramChannel } from "@shared/schema";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -13,14 +14,14 @@ import {
 
 interface ChannelListProps {
   channels: TelegramChannel[];
-  selectedChannelId: string | null;
+  selectedChannelIds: string[];
   onSelectChannel: (channelId: string) => void;
   telegramStatus: "connected" | "disconnected" | "connecting" | "needs_auth";
 }
 
 export function ChannelList({
   channels,
-  selectedChannelId,
+  selectedChannelIds,
   onSelectChannel,
   telegramStatus,
 }: ChannelListProps) {
@@ -32,75 +33,49 @@ export function ChannelList({
   );
 
   return (
-    <div className="w-full">
-      <Select value={selectedChannelId || ""} onValueChange={onSelectChannel}>
-        <SelectTrigger
+    <div className="w-full space-y-2">
+      <div className="relative">
+        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+        <Input
+          placeholder="Search and select channels..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
           disabled={isDisabled}
-          className="w-full bg-white/15 border-white/25 text-primary-foreground hover:bg-white/20 transition-colors h-10"
-          data-testid="select-channel"
-        >
-          <div className="flex items-center gap-2 w-full text-left min-w-0">
-            <MessageSquare className="h-4 w-4 flex-shrink-0" />
-            <div className="flex-1 truncate">
-              <SelectValue
-                placeholder={
-                  telegramStatus === "needs_auth"
-                    ? "Authenticate"
-                    : telegramStatus === "connecting"
-                    ? "Connecting..."
-                    : "Select channel"
-                }
-              />
+          className="pl-9 h-10 bg-white/15 border-white/25 text-primary-foreground placeholder:text-primary-foreground/50"
+        />
+      </div>
+      
+      <ScrollArea className="h-32 rounded-md border border-border bg-card/50">
+        <div className="p-2 grid grid-cols-1 sm:grid-cols-2 gap-1">
+          {filteredChannels.length === 0 ? (
+            <div className="p-3 text-center text-xs text-muted-foreground col-span-full">
+              No channels found
             </div>
-          </div>
-        </SelectTrigger>
-        <SelectContent className="w-[var(--radix-select-trigger-width)] min-w-[280px] max-w-[calc(100vw-2rem)] overflow-hidden flex flex-col">
-          <div className="p-2 border-b border-border bg-popover z-10">
-            <div className="relative">
-              <Search className="absolute left-2 top-2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Search channels..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="pl-8 h-8 text-xs"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                }}
-                onKeyDown={(e) => {
-                  e.stopPropagation();
-                }}
-              />
-            </div>
-          </div>
-          <ScrollArea className="flex-1 overflow-y-auto max-h-[300px]">
-            <div className="p-1">
-              {filteredChannels.length === 0 ? (
-                <div className="p-3 text-center text-sm text-muted-foreground">
-                  No channels found
-                </div>
-              ) : (
-                filteredChannels.map((channel) => (
-                  <SelectItem key={channel.id} value={channel.id} className="cursor-pointer">
-                    <div className="flex items-center gap-2">
-                      {channel.type === "group" ? (
-                        <Users className="h-4 w-4 text-orange-400" />
-                      ) : channel.isPrivate ? (
-                        <Lock className="h-4 w-4 text-destructive" />
-                      ) : (
-                        <MessageSquare className="h-4 w-4 text-primary" />
-                      )}
-                      <span className="font-medium text-sm truncate max-w-[180px] sm:max-w-[220px]">
-                        {channel.title}
-                      </span>
-                    </div>
-                  </SelectItem>
-                ))
-              )}
-            </div>
-          </ScrollArea>
-        </SelectContent>
-      </Select>
+          ) : (
+            filteredChannels.map((channel) => {
+              const isSelected = selectedChannelIds.includes(channel.id);
+              return (
+                <Button
+                  key={channel.id}
+                  variant={isSelected ? "secondary" : "ghost"}
+                  size="sm"
+                  onClick={() => onSelectChannel(channel.id)}
+                  disabled={isDisabled}
+                  className="justify-start gap-2 h-8 px-2 text-xs"
+                >
+                  {channel.type === "group" ? (
+                    <Users className="h-3 w-3 flex-shrink-0" />
+                  ) : (
+                    <MessageSquare className="h-3 w-3 flex-shrink-0" />
+                  )}
+                  <span className="truncate flex-1 text-left">{channel.title}</span>
+                  {isSelected && <Check className="h-3 w-3 flex-shrink-0 text-primary" />}
+                </Button>
+              );
+            })
+          )}
+        </div>
+      </ScrollArea>
     </div>
   );
 }

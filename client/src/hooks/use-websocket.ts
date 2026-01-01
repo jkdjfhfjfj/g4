@@ -22,7 +22,7 @@ export function useWebSocket() {
     "connected" | "disconnected" | "connecting"
   >("disconnected");
   const [channels, setChannels] = useState<TelegramChannel[]>([]);
-  const [selectedChannelId, setSelectedChannelId] = useState<string | null>(null);
+  const [selectedChannelIds, setSelectedChannelIds] = useState<string[]>([]);
   const [messages, setMessages] = useState<TelegramMessage[]>([]);
   const [signals, setSignals] = useState<ParsedSignal[]>([]);
   const [account, setAccount] = useState<TradingAccount | null>(null);
@@ -68,8 +68,8 @@ export function useWebSocket() {
                 m.id === message.message.id ? message.message : m
               );
             }
-            // Play sound for real-time messages from selected channel
-            if (message.message.isRealtime && message.message.channelId === selectedChannelId) {
+            // Play sound for real-time messages from selected channels
+            if (message.message.isRealtime && selectedChannelIds.includes(message.message.channelId)) {
               playNotificationSound(`New message in channel`);
             }
             return [message.message, ...prev].slice(0, 100);
@@ -131,8 +131,8 @@ export function useWebSocket() {
         case "saved_channel":
           setSavedChannelId(message.channelId);
           if (message.channelId) {
-            setSelectedChannelId(message.channelId);
-            wsClient.send({ type: "select_channel", channelId: message.channelId });
+            setSelectedChannelIds(prev => [...new Set([...prev, message.channelId!])]);
+            wsClient.send({ type: "select_channel", channelId: [message.channelId] });
           }
           break;
         case "auto_trade_enabled":
@@ -154,7 +154,7 @@ export function useWebSocket() {
         case "telegram_disconnected":
           setTelegramStatus("disconnected");
           setChannels([]);
-          setSelectedChannelId(null);
+          setSelectedChannelIds([]);
           setMessages([]);
           break;
       }
@@ -166,10 +166,15 @@ export function useWebSocket() {
   }, []);
 
   const selectChannel = useCallback((channelId: string) => {
-    setSelectedChannelId(channelId);
-    setMessages([]);
-    wsClient.send({ type: "select_channel", channelId });
-    wsClient.send({ type: "save_channel", channelId });
+    setSelectedChannelIds(prev => {
+      const next = prev.includes(channelId) 
+        ? prev.filter(id => id !== channelId) 
+        : [...prev, channelId];
+      
+      wsClient.send({ type: "select_channel", channelId: next });
+      wsClient.send({ type: "save_channel", channelId: next.length > 0 ? next[0] : null }); // Save primary for now
+      return next;
+    });
   }, []);
 
   const toggleAutoTrade = useCallback((enabled: boolean) => {
@@ -256,7 +261,7 @@ export function useWebSocket() {
     telegramStatus,
     metaapiStatus,
     channels,
-    selectedChannelId,
+    selectedChannelIds,
     messages,
     signals,
     account,

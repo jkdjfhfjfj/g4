@@ -30,7 +30,7 @@ Respond in JSON format only:
 {
   "isSignal": boolean,
   "confidence": number (0-1),
-  "reason": string (brief 10-20 word explanation of why this is or isn't a valid signal),
+  "reason": string (DETAILED 20-40 word explanation covering the technical rationale, currency pair detected, and specific direction logic),
   "symbol": string or null,
   "direction": "BUY" or "SELL" or null,
   "orderType": "MARKET" or "LIMIT",

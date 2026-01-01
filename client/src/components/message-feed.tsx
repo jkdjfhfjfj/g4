@@ -107,6 +107,11 @@ export function MessageFeed({ messages, selectedChannelId }: MessageFeedProps) {
                 >
                   <div className="flex items-start justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-2 flex-wrap">
+                      {message.channelTitle && (
+                        <Badge variant="outline" className="text-[10px] h-4 px-1.5 text-primary border-primary/20 bg-primary/5">
+                          {message.channelTitle}
+                        </Badge>
+                      )}
                       {message.senderName && (
                         <span className="text-xs font-medium">{message.senderName}</span>
                       )}

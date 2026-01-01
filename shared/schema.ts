@@ -32,6 +32,7 @@ export interface TelegramMessage {
   id: number;
   channelId: string;
   channelTitle: string;
+  channelName?: string;
   text: string;
   date: string;
   senderName?: string;

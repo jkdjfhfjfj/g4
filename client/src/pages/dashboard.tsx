@@ -34,7 +34,7 @@ export default function Dashboard() {
     telegramStatus,
     metaapiStatus,
     channels,
-    selectedChannelId,
+    selectedChannelIds,
     messages,
     signals,
     account,
@@ -167,7 +167,7 @@ export default function Dashboard() {
             <div className="flex-1">
               <ChannelList
                 channels={channels}
-                selectedChannelId={selectedChannelId}
+                selectedChannelIds={selectedChannelIds}
                 onSelectChannel={selectChannel}
                 telegramStatus={telegramStatus}
               />
@@ -185,10 +185,10 @@ export default function Dashboard() {
                   <DialogHeader>
                     <DialogTitle>Trading Settings</DialogTitle>
                     <DialogDescription>
-                      Configure your global lot size for all trades.
+                      Configure your global lot size and account connection.
                     </DialogDescription>
                   </DialogHeader>
-                  <div className="grid gap-4 py-4">
+                  <div className="grid gap-6 py-4">
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="lot-size" className="text-right">
                         Lot Size
@@ -198,20 +198,49 @@ export default function Dashboard() {
                         type="text"
                         inputMode="decimal"
                         value={lotSize === 0 ? "" : lotSize}
+                        placeholder="Enter lot size (e.g. 0.01)"
                         onChange={(e) => {
                           const val = e.target.value;
-                          if (val === "" || /^[0-9]*\.?[0-9]*$/.test(val)) {
-                            updateLotSize(val as any);
-                          }
+                          // Allow any characters to bypass restrictions, handle parsing on blur
+                          updateLotSize(val as any);
                         }}
                         onBlur={(e) => {
                           const val = parseFloat(e.target.value);
-                          if (isNaN(val) || val <= 0) {
-                            updateLotSize(0.01 as any);
+                          if (!isNaN(val) && val > 0) {
+                            updateLotSize(val);
+                          } else if (e.target.value === "") {
+                            updateLotSize(0);
                           }
                         }}
                         className="col-span-3 font-mono"
                       />
+                    </div>
+
+                    <div className="flex flex-col gap-2 pt-4 border-t border-border">
+                      <Label className="text-sm font-medium">Telegram Connection</Label>
+                      {telegramStatus === "connected" ? (
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={disconnectTelegram}
+                          className="w-full flex items-center justify-center gap-2"
+                          data-testid="button-disconnect-telegram"
+                        >
+                          <LogOut className="h-4 w-4" />
+                          <span>Disconnect Telegram</span>
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setAuthModalOpen(true)}
+                          className="w-full flex items-center justify-center gap-2"
+                          data-testid="button-connect-telegram"
+                        >
+                          <Bot className="h-4 w-4" />
+                          <span>Connect Telegram</span>
+                        </Button>
+                      )}
                     </div>
                   </div>
                   <DialogFooter>
@@ -233,30 +262,6 @@ export default function Dashboard() {
                 />
               </div>
             </div>
-
-            {telegramStatus === "connected" ? (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={disconnectTelegram}
-                className="flex items-center gap-1 text-xs text-destructive h-9 md:h-10"
-                data-testid="button-disconnect-telegram"
-              >
-                <LogOut className="h-4 w-4" />
-                <span className="hidden md:inline">Disconnect</span>
-              </Button>
-            ) : (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setAuthModalOpen(true)}
-                className="flex items-center gap-1 text-xs h-9 md:h-10"
-                data-testid="button-connect-telegram"
-              >
-                <Bot className="h-4 w-4" />
-                <span>Connect</span>
-              </Button>
-            )}
           </div>
         </header>
 
@@ -325,7 +330,7 @@ export default function Dashboard() {
                 />
               )}
               {activeTab === "messages" && (
-                <MessageFeed messages={messages} selectedChannelId={selectedChannelId} />
+                <MessageFeed messages={messages} selectedChannelId={selectedChannelIds.length > 0 ? selectedChannelIds[0] : null} />
               )}
               {activeTab === "markets" && (
                 <MarketsPanel markets={markets} onTrade={manualTrade} />

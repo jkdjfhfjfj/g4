@@ -63,25 +63,24 @@ async function handleMessage(ws: WebSocket, data: any) {
   try {
     switch (data.type) {
       case "select_channel": {
-        // Clear processed messages cache when switching channels
-        if (currentChannelId !== data.channelId) {
-          processedMessageIds.clear();
-          currentChannelId = data.channelId;
-        }
+        // Multi-channel selection
+        const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
         
-        const messages = await telegram.selectChannel(data.channelId);
-        
-        // Only show last hour of messages (real-time), skip older history
-        const oneHourAgo = Date.now() - 60 * 60 * 1000;
-        const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+        for (const channelId of channelIds) {
+          const messages = await telegram.selectChannel(channelId);
+          
+          // Only show last hour of messages (real-time), skip older history
+          const oneHourAgo = Date.now() - 60 * 60 * 1000;
+          const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
-        for (const message of recentMessages) {
-          const realtimeMessage = { ...message, isRealtime: false };
-          broadcast({ type: "new_message", message: realtimeMessage });
-        }
+          for (const message of recentMessages) {
+            const realtimeMessage = { ...message, isRealtime: false };
+            broadcast({ type: "new_message", message: realtimeMessage });
+          }
 
-        for (const message of recentMessages) {
-          processMessage({ ...message, isRealtime: false }, false);
+          for (const message of recentMessages) {
+            processMessage({ ...message, isRealtime: false }, false);
+          }
         }
         break;
       }
