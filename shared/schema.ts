@@ -173,7 +173,8 @@ export type WSMessageType =
   | { type: 'auto_trade_enabled'; enabled: boolean }
   | { type: 'trade_result'; success: boolean; message: string }
   | { type: 'lot_size_updated'; lotSize: number }
-  | { type: 'telegram_disconnected' };
+  | { type: 'telegram_disconnected' }
+  | { type: 'logs'; logs: string[] };
 
 // Validation schemas for frontend-to-backend commands
 export const executeTradeSchema = z.object({

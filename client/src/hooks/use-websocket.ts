@@ -55,6 +55,7 @@ export function useWebSocket() {
   const [savedChannelId, setSavedChannelId] = useState<string | null>(null);
   const [tradeResult, setTradeResult] = useState<{ success: boolean; message: string } | null>(null);
   const [lotSize, setLotSize] = useState(0.01);
+  const [logs, setLogs] = useState<string[]>([]);
 
   useEffect(() => {
     wsClient.connect();
@@ -207,6 +208,19 @@ export function useWebSocket() {
           setSelectedChannelIds([]);
           setMessages([]);
           break;
+        case "logs":
+          setLogs((prev) => {
+            const combined = [...prev, ...message.logs];
+            // Sort by timestamp and filter for last 30 mins
+            const now = Date.now();
+            return combined
+              .filter(log => {
+                const logTime = new Date(log.substring(1, 25)).getTime();
+                return now - logTime < 30 * 60 * 1000;
+              })
+              .slice(-1000); // Keep last 1000 entries
+          });
+          break;
       }
     });
 
@@ -351,6 +365,7 @@ export function useWebSocket() {
     updateLotSize,
     disconnectTelegram,
     reconnectTelegram,
+    logs,
   };
 }
 

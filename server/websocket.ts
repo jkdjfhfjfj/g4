@@ -40,6 +40,36 @@ let globalLotSize = 0.01;
 const processedMessageIds = new Set<string>();
 let currentChannelId: string | null = null;
 
+const logBuffer: string[] = [];
+const MAX_LOGS = 1000;
+const LOG_RETENTION_MS = 30 * 60 * 1000;
+
+function addLog(message: string) {
+  const timestamp = new Date().toISOString();
+  const logEntry = `[${timestamp}] ${message}`;
+  logBuffer.push(logEntry);
+  if (logBuffer.length > MAX_LOGS) {
+    logBuffer.shift();
+  }
+  broadcast({ type: "logs", logs: [logEntry] });
+}
+
+// Override console.log and console.error to capture logs
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = (...args: any[]) => {
+  const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+  originalLog.apply(console, args);
+  addLog(message);
+};
+
+console.error = (...args: any[]) => {
+  const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+  originalError.apply(console, args);
+  addLog(`ERROR: ${message}`);
+};
+
 let savedChannelIds: string[] = [];
 
 function loadSettings() {
@@ -490,6 +520,14 @@ async function sendInitialData(ws: WebSocket) {
 
   const history = await metaapi.getHistory();
   wsMessage({ type: "history", trades: history });
+
+  // Send buffered logs from the last 30 minutes
+  const now = Date.now();
+  const recentLogs = logBuffer.filter(log => {
+    const logTime = new Date(log.substring(1, 25)).getTime();
+    return now - logTime < LOG_RETENTION_MS;
+  });
+  wsMessage({ type: "logs", logs: recentLogs });
 
   signals.forEach((signal) => {
     // Only send signals from the last 24 hours to keep UI clean

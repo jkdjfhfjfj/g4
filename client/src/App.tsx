@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import { useEffect } from "react";
+import { LogsFAB } from "@/components/logs-fab";
+import { useWebSocket } from "@/hooks/use-websocket";
 
 function Router() {
   return (
@@ -17,6 +19,8 @@ function Router() {
 }
 
 function App() {
+  const { logs } = useWebSocket();
+
   useEffect(() => {
     const stored = localStorage.getItem("theme") as "light" | "dark" | null;
     const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -29,6 +33,7 @@ function App() {
       <TooltipProvider>
         <Toaster />
         <Router />
+        <LogsFAB logs={logs} />
       </TooltipProvider>
     </QueryClientProvider>
   );
