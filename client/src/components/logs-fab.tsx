@@ -31,8 +31,14 @@ export function LogsFAB({ logs }: LogsFABProps) {
     <>
       <Button
         size="icon"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl z-[9999] bg-primary hover:bg-primary/90 transition-all hover:scale-110 active:scale-95 border-2 border-white/20"
-        onClick={() => setIsOpen(true)}
+        className="fixed bottom-32 right-6 h-16 w-16 rounded-full shadow-[0_0_30px_rgba(0,0,0,0.6)] bg-primary text-primary-foreground hover:bg-primary/90 transition-all hover:scale-110 active:scale-95 border-4 border-white flex items-center justify-center pointer-events-auto"
+        style={{ zIndex: 99999999 }}
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          console.log("FAB Clicked");
+          setIsOpen(true);
+        }}
         data-testid="button-open-logs"
       >
         <ScrollText className="h-6 w-6" />

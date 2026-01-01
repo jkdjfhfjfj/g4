@@ -112,7 +112,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="flex h-screen w-full bg-gradient-to-b from-background to-background/50">
+    <div className="flex h-screen w-full bg-gradient-to-b from-background to-background/50 relative overflow-hidden">
       {/* Sidebar for Desktop */}
       <nav className="hidden md:flex h-screen w-20 bg-card border-r border-border flex-col items-center justify-start pt-6 gap-4 z-50 flex-shrink-0">
         {tabs.map((tab) => {

@@ -31,7 +31,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="relative min-h-screen">
+        <div className="relative min-h-screen w-full overflow-x-hidden">
           <Toaster />
           <Router />
           <LogsFAB logs={logs} />
