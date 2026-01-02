@@ -142,11 +142,12 @@ async function handleMessage(ws: WebSocket, data: any) {
         previousChannelIds.forEach(id => {
           if (!channelIds.includes(id)) {
             console.log(`[WS] Channel ${id} deselected, clearing processed message cache for this channel`);
-            for (const key of processedMessageIds) {
+            const idsArray = Array.from(processedMessageIds);
+            idsArray.forEach(key => {
               if (key.startsWith(`${id}:`)) {
                 processedMessageIds.delete(key);
               }
-            }
+            });
           }
         });
         
