@@ -271,8 +271,9 @@ function setupMessageHandler() {
 
         const isSelected = selectedChannelIds.some(id => {
           const s1 = normalizeId(id);
-          const s2 = normalizeId(incomingNum);
-          return s1 === s2 && s1 !== "";
+          const s2 = normalizeId(channelId); // Use channelId directly for match
+          const s3 = normalizeId(incomingNum);
+          return (s1 === s2 || s1 === s3) && s1 !== "";
         });
 
         if (isSelected) {

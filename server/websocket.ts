@@ -133,8 +133,22 @@ async function handleMessage(ws: WebSocket, data: any) {
         }));
 
         // Update current local selection for real-time handler
+        const previousChannelIds = [...savedChannelIds];
         savedChannelIds = channelIds;
         saveSettings();
+
+        // Clear processedMessageIds for any channel that was deselected
+        // This allows messages to reload if the channel is re-selected
+        previousChannelIds.forEach(id => {
+          if (!channelIds.includes(id)) {
+            console.log(`[WS] Channel ${id} deselected, clearing processed message cache for this channel`);
+            for (const key of processedMessageIds) {
+              if (key.startsWith(`${id}:`)) {
+                processedMessageIds.delete(key);
+              }
+            }
+          }
+        });
         
         // Broadcast the full list to all clients so they stay in sync
         broadcast({ type: "channels_selected", channelIds: savedChannelIds });
