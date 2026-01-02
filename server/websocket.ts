@@ -140,6 +140,7 @@ async function handleMessage(ws: WebSocket, data: any) {
         broadcast({ type: "channels_selected", channelIds: savedChannelIds });
         
         // Tell Telegram module which channels we are interested in and get history
+        // IMPORTANT: We pass ALL selected channels to ensure we get history for all of them
         const messages = await telegram.selectChannel(savedChannelIds);
         
         // Only show last hour of messages (real-time), skip older history
@@ -150,14 +151,16 @@ async function handleMessage(ws: WebSocket, data: any) {
           level: "INFO",
           module: "WEBSOCKET",
           event: "FETCHING_HISTORY",
-          count: recentMessages.length
+          count: recentMessages.length,
+          channelCount: channelIds.length
         }));
 
         for (const message of recentMessages) {
-          ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
-          
           const messageKey = `${message.channelId}:${message.id}`;
-          processedMessageIds.add(messageKey);
+          if (!processedMessageIds.has(messageKey)) {
+            ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
+            processedMessageIds.add(messageKey);
+          }
         }
         break;
       }

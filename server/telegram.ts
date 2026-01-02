@@ -332,7 +332,7 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
   const validIncomingIds = incomingIds.filter(id => id && id.trim().length > 0);
   
   // Update global selection
-  const uniqueIds = new Set([...selectedChannelIds, ...validIncomingIds]);
+  const uniqueIds = new Set(validIncomingIds);
   selectedChannelIds = Array.from(uniqueIds);
 
   if (validIncomingIds.length === 0) return [];
@@ -342,7 +342,12 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
   
   for (const idToFetch of validIncomingIds) {
     try {
-      console.log(`[TG] Fetching history for channel: ${idToFetch}`);
+      console.log(JSON.stringify({
+        level: "INFO",
+        module: "TELEGRAM",
+        event: "FETCH_HISTORY_START",
+        channelId: idToFetch
+      }));
       const entity = await client.getEntity(idToFetch);
       const messages = await client.getMessages(entity, { limit: 50 });
       const channelMessages = messages.filter(m => m.message).map(m => ({
@@ -354,9 +359,22 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
         aiVerdict: "analyzing" as const,
       }));
       results.push(...channelMessages);
+      console.log(JSON.stringify({
+        level: "INFO",
+        module: "TELEGRAM",
+        event: "FETCH_HISTORY_SUCCESS",
+        channelId: idToFetch,
+        count: channelMessages.length
+      }));
     } catch (error: any) {
       const errorMsg = error.errorMessage || error.message || "Unknown error";
-      console.error(`[TG] Failed to fetch history for ${idToFetch}:`, errorMsg);
+      console.error(JSON.stringify({
+        level: "ERROR",
+        module: "TELEGRAM",
+        event: "FETCH_HISTORY_FAILED",
+        channelId: idToFetch,
+        error: errorMsg
+      }));
       if (errorMsg === "CHANNEL_INVALID") {
         selectedChannelIds = selectedChannelIds.filter(id => id !== idToFetch);
       }
