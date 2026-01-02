@@ -9,12 +9,21 @@ export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // ... existing code ...
+  // Initialize WebSocket server
   initWebSocket(httpServer);
+
+  // Initialize Telegram client
+  telegram.initTelegram().catch((err) => {
+    console.error("Failed to initialize Telegram:", err);
+  });
+
+  // Initialize MetaAPI
+  metaapi.initMetaApi().catch((err) => {
+    console.error("Failed to initialize MetaAPI:", err);
+  });
 
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
-    // ... existing code ...
     res.json({
       status: "ok",
       telegram: telegram.getTelegramStatus(),
