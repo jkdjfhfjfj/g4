@@ -114,11 +114,14 @@ async function handleMessage(ws: WebSocket, data: any) {
     switch (data.type) {
       case "select_channel": {
         // Multi-channel selection
-        const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
+        const channelIds = Array.isArray(data.channelId) ? data.channelId : (data.channelId ? [data.channelId] : []);
         
         // Update current local selection for real-time handler
         savedChannelIds = channelIds;
         saveSettings();
+        
+        // Broadcast the full list to all clients so they stay in sync
+        broadcast({ type: "channels_selected", channelIds: savedChannelIds });
         
         // Handle message processing for all selected channels
         for (const channelId of channelIds) {
@@ -298,10 +301,10 @@ async function handleMessage(ws: WebSocket, data: any) {
       }
 
       case "save_channel": {
-        const channelIds = Array.isArray(data.channelId) ? data.channelId : [data.channelId];
+        const channelIds = Array.isArray(data.channelId) ? data.channelId : (data.channelId ? [data.channelId] : []);
         savedChannelIds = channelIds;
         saveSettings();
-        broadcast({ type: "saved_channel", channelId: savedChannelIds[0] });
+        broadcast({ type: "channels_selected", channelIds: savedChannelIds });
         break;
       }
 
@@ -467,6 +470,7 @@ async function sendInitialData(ws: WebSocket) {
 
   wsMessage({ type: "auto_trade_enabled", enabled: autoTradeEnabled });
   wsMessage({ type: "lot_size_updated", lotSize: globalLotSize });
+  wsMessage({ type: "channels_selected", channelIds: savedChannelIds });
   
   // Re-emit last hour signals
   signals.forEach((signal) => {

@@ -186,6 +186,12 @@ export function useWebSocket() {
             });
           }
           break;
+        case "channels_selected":
+          if (Array.isArray(message.channelIds)) {
+            setSelectedChannelIds(message.channelIds);
+            selectedIdsRef.current = message.channelIds;
+          }
+          break;
         case "auto_trade_enabled":
           setAutoTradeEnabled(message.enabled);
           break;
