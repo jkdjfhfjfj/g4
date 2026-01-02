@@ -25,8 +25,8 @@ const groq = new Groq({
 const MODELS = [
   "llama-3.3-70b-versatile",
   "llama-3.1-70b-versatile",
-  "llama3-70b-8192",
   "mixtral-8x7b-32768",
+  "llama3-70b-8192",
   "llama3-8b-8192",
 ];
 
