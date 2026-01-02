@@ -37,7 +37,7 @@ const MODELS = [
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
 
 A valid trading signal must include:
-- Strictly currency pair must be clear no hallucinations no price guessing to determine pair(e.g., EURUSD, GBPJPY, XAUUSD, etc.) 
+- Strictly currency pair must be clear no hallucinations no price guessing to determine pair(e.g., EURUSD, GBPJPY, XAUUSD, etc.). Note: "GOLD" or "XAU" must be mapped to "XAUUSD".
 - A direction (BUY/SELL or LONG/SHORT)
 - Optionally: entry price, stop loss, take profit levels
 
@@ -166,6 +166,14 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
       analysis = await tryAnalyzeWithModel(model, message.text);
       if (analysis !== null && Array.isArray(analysis.signals)) {
         modelUsed = model.split('/').pop() || model;
+        console.log(JSON.stringify({
+          level: "INFO",
+          module: "AI",
+          event: "RAW_ANALYSIS",
+          model: modelUsed,
+          input: message.text,
+          output: analysis
+        }));
         console.log(`Successfully analyzed with model: ${modelUsed}`);
         break;
       }

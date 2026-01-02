@@ -458,7 +458,17 @@ export async function executeTrade(
       }
     }
 
-    console.log("Trade executed:", result);
+    console.log(JSON.stringify({
+      level: "INFO",
+      module: "MARKETS",
+      event: "TRADE_EXECUTION_RESULT",
+      symbol,
+      direction,
+      volume,
+      orderType,
+      entryPrice,
+      result
+    }));
     return {
       success: true,
       message: `${direction} ${orderType} order executed for ${symbol}`,
