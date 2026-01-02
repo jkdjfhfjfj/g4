@@ -23,7 +23,7 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Zap className="h-6 w-6 text-primary" />
-            <span className="font-bold text-xl tracking-tight">SignalFlow AI</span>
+            <span className="font-bold text-xl tracking-tight">TGTOMT</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
             <a href="#features" className="hover:text-primary transition-colors">Features</a>
@@ -44,10 +44,10 @@ export default function LandingPage() {
           <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent -z-10" />
           <div className="max-w-5xl mx-auto text-center space-y-8">
             <Badge variant="outline" className="py-1 px-4 text-sm font-semibold border-primary/20 text-primary">
-              Next-Gen Forex Automation
+              Telegram to MetaTrader Automation
             </Badge>
             <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight">
-              Turn Telegram Signals into <span className="text-primary">Profitable Trades</span>
+              Turn Telegram Signals into <span className="text-primary">MT4/MT5 Trades</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
               Automate your trading strategy with AI-powered signal detection. Monitor multiple channels, analyze technical sentiment, and execute on MetaTrader 4/5 instantly.
@@ -126,10 +126,10 @@ export default function LandingPage() {
         <div className="max-w-7xl mx-auto px-4 text-center space-y-4">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Zap className="h-5 w-5 text-primary" />
-            <span className="font-bold">SignalFlow AI</span>
+            <span className="font-bold">TGTOMT</span>
           </div>
           <p className="text-sm text-muted-foreground">
-            © 2026 SignalFlow AI. Trading forex involves high risk.
+            © 2026 TGTOMT. Trading forex involves high risk.
           </p>
           <div className="flex justify-center gap-6 text-sm text-muted-foreground">
             <a href="#" className="hover:text-primary">Terms</a>
