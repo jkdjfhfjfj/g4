@@ -78,3 +78,918 @@
 2025-12-29 21:27:02 +00:00: > titan-overlord@1.0.0 dev
 2025-12-29 21:27:02 +00:00: > node server.js
 2025-12-29 21:27:02 +00:00: 
+2026-01-02 06:27:15 +00:00: Loaded existing Telegram session
+2026-01-02 06:27:15 +00:00: Loaded settings: {
+2026-01-02 06:27:15 +00:00:   autoTradeEnabled: true,
+2026-01-02 06:27:15 +00:00:   savedChannelIds: [ '-1002851205519' ],
+2026-01-02 06:27:15 +00:00:   globalLotSize: 1
+2026-01-02 06:27:15 +00:00: }
+2026-01-02 06:27:15 +00:00: WebSocket server initialized
+2026-01-02 06:27:15 +00:00: Initializing Telegram client...
+2026-01-02 06:27:15 +00:00: [33m[2026-01-02T06:27:15.408] [INFO] - [Running gramJS version 2.26.21][0m
+2026-01-02 06:27:15 +00:00: [33m[2026-01-02T06:27:15.511] [INFO] - [Connecting to 149.154.167.91:80/dE...][0m
+2026-01-02 06:27:15 +00:00: 6:27:15 AM [express] serving on port 5000
+2026-01-02 06:27:15 +00:00: [33m[2026-01-02T06:27:15.534] [INFO] - [Connection to 149.154.167.91:80/dE complete!][0m
+2026-01-02 06:27:15 +00:00: [33m[2026-01-02T06:27:15.581] [INFO] - [Using LAYER 198 for initial connect][0m
+2026-01-02 06:27:15 +00:00: Telegram network connected.
+2026-01-02 06:27:15 +00:00: Telegram session valid.
+2026-01-02 06:27:15 +00:00: [2026-01-02T06:27:15.857Z] Connecting MetaApi websocket client to the MetaApi server via https://mt-client-api-v1.london-a.agiliumtrade.ai shared server.
+2026-01-02 06:27:15 +00:00: [2026-01-02T06:27:15.857Z] Connecting MetaApi websocket client to the MetaApi server via https://mt-client-api-v1.london-b.agiliumtrade.ai shared server.
+2026-01-02 06:27:15 +00:00: [2026-01-02T06:27:15.991Z] london:0: MetaApi websocket client connected to the MetaApi server
+2026-01-02 06:27:16 +00:00: [2026-01-02T06:27:16.411Z] london:1: MetaApi websocket client connected to the MetaApi server
+2026-01-02 06:27:16 +00:00: MetaAPI connected successfully
+2026-01-02 06:27:16 +00:00: Fetching symbol list at startup...
+2026-01-02 06:27:16 +00:00: Cached 40 symbols for trading
+2026-01-02 06:27:42 +00:00: WebSocket client connected
+2026-01-02 06:27:42 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:27:42 +00:00: WebSocket client connected
+2026-01-02 06:27:43 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:27:43 +00:00: Returning 0 history trades
+2026-01-02 06:27:43 +00:00: Returning 0 history trades
+2026-01-02 06:27:44 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:27:44 +00:00: Sending 5 recent messages for channel -1002851205519
+2026-01-02 06:27:44 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:27:44 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:27:44 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:27:44 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:27:44 +00:00: Sending historical message from saved channel: 270 from -1002851205519
+2026-01-02 06:27:44 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:27:45 +00:00: Sending 5 recent messages for channel -1002851205519
+2026-01-02 06:27:45 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:27:45 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:27:45 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:27:45 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:27:45 +00:00: Sending historical message from saved channel: 270 from -1002851205519
+2026-01-02 06:27:45 +00:00: WebSocket client disconnected
+2026-01-02 06:27:45 +00:00: WebSocket client disconnected
+2026-01-02 06:27:46 +00:00: WebSocket client connected
+2026-01-02 06:27:46 +00:00: WebSocket client connected
+2026-01-02 06:27:46 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:27:46 +00:00: Returning 0 history trades
+2026-01-02 06:27:46 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:27:47 +00:00: Returning 0 history trades
+2026-01-02 06:27:48 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:27:48 +00:00: Sending 5 recent messages for channel -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 270 from -1002851205519
+2026-01-02 06:27:48 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:27:48 +00:00: Sending 5 recent messages for channel -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:27:48 +00:00: Sending historical message from saved channel: 270 from -1002851205519
+2026-01-02 06:28:08 +00:00: WebSocket client disconnected
+2026-01-02 06:28:08 +00:00: WebSocket client disconnected
+2026-01-02 06:28:10 +00:00: [TG] Received real-time message: -1002851205519:275
+2026-01-02 06:28:10 +00:00: [AI] Analyzing real-time message: -1002851205519:275
+2026-01-02 06:28:10 +00:00: Successfully analyzed with model: gpt-oss-20b
+2026-01-02 06:28:10 +00:00: [AI] Analysis complete for -1002851205519:275: no_signal
+2026-01-02 06:28:14 +00:00: WebSocket client connected
+2026-01-02 06:28:14 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:28:14 +00:00: Returning 0 history trades
+2026-01-02 06:28:16 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:28:16 +00:00: Sending 6 recent messages for channel -1002851205519
+2026-01-02 06:28:16 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:28:16 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:28:16 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:28:16 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:28:16 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:28:16 +00:00: Sending historical message from saved channel: 270 from -1002851205519
+2026-01-02 06:29:15 +00:00: Returning 0 history trades
+2026-01-02 06:31:15 +00:00: Returning 0 history trades
+2026-01-02 06:33:15 +00:00: Returning 0 history trades
+2026-01-02 06:35:15 +00:00: Returning 0 history trades
+2026-01-02 06:37:15 +00:00: Returning 0 history trades
+2026-01-02 06:38:26 +00:00: WebSocket client disconnected
+2026-01-02 06:39:35 +00:00: Loaded existing Telegram session
+2026-01-02 06:39:36 +00:00: Loaded settings: {
+2026-01-02 06:39:36 +00:00:   autoTradeEnabled: true,
+2026-01-02 06:39:36 +00:00:   savedChannelIds: [ '-1002851205519' ],
+2026-01-02 06:39:36 +00:00:   globalLotSize: 1
+2026-01-02 06:39:36 +00:00: }
+2026-01-02 06:39:36 +00:00: WebSocket server initialized
+2026-01-02 06:39:36 +00:00: Initializing Telegram client...
+2026-01-02 06:39:36 +00:00: [33m[2026-01-02T06:39:36.282] [INFO] - [Running gramJS version 2.26.21][0m
+2026-01-02 06:39:36 +00:00: [33m[2026-01-02T06:39:36.381] [INFO] - [Connecting to 149.154.167.91:80/dE...][0m
+2026-01-02 06:39:36 +00:00: 6:39:36 AM [express] serving on port 5000
+2026-01-02 06:39:36 +00:00: [33m[2026-01-02T06:39:36.408] [INFO] - [Connection to 149.154.167.91:80/dE complete!][0m
+2026-01-02 06:39:36 +00:00: [33m[2026-01-02T06:39:36.409] [INFO] - [Using LAYER 198 for initial connect][0m
+2026-01-02 06:39:36 +00:00: Telegram network connected.
+2026-01-02 06:39:36 +00:00: [2026-01-02T06:39:36.517Z] Connecting MetaApi websocket client to the MetaApi server via https://mt-client-api-v1.london-a.agiliumtrade.ai shared server.
+2026-01-02 06:39:36 +00:00: [2026-01-02T06:39:36.518Z] Connecting MetaApi websocket client to the MetaApi server via https://mt-client-api-v1.london-b.agiliumtrade.ai shared server.
+2026-01-02 06:39:36 +00:00: Telegram session valid.
+2026-01-02 06:39:36 +00:00: [2026-01-02T06:39:36.597Z] london:0: MetaApi websocket client connected to the MetaApi server
+2026-01-02 06:39:36 +00:00: [2026-01-02T06:39:36.696Z] london:1: MetaApi websocket client connected to the MetaApi server
+2026-01-02 06:39:37 +00:00: MetaAPI connected successfully
+2026-01-02 06:39:37 +00:00: Fetching symbol list at startup...
+2026-01-02 06:39:37 +00:00: Cached 40 symbols for trading
+2026-01-02 06:39:45 +00:00: WebSocket client connected
+2026-01-02 06:39:45 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:39:45 +00:00: WebSocket client connected
+2026-01-02 06:39:46 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:39:47 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:39:47 +00:00: Sending 5 recent messages for channel -1002851205519
+2026-01-02 06:39:47 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:39:47 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:39:47 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:39:47 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:39:47 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:39:47 +00:00: getDealsByTimeRange not available: The ws:getDealsByTimeRange API allows 2000 cpu cre
+2026-01-02 06:39:47 +00:00: Returning 0 history trades
+2026-01-02 06:39:47 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:39:48 +00:00: Sending 5 recent messages for channel -1002851205519
+2026-01-02 06:39:48 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:39:48 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:39:48 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:39:48 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:39:48 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:39:50 +00:00: Returning 0 history trades
+2026-01-02 06:39:54 +00:00: [TG] IGNORED SIGNAL from -1002002683478 (raw: 2002683478). Active: -1002851205519
+2026-01-02 06:40:19 +00:00: WebSocket client disconnected
+2026-01-02 06:40:19 +00:00: WebSocket client disconnected
+2026-01-02 06:40:20 +00:00: [TG] IGNORED SIGNAL from -1001737616479 (raw: 1737616479). Active: -1002851205519
+2026-01-02 06:40:20 +00:00: [TG] MATCH: Message 276 from -1002851205519
+2026-01-02 06:40:20 +00:00: [TG] Received real-time message: -1002851205519:276
+2026-01-02 06:40:20 +00:00: [WS] Routing -1002851205519:276. isRealtime: true
+2026-01-02 06:40:20 +00:00: [AI] Triggering analysis for message: -1002851205519:276. Text: buy gold...
+2026-01-02 06:40:21 +00:00: Successfully analyzed with model: llama-3.3-70b-versatile
+2026-01-02 06:40:21 +00:00: [AI] Verdict for -1002851205519:276: valid_signal
+2026-01-02 06:40:21 +00:00: [MT-EXEC] Auto-trading: XAUUSD BUY
+2026-01-02 06:40:21 +00:00: Executing MARKET order: XAUUSD BUY
+2026-01-02 06:40:21 +00:00: Trade executed: {
+2026-01-02 06:40:21 +00:00:   numericCode: 0,
+2026-01-02 06:40:21 +00:00:   stringCode: 'ERR_NO_ERROR',
+2026-01-02 06:40:21 +00:00:   message: 'No error returned',
+2026-01-02 06:40:21 +00:00:   orderId: '220016493',
+2026-01-02 06:40:21 +00:00:   positionId: '220016493',
+2026-01-02 06:40:21 +00:00:   tradeExecutionTime: 2026-01-02T06:40:21.500Z,
+2026-01-02 06:40:21 +00:00:   tradeStartTime: 2026-01-02T06:40:21.355Z
+2026-01-02 06:40:21 +00:00: }
+2026-01-02 06:40:21 +00:00: [MT-EXEC] Success: XAUUSD
+2026-01-02 06:40:24 +00:00: WebSocket client connected
+2026-01-02 06:40:25 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:40:25 +00:00: Returning 0 history trades
+2026-01-02 06:40:27 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:40:27 +00:00: Sending 6 recent messages for channel -1002851205519
+2026-01-02 06:40:27 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:40:27 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:40:27 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:40:27 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:40:27 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:40:27 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending 6 recent messages for channel -1002851205519
+2026-01-02 06:41:00 +00:00: Sending historical message: 276 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending historical message: 275 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending historical message: 274 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending historical message: 273 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending historical message: 272 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending historical message: 271 from -1002851205519
+2026-01-02 06:41:00 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:41:01 +00:00: Sending 6 recent messages for channel -1002851205519
+2026-01-02 06:41:01 +00:00: Sending historical message: 276 from -1002851205519
+2026-01-02 06:41:01 +00:00: Sending historical message: 275 from -1002851205519
+2026-01-02 06:41:01 +00:00: Sending historical message: 274 from -1002851205519
+2026-01-02 06:41:01 +00:00: Sending historical message: 273 from -1002851205519
+2026-01-02 06:41:01 +00:00: Sending historical message: 272 from -1002851205519
+2026-01-02 06:41:01 +00:00: Sending historical message: 271 from -1002851205519
+2026-01-02 06:41:01 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:41:02 +00:00: Sending 0 recent messages for channel -1001545919293
+2026-01-02 06:41:03 +00:00: WebSocket client disconnected
+2026-01-02 06:41:05 +00:00: WebSocket client connected
+2026-01-02 06:41:05 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:41:05 +00:00: WebSocket client connected
+2026-01-02 06:41:06 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:41:07 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:41:07 +00:00: Sending 6 recent messages for channel -1002851205519
+2026-01-02 06:41:07 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:41:07 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:41:07 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:41:07 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:41:07 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:41:07 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:41:07 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:41:07 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:41:07 +00:00: Sending 0 recent messages for channel -1001545919293
+2026-01-02 06:41:08 +00:00: Sending 6 recent messages for channel -1002851205519
+2026-01-02 06:41:08 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:41:08 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:41:08 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:41:08 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:41:08 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:41:08 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:41:08 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:41:08 +00:00: Sending 0 recent messages for channel -1001545919293
+2026-01-02 06:41:13 +00:00: Returning 0 history trades
+2026-01-02 06:41:14 +00:00: WebSocket client disconnected
+2026-01-02 06:41:14 +00:00: WebSocket client disconnected
+2026-01-02 06:41:17 +00:00: [TG] IGNORED SIGNAL from -1002851205519 (raw: 2851205519). Active: -1001545919293
+2026-01-02 06:41:21 +00:00: WebSocket client connected
+2026-01-02 06:41:22 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:41:22 +00:00: Returning 0 history trades
+2026-01-02 06:41:23 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:41:24 +00:00: Sending 7 recent messages for channel -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:41:24 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:41:24 +00:00: Sending 0 recent messages for channel -1001545919293
+2026-01-02 06:41:26 +00:00: Returning 0 history trades
+2026-01-02 06:41:29 +00:00: [TG] IGNORED SIGNAL from -1002002683478 (raw: 2002683478). Active: -1001545919293
+2026-01-02 06:41:36 +00:00: Returning 0 history trades
+2026-01-02 06:42:52 +00:00: [TG] IGNORED SIGNAL from -1002851205519 (raw: 2851205519). Active: -1001545919293
+2026-01-02 06:42:53 +00:00: WebSocket client disconnected
+2026-01-02 06:42:55 +00:00: WebSocket client connected
+2026-01-02 06:42:55 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:42:56 +00:00: Returning 0 history trades
+2026-01-02 06:42:57 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001824875502', '-1001545919293' ]
+2026-01-02 06:42:57 +00:00: Sending 8 recent messages for channel -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:42:57 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:42:57 +00:00: Sending 0 recent messages for channel -1001545919293
+2026-01-02 06:43:20 +00:00: Sending 8 recent messages for channel -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 278 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 277 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 276 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 275 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 274 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 273 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 272 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 271 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending 0 recent messages for channel -1001824875502
+2026-01-02 06:43:20 +00:00: Sending 8 recent messages for channel -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 278 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 277 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 276 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 275 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 274 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 273 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 272 from -1002851205519
+2026-01-02 06:43:20 +00:00: Sending historical message: 271 from -1002851205519
+2026-01-02 06:43:21 +00:00: [TG] IGNORED SIGNAL from -1001315501002 (raw: 1315501002). Active: -1002851205519
+2026-01-02 06:43:22 +00:00: WebSocket client disconnected
+2026-01-02 06:43:23 +00:00: WebSocket client connected
+2026-01-02 06:43:24 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:43:24 +00:00: Returning 0 history trades
+2026-01-02 06:43:24 +00:00: WebSocket client connected
+2026-01-02 06:43:24 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:43:24 +00:00: Returning 0 history trades
+2026-01-02 06:43:25 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:43:25 +00:00: Sending 8 recent messages for channel -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:43:25 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:43:26 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:43:26 +00:00: Sending 8 recent messages for channel -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:43:26 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:43:31 +00:00: [TG] MATCH: Message 279 from -1002851205519
+2026-01-02 06:43:31 +00:00: [TG] Received real-time message: -1002851205519:279
+2026-01-02 06:43:31 +00:00: [WS] Routing -1002851205519:279. isRealtime: true
+2026-01-02 06:43:31 +00:00: [AI] Triggering analysis for message: -1002851205519:279. Text: sell gold...
+2026-01-02 06:43:32 +00:00: Successfully analyzed with model: llama-3.3-70b-versatile
+2026-01-02 06:43:32 +00:00: [AI] Verdict for -1002851205519:279: valid_signal
+2026-01-02 06:43:32 +00:00: [MT-EXEC] Auto-trading: XAUUSD SELL
+2026-01-02 06:43:32 +00:00: Executing MARKET order: XAUUSD SELL
+2026-01-02 06:43:32 +00:00: Trade executed: {
+2026-01-02 06:43:32 +00:00:   numericCode: 0,
+2026-01-02 06:43:32 +00:00:   stringCode: 'ERR_NO_ERROR',
+2026-01-02 06:43:32 +00:00:   message: 'No error returned',
+2026-01-02 06:43:32 +00:00:   orderId: '220016520',
+2026-01-02 06:43:32 +00:00:   positionId: '220016520',
+2026-01-02 06:43:32 +00:00:   tradeExecutionTime: 2026-01-02T06:43:32.500Z,
+2026-01-02 06:43:32 +00:00:   tradeStartTime: 2026-01-02T06:43:32.493Z
+2026-01-02 06:43:32 +00:00: }
+2026-01-02 06:43:32 +00:00: [MT-EXEC] Success: XAUUSD
+2026-01-02 06:43:36 +00:00: Returning 0 history trades
+2026-01-02 06:43:41 +00:00: [TG] MATCH: Message 280 from -1002851205519
+2026-01-02 06:43:41 +00:00: [TG] Received real-time message: -1002851205519:280
+2026-01-02 06:43:41 +00:00: [WS] Routing -1002851205519:280. isRealtime: true
+2026-01-02 06:43:41 +00:00: [AI] Triggering analysis for message: -1002851205519:280. Text: sell gbpusd...
+2026-01-02 06:43:42 +00:00: Successfully analyzed with model: llama-3.3-70b-versatile
+2026-01-02 06:43:42 +00:00: [AI] Verdict for -1002851205519:280: valid_signal
+2026-01-02 06:43:42 +00:00: [MT-EXEC] Auto-trading: GBPUSD SELL
+2026-01-02 06:43:42 +00:00: Executing MARKET order: GBPUSD SELL
+2026-01-02 06:43:42 +00:00: Trade executed: {
+2026-01-02 06:43:42 +00:00:   numericCode: 0,
+2026-01-02 06:43:42 +00:00:   stringCode: 'ERR_NO_ERROR',
+2026-01-02 06:43:42 +00:00:   message: 'No error returned',
+2026-01-02 06:43:42 +00:00:   orderId: '220016522',
+2026-01-02 06:43:42 +00:00:   positionId: '220016522',
+2026-01-02 06:43:42 +00:00:   tradeExecutionTime: 2026-01-02T06:43:42.500Z,
+2026-01-02 06:43:42 +00:00:   tradeStartTime: 2026-01-02T06:43:42.023Z
+2026-01-02 06:43:42 +00:00: }
+2026-01-02 06:43:42 +00:00: [MT-EXEC] Success: GBPUSD
+2026-01-02 06:43:42 +00:00: WebSocket client disconnected
+2026-01-02 06:43:42 +00:00: WebSocket client disconnected
+2026-01-02 06:43:45 +00:00: WebSocket client connected
+2026-01-02 06:43:45 +00:00: [TG] IGNORED SIGNAL from -1001347580239 (raw: 1347580239). Active: -1002851205519
+2026-01-02 06:43:45 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:43:45 +00:00: Returning 0 history trades
+2026-01-02 06:43:47 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:43:47 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:43:47 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:45:36 +00:00: Returning 0 history trades
+2026-01-02 06:45:46 +00:00: [TG] IGNORED SIGNAL from -1002207299825 (raw: 2207299825). Active: -1002851205519
+2026-01-02 06:46:13 +00:00: [TG] IGNORED SIGNAL from -1001093875226 (raw: 1093875226). Active: -1002851205519
+2026-01-02 06:47:16 +00:00: [TG] IGNORED SIGNAL from -1001844443569 (raw: 1844443569). Active: -1002851205519
+2026-01-02 06:47:36 +00:00: Returning 0 history trades
+2026-01-02 06:48:23 +00:00: WebSocket client disconnected
+2026-01-02 06:49:50 +00:00: WebSocket client connected
+2026-01-02 06:49:50 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:49:50 +00:00: WebSocket client connected
+2026-01-02 06:49:51 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:49:52 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:49:52 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:49:52 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:49:53 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:49:53 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:49:53 +00:00: Sending historical message from saved channel: 271 from -1002851205519
+2026-01-02 06:50:06 +00:00: Returning 0 history trades
+2026-01-02 06:50:12 +00:00: WebSocket client disconnected
+2026-01-02 06:50:12 +00:00: WebSocket client disconnected
+2026-01-02 06:50:16 +00:00: [TG] IGNORED SIGNAL from -1002002683478 (raw: 2002683478). Active: -1002851205519
+2026-01-02 06:50:27 +00:00: Returning 0 history trades
+2026-01-02 06:51:54 +00:00: Loaded existing Telegram session
+2026-01-02 06:51:54 +00:00: Loaded settings: {
+2026-01-02 06:51:54 +00:00:   autoTradeEnabled: true,
+2026-01-02 06:51:54 +00:00:   savedChannelIds: [ '-1002851205519' ],
+2026-01-02 06:51:54 +00:00:   globalLotSize: 1
+2026-01-02 06:51:54 +00:00: }
+2026-01-02 06:51:54 +00:00: WebSocket server initialized
+2026-01-02 06:51:54 +00:00: Initializing Telegram client...
+2026-01-02 06:51:54 +00:00: [33m[2026-01-02T06:51:54.418] [INFO] - [Running gramJS version 2.26.21][0m
+2026-01-02 06:51:54 +00:00: [33m[2026-01-02T06:51:54.517] [INFO] - [Connecting to 149.154.167.91:80/dE...][0m
+2026-01-02 06:51:54 +00:00: 6:51:54 AM [express] serving on port 5000
+2026-01-02 06:51:54 +00:00: [33m[2026-01-02T06:51:54.594] [INFO] - [Connection to 149.154.167.91:80/dE complete!][0m
+2026-01-02 06:51:54 +00:00: [33m[2026-01-02T06:51:54.595] [INFO] - [Using LAYER 198 for initial connect][0m
+2026-01-02 06:51:54 +00:00: Telegram network connected.
+2026-01-02 06:51:54 +00:00: Telegram session valid.
+2026-01-02 06:51:54 +00:00: [2026-01-02T06:51:54.982Z] Connecting MetaApi websocket client to the MetaApi server via https://mt-client-api-v1.london-a.agiliumtrade.ai shared server.
+2026-01-02 06:51:54 +00:00: [2026-01-02T06:51:54.983Z] Connecting MetaApi websocket client to the MetaApi server via https://mt-client-api-v1.london-b.agiliumtrade.ai shared server.
+2026-01-02 06:51:55 +00:00: [2026-01-02T06:51:55.501Z] london:1: MetaApi websocket client connected to the MetaApi server
+2026-01-02 06:51:55 +00:00: [2026-01-02T06:51:55.506Z] london:0: MetaApi websocket client connected to the MetaApi server
+2026-01-02 06:51:55 +00:00: MetaAPI connected successfully
+2026-01-02 06:51:55 +00:00: Fetching symbol list at startup...
+2026-01-02 06:51:55 +00:00: Cached 40 symbols for trading
+2026-01-02 06:52:03 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: 
+2026-01-02 06:52:03 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: 
+2026-01-02 06:52:03 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: 
+2026-01-02 06:52:03 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: 
+2026-01-02 06:52:11 +00:00: WebSocket client connected
+2026-01-02 06:52:11 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: 
+2026-01-02 06:52:11 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: 
+2026-01-02 06:52:12 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:52:12 +00:00: WebSocket client connected
+2026-01-02 06:52:12 +00:00: Returning 0 history trades
+2026-01-02 06:52:12 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:52:12 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:52:12 +00:00: Returning 0 history trades
+2026-01-02 06:52:13 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:52:13 +00:00: Sending 9 recent messages for channel -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:52:13 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:52:14 +00:00: WebSocket client disconnected
+2026-01-02 06:52:14 +00:00: WebSocket client disconnected
+2026-01-02 06:52:14 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:52:14 +00:00: Sending 9 recent messages for channel -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:52:14 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:52:15 +00:00: WebSocket client connected
+2026-01-02 06:52:15 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: -1002851205519
+2026-01-02 06:52:15 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:52:15 +00:00: [TG] IGNORED SIGNAL from -1002002683478 (2002683478). Selection mismatch.
+2026-01-02 06:52:15 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:52:16 +00:00: WebSocket client connected
+2026-01-02 06:52:16 +00:00: Returning 0 history trades
+2026-01-02 06:52:16 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:52:16 +00:00: Returning 0 history trades
+2026-01-02 06:52:17 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:52:17 +00:00: Sending 9 recent messages for channel -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:52:17 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:52:18 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:52:18 +00:00: Sending 9 recent messages for channel -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:52:18 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:52:21 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:52:27 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519,-1001093875226
+2026-01-02 06:52:27 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519,-1001093875226
+2026-01-02 06:52:27 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519,-1001093875226
+2026-01-02 06:52:27 +00:00: Sending 9 recent messages for channel -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 280 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 279 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 278 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 277 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 276 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 275 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 274 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 273 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending historical message: 272 from -1002851205519
+2026-01-02 06:52:27 +00:00: Sending 4 recent messages for channel -1001093875226
+2026-01-02 06:52:27 +00:00: Sending historical message: 78654 from -1001093875226
+2026-01-02 06:52:27 +00:00: Sending historical message: 78647 from -1001093875226
+2026-01-02 06:52:27 +00:00: Sending historical message: 78646 from -1001093875226
+2026-01-02 06:52:27 +00:00: Sending historical message: 78644 from -1001093875226
+2026-01-02 06:52:39 +00:00: [TG] Incoming from -1002166193132 (2166193132). Active IDs: -1001093875226
+2026-01-02 06:52:39 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:52:39 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:52:44 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1001093875226
+2026-01-02 06:52:44 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:52:44 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:52:44 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1001093875226
+2026-01-02 06:52:44 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:52:45 +00:00: WebSocket client disconnected
+2026-01-02 06:52:45 +00:00: WebSocket client disconnected
+2026-01-02 06:52:47 +00:00: [TG] Incoming from -1002313342243 (2313342243). Active IDs: -1001093875226
+2026-01-02 06:52:47 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:52:47 +00:00: [TG] Incoming from -1001325172776 (1325172776). Active IDs: -1001093875226
+2026-01-02 06:52:48 +00:00: [TG] Incoming from -1002851205519 (2851205519). Active IDs: -1001093875226
+2026-01-02 06:52:48 +00:00: [TG] IGNORED SIGNAL from -1002851205519 (2851205519). Selection mismatch.
+2026-01-02 06:52:52 +00:00: WebSocket client connected
+2026-01-02 06:52:53 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001093875226' ]
+2026-01-02 06:52:53 +00:00: Returning 0 history trades
+2026-01-02 06:52:54 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001093875226' ]
+2026-01-02 06:52:54 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:52:54 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:52:54 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:52:54 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 281 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:52:54 +00:00: Sending 4 recent messages for channel -1001093875226
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 78654 from -1001093875226
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 78647 from -1001093875226
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 78646 from -1001093875226
+2026-01-02 06:52:54 +00:00: Sending historical message from saved channel: 78644 from -1001093875226
+2026-01-02 06:52:57 +00:00: [TG] Incoming from -1002163516576 (2163516576). Active IDs: -1001093875226
+2026-01-02 06:53:06 +00:00: [TG] Incoming from -1002056139039 (2056139039). Active IDs: -1001093875226
+2026-01-02 06:53:06 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:53:06 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:53:06 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:06 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:15 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:53:15 +00:00: [TG] Incoming from -1002228137902 (2228137902). Active IDs: -1001093875226
+2026-01-02 06:53:15 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:53:15 +00:00: [TG] Incoming from -1001177569533 (1177569533). Active IDs: -1001093875226
+2026-01-02 06:53:24 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:53:24 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:53:24 +00:00: [TG] Incoming from -1002056139039 (2056139039). Active IDs: -1001093875226
+2026-01-02 06:53:24 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: -1001093875226
+2026-01-02 06:53:24 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:28 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1001093875226
+2026-01-02 06:53:28 +00:00: [TG] Incoming from -1001890662445 (1890662445). Active IDs: -1001093875226
+2026-01-02 06:53:33 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:33 +00:00: [TG] Incoming from -1001417535319 (1417535319). Active IDs: -1001093875226
+2026-01-02 06:53:33 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:34 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:53:37 +00:00: WebSocket client disconnected
+2026-01-02 06:53:38 +00:00: WebSocket client connected
+2026-01-02 06:53:38 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:53:38 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001093875226' ]
+2026-01-02 06:53:38 +00:00: WebSocket client connected
+2026-01-02 06:53:39 +00:00: Returning 0 history trades
+2026-01-02 06:53:39 +00:00: Automatically selecting saved channels: [ '-1002851205519', '-1001093875226' ]
+2026-01-02 06:53:39 +00:00: Returning 0 history trades
+2026-01-02 06:53:40 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001093875226' ]
+2026-01-02 06:53:40 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:53:40 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 281 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending 3 recent messages for channel -1001093875226
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 78647 from -1001093875226
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 78646 from -1001093875226
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 78644 from -1001093875226
+2026-01-02 06:53:40 +00:00: Processing saved channels history after delay: [ '-1002851205519', '-1001093875226' ]
+2026-01-02 06:53:40 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 281 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:53:40 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:53:41 +00:00: Sending 3 recent messages for channel -1001093875226
+2026-01-02 06:53:41 +00:00: Sending historical message from saved channel: 78647 from -1001093875226
+2026-01-02 06:53:41 +00:00: Sending historical message from saved channel: 78646 from -1001093875226
+2026-01-02 06:53:41 +00:00: Sending historical message from saved channel: 78644 from -1001093875226
+2026-01-02 06:53:51 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:53:51 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:53:51 +00:00: [TG] Incoming from -1002228137902 (2228137902). Active IDs: -1001093875226
+2026-01-02 06:53:51 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1001093875226
+2026-01-02 06:53:54 +00:00: Returning 0 history trades
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1001262034557 (1262034557). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:53:59 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1001093875226
+2026-01-02 06:54:04 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1001093875226
+2026-01-02 06:54:09 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1001093875226
+2026-01-02 06:54:09 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1001093875226
+2026-01-02 06:54:13 +00:00: Sending 10 recent messages for channel -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 281 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 280 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 279 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 278 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 277 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 276 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 275 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 274 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 273 from -1002851205519
+2026-01-02 06:54:13 +00:00: Sending historical message: 272 from -1002851205519
+2026-01-02 06:54:18 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:54:18 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:54:18 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:54:18 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:54:23 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:54:23 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:23 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:27 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:54:27 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:54:30 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:54:33 +00:00: WebSocket client disconnected
+2026-01-02 06:54:33 +00:00: WebSocket client disconnected
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1002851205519 (2851205519). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] MATCH: Real-time message 282 from channel -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Received real-time message: -1002851205519:282
+2026-01-02 06:54:35 +00:00: [WS] Routing -1002851205519:282. isRealtime: true
+2026-01-02 06:54:35 +00:00: [AI] Triggering analysis for message: -1002851205519:282. Text: buy gold...
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] Incoming from -1002207299825 (2207299825). Active IDs: -1002851205519
+2026-01-02 06:54:35 +00:00: [TG] IGNORED SIGNAL from -1002207299825 (2207299825). Selection mismatch.
+2026-01-02 06:54:35 +00:00: Successfully analyzed with model: llama-3.3-70b-versatile
+2026-01-02 06:54:35 +00:00: [AI] Verdict for -1002851205519:282: valid_signal
+2026-01-02 06:54:35 +00:00: [MT-EXEC] Auto-trading: XAUUSD BUY
+2026-01-02 06:54:35 +00:00: Executing MARKET order: XAUUSD BUY
+2026-01-02 06:54:35 +00:00: Trade executed: {
+2026-01-02 06:54:35 +00:00:   numericCode: 0,
+2026-01-02 06:54:35 +00:00:   stringCode: 'ERR_NO_ERROR',
+2026-01-02 06:54:35 +00:00:   message: 'No error returned',
+2026-01-02 06:54:35 +00:00:   orderId: '220016626',
+2026-01-02 06:54:35 +00:00:   positionId: '220016626',
+2026-01-02 06:54:35 +00:00:   tradeExecutionTime: 2026-01-02T06:54:35.500Z,
+2026-01-02 06:54:35 +00:00:   tradeStartTime: 2026-01-02T06:54:35.859Z
+2026-01-02 06:54:35 +00:00: }
+2026-01-02 06:54:35 +00:00: [MT-EXEC] Success: XAUUSD
+2026-01-02 06:54:36 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:54:36 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:54:36 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:54:39 +00:00: WebSocket client connected
+2026-01-02 06:54:39 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:54:39 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:54:40 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:54:40 +00:00: Returning 0 history trades
+2026-01-02 06:54:41 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:54:41 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:54:41 +00:00: Sending 11 recent messages for channel -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 282 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 281 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:54:41 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1001093875226 (1093875226). Active IDs: -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:54:54 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1001971303543 (1971303543). Active IDs: -1002851205519
+2026-01-02 06:55:03 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:55:12 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:55:12 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:55:12 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:55:12 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:55:21 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:55:21 +00:00: [TG] Incoming from -1002109656286 (2109656286). Active IDs: -1002851205519
+2026-01-02 06:55:21 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:55:30 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:55:30 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:55:30 +00:00: [TG] Incoming from -1001394883720 (1394883720). Active IDs: -1002851205519
+2026-01-02 06:55:30 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:55:30 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:55:39 +00:00: [TG] Incoming from -1002228137902 (2228137902). Active IDs: -1002851205519
+2026-01-02 06:55:39 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:55:39 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:55:49 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:55:49 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:55:54 +00:00: Returning 0 history trades
+2026-01-02 06:56:07 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:56:07 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:56:16 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:56:16 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:56:16 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:56:16 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:56:25 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:56:25 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:56:25 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:56:25 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:56:25 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:56:34 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:56:34 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:56:34 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:56:34 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:56:43 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:56:43 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:56:43 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:56:43 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:56:52 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:56:52 +00:00: [TG] Incoming from -1001417535319 (1417535319). Active IDs: -1002851205519
+2026-01-02 06:56:52 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:56:52 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:56:52 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:56:52 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:01 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1002207299825 (2207299825). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1001417535319 (1417535319). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] Incoming from -1001420465664 (1420465664). Active IDs: -1002851205519
+2026-01-02 06:57:10 +00:00: [TG] IGNORED SIGNAL from -1001420465664 (1420465664). Selection mismatch.
+2026-01-02 06:57:19 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:19 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:57:19 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:57:28 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:57:28 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:28 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:57:28 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:57:37 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:37 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:57:37 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:57:37 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:57:46 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:57:46 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:57:46 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:54 +00:00: Returning 0 history trades
+2026-01-02 06:57:55 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:57:55 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:57:55 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:57:55 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:57:55 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:57:59 +00:00: WebSocket client disconnected
+2026-01-02 06:58:04 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:58:13 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:58:13 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:58:13 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:58:13 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:58:13 +00:00: [TG] Incoming from -1002228137902 (2228137902). Active IDs: -1002851205519
+2026-01-02 06:58:13 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:58:22 +00:00: [TG] Incoming from -1001417535319 (1417535319). Active IDs: -1002851205519
+2026-01-02 06:58:22 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:58:22 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:58:22 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:58:22 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:58:31 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:58:31 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:58:31 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:58:31 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:58:40 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 06:58:40 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:58:40 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:58:40 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 06:58:49 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:58:49 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:58:49 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:58:49 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:58:58 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:58:58 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:59:07 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1002056139039 (2056139039). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:16 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:59:20 +00:00: WebSocket client connected
+2026-01-02 06:59:20 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:59:20 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:59:20 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:59:20 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:59:20 +00:00: WebSocket client connected
+2026-01-02 06:59:20 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:20 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:21 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:59:21 +00:00: Automatically selecting saved channels: [ '-1002851205519' ]
+2026-01-02 06:59:21 +00:00: Returning 0 history trades
+2026-01-02 06:59:22 +00:00: Returning 0 history trades
+2026-01-02 06:59:22 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:59:23 +00:00: Sending 11 recent messages for channel -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 282 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 281 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:59:23 +00:00: Processing saved channels history after delay: [ '-1002851205519' ]
+2026-01-02 06:59:23 +00:00: Sending 11 recent messages for channel -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 282 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 281 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 280 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 279 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 278 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 277 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 276 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 275 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 274 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 273 from -1002851205519
+2026-01-02 06:59:23 +00:00: Sending historical message from saved channel: 272 from -1002851205519
+2026-01-02 06:59:27 +00:00: WebSocket client disconnected
+2026-01-02 06:59:27 +00:00: WebSocket client disconnected
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1002228137902 (2228137902). Active IDs: -1002851205519
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1002139583614 (2139583614). Active IDs: -1002851205519
+2026-01-02 06:59:34 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:43 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:59:43 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:59:43 +00:00: [TG] Incoming from -1001420465664 (1420465664). Active IDs: -1002851205519
+2026-01-02 06:59:43 +00:00: [TG] IGNORED SIGNAL from -1001420465664 (1420465664). Selection mismatch.
+2026-01-02 06:59:43 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 06:59:43 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:59:43 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:59:52 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 06:59:52 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 06:59:52 +00:00: [TG] Incoming from -1002139583614 (2139583614). Active IDs: -1002851205519
+2026-01-02 06:59:52 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 06:59:52 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 06:59:57 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:00:01 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:00:01 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 07:00:01 +00:00: [TG] IGNORED SIGNAL from -1002002683478 (2002683478). Selection mismatch.
+2026-01-02 07:00:01 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:00:01 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:00:10 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:00:10 +00:00: [TG] Incoming from -1002636485744 (2636485744). Active IDs: -1002851205519
+2026-01-02 07:00:10 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:00:14 +00:00: [TG] Incoming from -1001311309605 (1311309605). Active IDs: -1002851205519
+2026-01-02 07:00:14 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:00:19 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 07:00:28 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:00:28 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: -1002851205519
+2026-01-02 07:00:28 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 07:00:28 +00:00: [TG] Incoming from -1001898576720 (1898576720). Active IDs: -1002851205519
+2026-01-02 07:00:28 +00:00: [TG] Incoming from -1002228137902 (2228137902). Active IDs: -1002851205519
+2026-01-02 07:00:28 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:00:37 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:00:37 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:00:37 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:00:37 +00:00: [TG] Incoming from -1002002683478 (2002683478). Active IDs: -1002851205519
+2026-01-02 07:00:46 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:00:46 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 07:00:46 +00:00: [TG] Incoming from -1001397752696 (1397752696). Active IDs: -1002851205519
+2026-01-02 07:00:46 +00:00: [TG] Incoming from -1001248756855 (1248756855). Active IDs: -1002851205519
+2026-01-02 07:00:46 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:00:46 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:00:50 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:00:50 +00:00: [TG] Incoming from -1002969084613 (2969084613). Active IDs: -1002851205519
+2026-01-02 07:00:50 +00:00: [TG] Incoming from -1001904158438 (1904158438). Active IDs: -1002851205519
+2026-01-02 07:00:50 +00:00: [TG] Incoming from -1001934365350 (1934365350). Active IDs: -1002851205519
+2026-01-02 07:00:54 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:00:54 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:01:00 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519
+2026-01-02 07:01:00 +00:00: [TG] Incoming from -1001347097006 (1347097006). Active IDs: -1002851205519
+2026-01-02 07:01:00 +00:00: [TG] Incoming from -1002313342243 (2313342243). Active IDs: -1002851205519
+2026-01-02 07:01:00 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:01:00 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:01:04 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:01:04 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:01:04 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:01:11 +00:00: [TG] Incoming from -1001235383010 (1235383010). Active IDs: -1002851205519
+2026-01-02 07:01:13 +00:00: [TG] Incoming from -1002096809579 (2096809579). Active IDs: -1002851205519
+2026-01-02 07:01:13 +00:00: [TG] Incoming from -1002135104289 (2135104289). Active IDs: -1002851205519
+2026-01-02 07:01:17 +00:00: [TG] Incoming from -1001877735188 (1877735188). Active IDs: -1002851205519
+2026-01-02 07:01:20 +00:00: [TG] Incoming from -1001299729724 (1299729724). Active IDs: -1002851205519

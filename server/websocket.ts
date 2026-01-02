@@ -360,6 +360,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
       return;
     }
     
+<<<<<<< HEAD
     // Mark message as being processed to prevent duplicates
     processedMessageIds.add(messageKey);
     console.log(`[WS] Routing ${messageKey}. isRealtime: ${isRealtime}`);
@@ -369,6 +370,25 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
       // Broadcast with "analyzing" state before starting heavy background work
       broadcast({ type: "new_message", message: { ...updatedMessage, aiVerdict: "analyzing" } });
 
+=======
+    // Check for duplicate message processing
+    if (processedMessageIds.has(messageKey)) {
+      console.log(`Skipping duplicate message: ${messageKey}`);
+      return;
+    }
+    
+    // For all messages, broadcast immediately (don't wait for analysis)
+    if (isRealtime) {
+      updatedMessage.aiVerdict = "analyzing";
+    }
+    broadcast({ type: "new_message", message: updatedMessage });
+
+    // Only analyze real-time messages asynchronously, skip historical ones
+    if (isRealtime) {
+      // Mark message as being processed to prevent duplicates
+      processedMessageIds.add(messageKey);
+      
+>>>>>>> parent of 4732886... Allow the bot to detect trading signals from multiple Telegram channels simultaneously
       // Limit cache size to prevent memory leaks
       if (processedMessageIds.size > 1000) {
         const idsArray = Array.from(processedMessageIds);
@@ -620,12 +640,16 @@ export function initWebSocket(server: Server) {
 
   // Set up Telegram message handler for REAL-TIME messages
   telegram.onMessage(async (message) => {
+<<<<<<< HEAD
     console.log(`[TG] Received real-time message: ${message.channelId}:${message.id}`);
     const messageKey = `${message.channelId}:${message.id}`;
     if (processedMessageIds.has(messageKey)) {
       console.log(`[TG] Skipping early broadcast of duplicate message: ${messageKey}`);
       return;
     }
+=======
+    console.log(`Received real-time message from Telegram: ${message.channelId}:${message.id}`);
+>>>>>>> parent of 4732886... Allow the bot to detect trading signals from multiple Telegram channels simultaneously
     const realtimeMessage = { ...message, isRealtime: true };
     
     // Broadcast immediately to all connected clients
