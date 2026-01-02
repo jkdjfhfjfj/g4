@@ -25,10 +25,8 @@ const groq = new Groq({
 const MODELS = [
   "gpt-oss-20b",
   "gpt-oss-120b",
-  "llama-3.3-70b-versatile",
   "meta-llama/llama-4-scout-17b-16e-instruct",
   "meta-llama/llama-4-maverick-17b-128e-instruct",
-  "llama-3.1-70b-versatile",
   "llama3-70b-8192",
   "llama3-8b-8192",
   "mixtral-8x7b-32768",
