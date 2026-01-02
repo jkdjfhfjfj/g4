@@ -269,10 +269,22 @@ function setupMessageHandler() {
         // Log for debugging
         console.log(`[TG] Incoming from ${channelId} (${incomingNum}). Active IDs: ${selectedChannelIds.join(",")}`);
 
-        const isSelected = selectedChannelIds.some(id => normalizeId(id) === incomingNum);
+        const isSelected = selectedChannelIds.some(id => {
+          const s1 = normalizeId(id);
+          const s2 = normalizeId(incomingNum);
+          return s1 === s2 && s1 !== "";
+        });
 
         if (isSelected) {
-          console.log(`[TG] MATCH: Real-time message ${message.id} from channel ${channelId}`);
+          console.log(JSON.stringify({
+            level: "INFO",
+            module: "TELEGRAM",
+            event: "MESSAGE_MATCH",
+            messageId: message.id,
+            channelId: channelId,
+            incomingNum: incomingNum,
+            text: message.message?.substring(0, 100)
+          }));
           const telegramMessage: TelegramMessage = {
             id: message.id,
             channelId: channelId,

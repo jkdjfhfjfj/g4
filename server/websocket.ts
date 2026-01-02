@@ -46,7 +46,16 @@ const LOG_RETENTION_MS = 30 * 60 * 1000;
 
 function addLog(message: string) {
   const timestamp = new Date().toISOString();
-  const logEntry = `[${timestamp}] ${message}`;
+  let logEntry = `[${timestamp}] ${message}`;
+  
+  // Try to parse as JSON for better display if it looks like JSON
+  if (message.trim().startsWith('{')) {
+    try {
+      const parsed = JSON.parse(message);
+      logEntry = JSON.stringify({ timestamp, ...parsed });
+    } catch (e) {}
+  }
+
   logBuffer.push(logEntry);
   if (logBuffer.length > MAX_LOGS) {
     logBuffer.shift();
@@ -116,6 +125,13 @@ async function handleMessage(ws: WebSocket, data: any) {
         // Multi-channel selection
         const channelIds = Array.isArray(data.channelId) ? data.channelId : (data.channelId ? [data.channelId] : []);
         
+        console.log(JSON.stringify({
+          level: "INFO",
+          module: "WEBSOCKET",
+          event: "CHANNELS_SELECTED",
+          channelIds
+        }));
+
         // Update current local selection for real-time handler
         savedChannelIds = channelIds;
         saveSettings();
@@ -128,28 +144,35 @@ async function handleMessage(ws: WebSocket, data: any) {
         
         // Handle message processing for all selected channels
         for (const channelId of channelIds) {
-          const messages = await telegram.selectChannel(channelId);
-          
-          // Only show last hour of messages (real-time), skip older history
-          const oneHourAgo = Date.now() - 60 * 60 * 1000;
-          const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+          try {
+            const messages = await telegram.selectChannel(channelId);
+            
+            // Only show last hour of messages (real-time), skip older history
+            const oneHourAgo = Date.now() - 60 * 60 * 1000;
+            const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
-          // Show historical messages
-          console.log(`Sending ${recentMessages.length} recent messages for channel ${channelId}`);
-          for (const message of recentMessages) {
-            console.log(`Sending historical message: ${message.id} from ${message.channelId}`);
-            ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
-          }
+            console.log(JSON.stringify({
+              level: "INFO",
+              module: "WEBSOCKET",
+              event: "FETCHING_HISTORY",
+              channelId,
+              count: recentMessages.length
+            }));
 
-          // Don't call processMessage here as it broadcasts to all clients again
-          // and triggers duplicate processing. Just analyze in background if needed.
-          for (const message of recentMessages) {
-            const messageKey = `${message.channelId}:${message.id}`;
-            if (!processedMessageIds.has(messageKey)) {
+            for (const message of recentMessages) {
+              ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
+              
+              const messageKey = `${message.channelId}:${message.id}`;
               processedMessageIds.add(messageKey);
-              // Historical messages are skipped for AI by default in processMessage,
-              // so we don't need to do anything else here.
             }
+          } catch (err) {
+            console.error(JSON.stringify({
+              level: "ERROR",
+              module: "WEBSOCKET",
+              event: "HISTORY_FETCH_FAILED",
+              channelId,
+              error: err instanceof Error ? err.message : String(err)
+            }));
           }
         }
         break;
@@ -397,7 +420,14 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         }
       }
       
-      console.log(`[AI] Triggering analysis for message: ${messageKey}. Text: ${message.text?.substring(0, 50)}...`);
+      console.log(JSON.stringify({
+        level: "INFO",
+        module: "AI",
+        event: "ANALYSIS_START",
+        messageKey,
+        text: message.text?.substring(0, 50)
+      }));
+
       // Don't await - process analysis in background
       analyzeMessage(message).then(({ verdict, verdictDescription, signals: detectedSignals, modelUsed }) => {
         // Create a copy to avoid mutation issues
@@ -406,7 +436,14 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         resultMessage.verdictDescription = verdictDescription;
         resultMessage.modelUsed = modelUsed;
         
-        console.log(`[AI] Verdict for ${messageKey}: ${verdict}`);
+        console.log(JSON.stringify({
+          level: "INFO",
+          module: "AI",
+          event: "ANALYSIS_COMPLETE",
+          messageKey,
+          verdict,
+          modelUsed
+        }));
         // Broadcast updated message with analysis
         broadcast({ type: "new_message", message: resultMessage });
 
@@ -428,7 +465,14 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 signalId: signal.id
               };
               
-              console.log(`[MT-EXEC] Auto-trading: ${signal.symbol} ${signal.direction}`);
+              console.log(JSON.stringify({
+                level: "INFO",
+                module: "MARKETS",
+                event: "AUTO_TRADE_START",
+                symbol: signal.symbol,
+                direction: signal.direction,
+                volume: globalLotSize
+              }));
               
               metaapi.executeTrade(
                 tradeParams.symbol,
@@ -441,13 +485,25 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 tradeParams.signalId
               ).then(result => {
                 if (result.success) {
-                  console.log(`[MT-EXEC] Success: ${signal.symbol}`);
+                  console.log(JSON.stringify({
+                    level: "INFO",
+                    module: "MARKETS",
+                    event: "AUTO_TRADE_SUCCESS",
+                    symbol: signal.symbol,
+                    result
+                  }));
                   signal.status = "executed";
                   signals.set(signal.id, signal);
                   broadcast({ type: "signal_updated", signal });
                   broadcast({ type: "auto_trade_executed", signal, result });
                 } else {
-                  console.error(`[MT-EXEC] Failed: ${result.message}`);
+                  console.error(JSON.stringify({
+                    level: "ERROR",
+                    module: "MARKETS",
+                    event: "AUTO_TRADE_FAILED",
+                    symbol: signal.symbol,
+                    error: result.message
+                  }));
                   signal.status = "failed";
                   signal.failureReason = result.message;
                   signals.set(signal.id, signal);
