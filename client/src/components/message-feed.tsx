@@ -134,12 +134,12 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
                   </div>
                   <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                   {message.verdictDescription && (
-                    <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50 flex flex-col gap-1.5">
-                      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-muted-foreground/70 tracking-wider">
-                        <Cpu className="h-3 w-3" />
-                        AI Analysis
+                    <div className="mt-2 p-2.5 rounded-lg bg-muted/40 border border-border/60 flex flex-col gap-2">
+                      <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-primary/80 tracking-wider">
+                        <Cpu className="h-3.5 w-3.5" />
+                        AI Signal Analysis
                       </div>
-                      <p className="text-[11px] text-muted-foreground leading-snug italic">
+                      <p className="text-xs text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-3">
                         {message.verdictDescription}
                       </p>
                     </div>

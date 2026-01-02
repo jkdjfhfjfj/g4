@@ -438,7 +438,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     } else {
       // For historical messages, mark as skipped with reason
       updatedMessage.aiVerdict = "skipped";
-      updatedMessage.verdictDescription = "Historical message - only real-time messages are analyzed for signals. To analyze this message, please wait for a new signal in this channel.";
+      updatedMessage.verdictDescription = "Historical message: Skipping AI analysis for non-realtime signals to prevent trading on outdated information. AI analysis is reserved for live signals.";
       broadcast({ type: "new_message", message: updatedMessage });
     }
   } catch (error) {

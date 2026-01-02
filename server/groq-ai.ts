@@ -35,7 +35,6 @@ const MODELS = [
 ];
 
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
-You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
 
 A valid trading signal must include:
 - Strictly currency pair must be clear no hallucinations no price guessing to determine pair(e.g., EURUSD, GBPJPY, XAUUSD, etc.) 
@@ -48,7 +47,7 @@ Respond in JSON format only with an array of signals (one or more):
     {
       "isSignal": boolean,
       "confidence": number (0-1),
-      "reason": string (DETAILED  word explanation covering the technical rationale, currency pair detected, and specific direction logic and why it's considered a valid signal),
+      "reason": string (COMPREHENSIVE 40-80 word explanation. Break down the technical rationale, why the direction was chosen based on the message content, and provide a clear 'Risk Assessment' or 'Execution Tip' based on the specific parameters found. This is for the end-user to see clearly.),
       "symbol": string or null,
       "direction": "BUY" or "SELL" or null,
       "orderType": "MARKET" or "LIMIT",
