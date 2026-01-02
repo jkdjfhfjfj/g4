@@ -353,6 +353,9 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     }
     
     // For all messages, broadcast immediately (don't wait for analysis)
+    if (isRealtime) {
+      updatedMessage.aiVerdict = "analyzing";
+    }
     broadcast({ type: "new_message", message: updatedMessage });
 
     // Only analyze real-time messages asynchronously, skip historical ones

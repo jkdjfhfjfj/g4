@@ -139,7 +139,7 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
                       AI Signal Analysis
                     </div>
                     <p className="text-xs text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-3">
-                      {message.verdictDescription || (message.aiVerdict === 'analyzing' ? 'Analyzing message for trading signals...' : 'No analysis available for this message.')}
+                      {message.verdictDescription || (message.aiVerdict === 'analyzing' ? 'Analyzing message for trading signals...' : (message.aiVerdict === 'skipped' ? 'AI analysis reserved for live signals.' : 'No analysis available.'))}
                     </p>
                   </div>
                 </div>
