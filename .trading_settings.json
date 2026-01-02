@@ -1,5 +1,7 @@
 {
   "autoTradeEnabled": true,
-  "savedChannelIds": [],
+  "savedChannelIds": [
+    "-1001824875502"
+  ],
   "lotSize": 1
 }

@@ -242,10 +242,11 @@ export function useWebSocket() {
 
   const selectChannel = useCallback((channelId: string) => {
     setSelectedChannelIds(prev => {
-      const isDeselecting = prev.includes(channelId);
+      const currentIds = Array.isArray(prev) ? prev : [];
+      const isDeselecting = currentIds.includes(channelId);
       const next = isDeselecting
-        ? prev.filter(id => id !== channelId) 
-        : [...prev, channelId];
+        ? currentIds.filter(id => id !== channelId) 
+        : [...currentIds, channelId];
       
       // If deselecting, clear messages from that channel
       if (isDeselecting) {
@@ -253,7 +254,8 @@ export function useWebSocket() {
       }
       
       wsClient.send({ type: "select_channel", channelId: next });
-      wsClient.send({ type: "save_channel", channelId: next.length > 0 ? next[0] : null });
+      wsClient.send({ type: "save_channel", channelId: next });
+      selectedIdsRef.current = next;
       return next;
     });
   }, []);
