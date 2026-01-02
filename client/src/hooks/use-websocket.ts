@@ -380,8 +380,7 @@ function sendPushNotification(title: string, body: string) {
       body,
       icon: '/favicon.ico',
       badge: '/favicon.ico',
-      tag: 'trading-update',
-      renotify: true
+      tag: 'trading-update'
     });
   }
 }

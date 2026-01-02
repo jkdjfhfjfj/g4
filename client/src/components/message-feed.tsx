@@ -134,7 +134,11 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
                   </div>
                   <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
                   {message.verdictDescription && (
-                    <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50">
+                    <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50 flex flex-col gap-1.5">
+                      <div className="flex items-center gap-1.5 text-[10px] uppercase font-bold text-muted-foreground/70 tracking-wider">
+                        <Cpu className="h-3 w-3" />
+                        AI Analysis
+                      </div>
                       <p className="text-[11px] text-muted-foreground leading-snug italic">
                         {message.verdictDescription}
                       </p>
