@@ -58,9 +58,11 @@ export default function LandingPage() {
                   Get Started for Free
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-12 px-8 text-lg">
-                View Live Demo
-              </Button>
+              <a href="https://t.me/mcalj" target="_blank" rel="noopener noreferrer">
+                <Button size="lg" variant="outline" className="h-12 px-8 text-lg">
+                  Contact Us to Get Started
+                </Button>
+              </a>
             </div>
             <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-sm font-medium text-muted-foreground opacity-70">
               <div className="flex items-center justify-center gap-2">
@@ -138,6 +140,21 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+
+      {/* Telegram Support FAB */}
+      <a 
+        href="https://t.me/mcalj" 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="fixed bottom-6 right-6 z-[100] group"
+      >
+        <div className="absolute -top-12 right-0 bg-primary text-primary-foreground text-xs py-1 px-3 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+          Need help? Chat with us!
+        </div>
+        <Button size="icon" className="h-14 w-14 rounded-full shadow-xl hover:scale-110 transition-transform bg-[#0088cc] hover:bg-[#0088cc]/90 border-none">
+          <MessageSquare className="h-7 w-7 text-white" />
+        </Button>
+      </a>
     </div>
   );
 }
