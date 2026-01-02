@@ -683,6 +683,11 @@ export function initWebSocket(server: Server) {
 
     // Send initial data
     await sendInitialData(ws);
+
+    // Also send buffered logs to the new client
+    if (logBuffer.length > 0) {
+      ws.send(JSON.stringify({ type: "logs", logs: logBuffer }));
+    }
   });
 
   // Set up Telegram message handler for REAL-TIME messages
