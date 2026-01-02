@@ -23,6 +23,8 @@ const groq = new Groq({
 
 // Models to try in order (fallback system) - faster models first
 const MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
   "gpt-4o",
   "gpt-4o-mini",
   "llama-3.3-70b-versatile",

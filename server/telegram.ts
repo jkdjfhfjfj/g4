@@ -332,8 +332,9 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
   // Filter out empty IDs
   const validIncomingIds = incomingIds.filter(id => id && id.trim().length > 0);
   
-  // Update global selection
-  const uniqueIds = new Set(validIncomingIds);
+  // IMPORTANT: We need to append to the existing selection, not replace it, 
+  // to ensure continuous monitoring of all previously selected channels.
+  const uniqueIds = new Set([...selectedChannelIds, ...validIncomingIds]);
   selectedChannelIds = Array.from(uniqueIds);
 
   if (validIncomingIds.length === 0) return [];

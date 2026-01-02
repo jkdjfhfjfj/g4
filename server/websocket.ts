@@ -155,7 +155,8 @@ async function handleMessage(ws: WebSocket, data: any) {
         broadcast({ type: "channels_selected", channelIds: savedChannelIds });
         
         // Tell Telegram module which channels we are interested in and get history
-        // IMPORTANT: We pass ALL selected channels to ensure we get history for all of them
+        // We pass the NEWLY added channels if we want to just fetch history for them,
+        // or pass all of them. telegram.selectChannel now handles merging.
         const messages = await telegram.selectChannel(savedChannelIds);
         
         // Only show last hour of messages (real-time), skip older history
