@@ -256,9 +256,12 @@ function setupMessageHandler() {
         
         // Flexible ID comparison (handling prefix variations)
         const incomingNum = channelId.replace("-100", "").replace("-", "");
-        const isSelected = selectedChannelIds.some(id => 
-          id.toString().replace("-100", "").replace("-", "") === incomingNum
-        );
+        const isSelected = selectedChannelIds.some(id => {
+          const sid = id.toString().replace("-100", "").replace("-", "");
+          return sid === incomingNum;
+        });
+
+        console.log(`[TG] Message from ${channelId} (raw: ${incomingNum}). Match: ${isSelected}. Active: ${selectedChannelIds}`);
         
         if (isSelected) {
           const telegramMessage: TelegramMessage = {
@@ -269,7 +272,13 @@ function setupMessageHandler() {
             date: new Date(message.date * 1000).toISOString(),
             aiVerdict: "analyzing",
           };
+          console.log(`[TG] Triggering analysis for ${message.id} from ${channelId}`);
           notifyMessage(telegramMessage);
+        } else {
+          // Temporarily log all messages to verify listener is alive
+          if (message.message) {
+            console.log(`[TG] Listener active but ignoring ${channelId} (not selected)`);
+          }
         }
       }
     }

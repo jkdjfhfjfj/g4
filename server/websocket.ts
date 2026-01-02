@@ -358,6 +358,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
 
     // Mark message as being processed to prevent duplicates
     processedMessageIds.add(messageKey);
+    console.log(`[WS] Routing ${messageKey}. isRealtime: ${isRealtime}`);
 
     // Only analyze real-time messages asynchronously, skip historical ones
     if (isRealtime) {
@@ -372,16 +373,18 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         }
       }
       
-      console.log(`[AI] Analyzing real-time message: ${messageKey}`);
+      console.log(`[AI] Triggering analysis for message: ${messageKey}. Text: ${message.text?.substring(0, 50)}...`);
       // Don't await - process analysis in background
       analyzeMessage(message).then(({ verdict, verdictDescription, signals: detectedSignals, modelUsed }) => {
-        updatedMessage.aiVerdict = verdict;
-        updatedMessage.verdictDescription = verdictDescription;
-        updatedMessage.modelUsed = modelUsed;
+        // Create a copy to avoid mutation issues
+        const resultMessage = { ...updatedMessage };
+        resultMessage.aiVerdict = verdict;
+        resultMessage.verdictDescription = verdictDescription;
+        resultMessage.modelUsed = modelUsed;
         
-        console.log(`[AI] Analysis complete for ${messageKey}: ${verdict}`);
+        console.log(`[AI] Verdict for ${messageKey}: ${verdict}`);
         // Broadcast updated message with analysis
-        broadcast({ type: "new_message", message: updatedMessage });
+        broadcast({ type: "new_message", message: resultMessage });
 
         if (detectedSignals && detectedSignals.length > 0) {
           detectedSignals.forEach(signal => {
@@ -401,7 +404,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 signalId: signal.id
               };
               
-              console.log(`[MT-EXEC] Executing: ${JSON.stringify(tradeParams)}`);
+              console.log(`[MT-EXEC] Auto-trading: ${signal.symbol} ${signal.direction}`);
               
               metaapi.executeTrade(
                 tradeParams.symbol,
@@ -414,11 +417,13 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 tradeParams.signalId
               ).then(result => {
                 if (result.success) {
+                  console.log(`[MT-EXEC] Success: ${signal.symbol}`);
                   signal.status = "executed";
                   signals.set(signal.id, signal);
                   broadcast({ type: "signal_updated", signal });
                   broadcast({ type: "auto_trade_executed", signal, result });
                 } else {
+                  console.error(`[MT-EXEC] Failed: ${result.message}`);
                   signal.status = "failed";
                   signal.failureReason = result.message;
                   signals.set(signal.id, signal);
@@ -434,10 +439,11 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
           });
         }
       }).catch(error => {
-        console.error("Background analysis error:", error);
-        updatedMessage.aiVerdict = "error";
-        updatedMessage.verdictDescription = "Analysis timeout or error";
-        broadcast({ type: "new_message", message: updatedMessage });
+        console.error(`[AI] Error analyzing ${messageKey}:`, error);
+        broadcast({ 
+          type: "new_message", 
+          message: { ...updatedMessage, aiVerdict: "error", verdictDescription: "AI Analysis background error" } 
+        });
       });
     } else {
       // For historical messages, mark as skipped with reason
