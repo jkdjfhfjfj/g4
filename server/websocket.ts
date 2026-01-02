@@ -123,6 +123,9 @@ async function handleMessage(ws: WebSocket, data: any) {
         // Broadcast the full list to all clients so they stay in sync
         broadcast({ type: "channels_selected", channelIds: savedChannelIds });
         
+        // Tell Telegram module which channels we are interested in
+        await telegram.selectChannel(savedChannelIds);
+        
         // Handle message processing for all selected channels
         for (const channelId of channelIds) {
           const messages = await telegram.selectChannel(channelId);
@@ -499,6 +502,9 @@ async function sendInitialData(ws: WebSocket) {
     // Automatically select saved channels on connect if any
     if (savedChannelIds.length > 0) {
       console.log("Automatically selecting saved channels:", savedChannelIds);
+      // Tell Telegram module which channels we are interested in
+      await telegram.selectChannel(savedChannelIds);
+
       // Wait for client state to settle (broadcasts sent above)
       setTimeout(async () => {
         console.log("Processing saved channels history after delay:", savedChannelIds);

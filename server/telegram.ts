@@ -59,7 +59,7 @@ function saveSession(session: string) {
 let client: TelegramClient | null = null;
 let stringSession = new StringSession(loadSession());
 let isConnected = false;
-let selectedChannelId: string | null = null;
+let selectedChannelIds: string[] = [];
 let currentStatus: "connected" | "disconnected" | "connecting" | "needs_auth" = "disconnected";
 
 type MessageCallback = (message: TelegramMessage) => void;
@@ -246,7 +246,7 @@ function setupMessageHandler() {
   client.addEventHandler(async (update: Api.TypeUpdate) => {
     if (update instanceof Api.UpdateNewChannelMessage) {
       const message = update.message;
-      if (message instanceof Api.Message && selectedChannelId) {
+      if (message instanceof Api.Message && selectedChannelIds.length > 0) {
         const peerId = message.peerId as any;
         let channelId = "";
         
@@ -256,7 +256,9 @@ function setupMessageHandler() {
         
         // Flexible ID comparison (handling prefix variations)
         const incomingNum = channelId.replace("-100", "").replace("-", "");
-        const isSelected = selectedChannelId.toString().replace("-100", "").replace("-", "") === incomingNum;
+        const isSelected = selectedChannelIds.some(id => 
+          id.toString().replace("-100", "").replace("-", "") === incomingNum
+        );
         
         if (isSelected) {
           const telegramMessage: TelegramMessage = {
@@ -292,15 +294,24 @@ export async function getChannels(): Promise<TelegramChannel[]> {
   }
 }
 
-export async function selectChannel(channelId: string): Promise<TelegramMessage[]> {
+export async function selectChannel(channelId: string | string[]): Promise<TelegramMessage[]> {
   if (!client || !isConnected) return [];
-  selectedChannelId = channelId;
+  
+  if (Array.isArray(channelId)) {
+    selectedChannelIds = channelId;
+  } else {
+    selectedChannelIds = [channelId];
+  }
+
+  const lastChannelId = selectedChannelIds[selectedChannelIds.length - 1];
+  if (!lastChannelId) return [];
+
   try {
-    const entity = await client.getEntity(channelId);
+    const entity = await client.getEntity(lastChannelId);
     const messages = await client.getMessages(entity, { limit: 100 });
     return messages.filter(m => m.message).map(m => ({
       id: m.id,
-      channelId,
+      channelId: lastChannelId,
       channelTitle: (entity as any).title || "",
       text: m.message || "",
       date: new Date(m.date * 1000).toISOString(),
@@ -313,7 +324,7 @@ export async function selectChannel(channelId: string): Promise<TelegramMessage[
 }
 
 export function getTelegramStatus() { return currentStatus; }
-export function getSelectedChannelId() { return selectedChannelId; }
+export function getSelectedChannelIds() { return selectedChannelIds; }
 
 export async function reconnect(): Promise<void> {
   if (client) {
