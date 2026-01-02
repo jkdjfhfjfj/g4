@@ -62,29 +62,23 @@ export function LogsFAB({ logs }: LogsFABProps) {
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
-          <DialogHeader className="p-4 border-b bg-muted/30 flex flex-row items-center justify-between space-y-0">
+          <DialogHeader className="p-4 border-b bg-muted/30 flex flex-row items-center justify-between space-y-0 relative">
             <div className="flex items-center gap-2">
               <Terminal className="h-5 w-5 text-primary" />
               <DialogTitle className="text-lg font-mono">System Logs {isPaused ? "(Paused)" : "(Live)"}</DialogTitle>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => setIsPaused(!isPaused)}
-              className="gap-2 h-8"
-            >
-              {isPaused ? (
-                <>
-                  <Play className="h-3.5 w-3.5" />
-                  Resume Stream
-                </>
-              ) : (
-                <>
-                  <Pause className="h-3.5 w-3.5" />
-                  Pause Stream
-                </>
-              )}
-            </Button>
+            <div className="flex items-center gap-2 mr-8">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={() => setIsPaused(!isPaused)}
+                className={`h-8 w-8 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground ${isPaused ? "text-yellow-500 bg-yellow-500/10" : ""}`}
+                title={isPaused ? "Resume Stream" : "Pause Stream"}
+              >
+                {isPaused ? <Play className="h-4 w-4" /> : <Pause className="h-4 w-4" />}
+                <span className="sr-only">{isPaused ? "Resume" : "Pause"}</span>
+              </Button>
+            </div>
           </DialogHeader>
 
           <div className="flex-1 bg-[#0d1117] p-0 font-mono text-sm leading-relaxed overflow-hidden flex flex-col">
@@ -108,18 +102,42 @@ export function LogsFAB({ logs }: LogsFABProps) {
                 ) : (
                   displayLogs.map((log, i) => {
                     const isError = log.includes("ERROR:");
-                    const isTrade = log.includes("[MT-EXEC]");
+                    const isTrade = log.includes("[MT-EXEC]") || log.includes("[MT-API]");
+                    const isAI = log.includes("[AI]");
+                    const isTG = log.includes("[TG]");
+                    const isSuccess = log.toLowerCase().includes("success");
+                    const isWarning = log.toLowerCase().includes("warning");
+                    
                     const timestamp = log.match(/\[(.*?)\]/)?.[1] || "";
                     const content = log.replace(/\[.*?\]\s*/, "");
+                    
+                    let borderClass = "border-transparent text-gray-300";
+                    let bgClass = "hover:bg-white/5";
+                    
+                    if (isError) {
+                      borderClass = "border-red-500 text-red-300";
+                      bgClass = "bg-red-500/5";
+                    } else if (isTrade) {
+                      borderClass = "border-cyan-500 text-cyan-300";
+                      bgClass = "bg-cyan-500/5";
+                    } else if (isAI) {
+                      borderClass = "border-purple-500 text-purple-300";
+                      bgClass = "bg-purple-500/5";
+                    } else if (isTG) {
+                      borderClass = "border-blue-500 text-blue-300";
+                      bgClass = "bg-blue-500/5";
+                    } else if (isSuccess) {
+                      borderClass = "border-green-500 text-green-300";
+                      bgClass = "bg-green-500/5";
+                    } else if (isWarning) {
+                      borderClass = "border-yellow-500 text-yellow-300";
+                      bgClass = "bg-yellow-500/5";
+                    }
                     
                     return (
                       <div 
                         key={i} 
-                        className={`group border-l-2 pl-3 py-0.5 transition-colors ${
-                          isError ? "border-red-500 bg-red-500/5 text-red-300" : 
-                          isTrade ? "border-primary bg-primary/5 text-primary-foreground" :
-                          "border-transparent hover:bg-white/5 text-gray-300"
-                        }`}
+                        className={`group border-l-2 pl-3 py-0.5 transition-colors ${borderClass} ${bgClass}`}
                       >
                         <span className="text-[10px] opacity-40 mr-2 select-none font-sans">
                           {timestamp.split('T')[1]?.split('.')[0] || timestamp}
