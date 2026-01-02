@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Terminal, ScrollText, X } from "lucide-react";
+import { Terminal, ScrollText, X, Pause, Play } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,17 +15,33 @@ interface LogsFABProps {
 
 export function LogsFAB({ logs }: LogsFABProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
+  const [displayLogs, setDisplayLogs] = useState<string[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  // Auto-scroll to bottom when new logs arrive
+  // Sync display logs when not paused or when dialog opens
   useEffect(() => {
-    if (scrollRef.current) {
+    if (!isPaused) {
+      setDisplayLogs(logs);
+    }
+  }, [logs, isPaused]);
+
+  // When opening dialog, if not paused, sync immediately
+  useEffect(() => {
+    if (isOpen && !isPaused) {
+      setDisplayLogs(logs);
+    }
+  }, [isOpen]);
+
+  // Auto-scroll to bottom when new logs arrive and not paused
+  useEffect(() => {
+    if (scrollRef.current && !isPaused) {
       const scrollContainer = scrollRef.current.querySelector('[data-radix-scroll-area-viewport]');
       if (scrollContainer) {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [logs, isOpen]);
+  }, [displayLogs, isOpen, isPaused]);
 
   return (
     <>
@@ -49,27 +65,48 @@ export function LogsFAB({ logs }: LogsFABProps) {
           <DialogHeader className="p-4 border-b bg-muted/30 flex flex-row items-center justify-between space-y-0">
             <div className="flex items-center gap-2">
               <Terminal className="h-5 w-5 text-primary" />
-              <DialogTitle className="text-lg font-mono">System Logs (Live)</DialogTitle>
+              <DialogTitle className="text-lg font-mono">System Logs {isPaused ? "(Paused)" : "(Live)"}</DialogTitle>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={() => setIsPaused(!isPaused)}
+              className="gap-2 h-8"
+            >
+              {isPaused ? (
+                <>
+                  <Play className="h-3.5 w-3.5" />
+                  Resume Stream
+                </>
+              ) : (
+                <>
+                  <Pause className="h-3.5 w-3.5" />
+                  Pause Stream
+                </>
+              )}
+            </Button>
           </DialogHeader>
 
           <div className="flex-1 bg-[#0d1117] p-0 font-mono text-sm leading-relaxed overflow-hidden flex flex-col">
             <div className="bg-[#161b22] px-4 py-2 border-b border-border/50 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
               <span>Output</span>
               <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5"><div className="h-1.5 w-1.5 rounded-full bg-green-500 animate-pulse" /> Live</span>
+                <span className="flex items-center gap-1.5">
+                  <div className={`h-1.5 w-1.5 rounded-full ${isPaused ? "bg-yellow-500" : "bg-green-500 animate-pulse"}`} /> 
+                  {isPaused ? "Paused" : "Live"}
+                </span>
                 <span>30m Retention</span>
               </div>
             </div>
             <ScrollArea ref={scrollRef} className="flex-1 w-full">
               <div className="p-4 space-y-1.5">
-                {logs.length === 0 ? (
+                {displayLogs.length === 0 ? (
                   <div className="text-muted-foreground italic py-4 flex flex-col items-center gap-2">
                     <div className="h-8 w-8 rounded-full border-2 border-dashed border-muted-foreground/30 animate-spin" />
                     Waiting for system activity...
                   </div>
                 ) : (
-                  logs.map((log, i) => {
+                  displayLogs.map((log, i) => {
                     const isError = log.includes("ERROR:");
                     const isTrade = log.includes("[MT-EXEC]");
                     const timestamp = log.match(/\[(.*?)\]/)?.[1] || "";
