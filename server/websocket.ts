@@ -352,23 +352,18 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     // Create unique key using channel + message ID
     const messageKey = `${message.channelId}:${message.id}`;
     
-    // Check for duplicate message processing
-    if (processedMessageIds.has(messageKey)) {
-      console.log(`Skipping duplicate message: ${messageKey}`);
-      return;
-    }
-    
     // For all messages, broadcast immediately (don't wait for analysis)
-    if (isRealtime) {
-      updatedMessage.aiVerdict = "analyzing";
-    }
-    broadcast({ type: "new_message", message: updatedMessage });
+    // Removed duplicate broadcast from here as it's handled in the event listener or background start
+    // broadcast({ type: "new_message", message: updatedMessage });
 
     // Only analyze real-time messages asynchronously, skip historical ones
     if (isRealtime) {
       // Mark message as being processed to prevent duplicates
       processedMessageIds.add(messageKey);
       
+      // Broadcast with "analyzing" state before starting heavy background work
+      broadcast({ type: "new_message", message: { ...updatedMessage, aiVerdict: "analyzing" } });
+
       // Limit cache size to prevent memory leaks
       if (processedMessageIds.size > 1000) {
         const idsArray = Array.from(processedMessageIds);
@@ -616,6 +611,11 @@ export function initWebSocket(server: Server) {
   // Set up Telegram message handler for REAL-TIME messages
   telegram.onMessage(async (message) => {
     console.log(`Received real-time message from Telegram: ${message.channelId}:${message.id}`);
+    const messageKey = `${message.channelId}:${message.id}`;
+    if (processedMessageIds.has(messageKey)) {
+      console.log(`Skipping early broadcast of duplicate message: ${messageKey}`);
+      return;
+    }
     const realtimeMessage = { ...message, isRealtime: true };
     
     // Broadcast immediately to all connected clients
