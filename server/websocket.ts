@@ -368,12 +368,14 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         }
       }
       
+      console.log(`Analyzing real-time message: ${messageKey}`);
       // Don't await - process analysis in background
       analyzeMessage(message).then(({ verdict, verdictDescription, signals: detectedSignals, modelUsed }) => {
         updatedMessage.aiVerdict = verdict;
         updatedMessage.verdictDescription = verdictDescription;
         updatedMessage.modelUsed = modelUsed;
         
+        console.log(`Analysis complete for ${messageKey}: ${verdict} - ${verdictDescription}`);
         // Broadcast updated message with analysis
         broadcast({ type: "new_message", message: updatedMessage });
 
@@ -436,7 +438,7 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     } else {
       // For historical messages, mark as skipped with reason
       updatedMessage.aiVerdict = "skipped";
-      updatedMessage.verdictDescription = "Historical message - only real-time messages are analyzed for signals";
+      updatedMessage.verdictDescription = "Historical message - only real-time messages are analyzed for signals. To analyze this message, please wait for a new signal in this channel.";
       broadcast({ type: "new_message", message: updatedMessage });
     }
   } catch (error) {
