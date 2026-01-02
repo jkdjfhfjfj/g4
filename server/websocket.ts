@@ -49,10 +49,14 @@ function addLog(message: string) {
   let logEntry = `[${timestamp}] ${message}`;
   
   // Try to parse as JSON for better display if it looks like JSON
-  if (message.trim().startsWith('{')) {
+  if (typeof message === 'string' && message.trim().startsWith('{')) {
     try {
       const parsed = JSON.parse(message);
       logEntry = JSON.stringify({ timestamp, ...parsed });
+    } catch (e) {}
+  } else if (typeof message === 'object') {
+    try {
+      logEntry = JSON.stringify({ timestamp, ...message });
     } catch (e) {}
   }
 
@@ -68,9 +72,14 @@ const originalLog = console.log;
 const originalError = console.error;
 
 console.log = (...args: any[]) => {
-  const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
   originalLog.apply(console, args);
-  addLog(message);
+  // If the first argument is a JSON string, pass it as is to addLog
+  if (args.length === 1 && typeof args[0] === 'string' && args[0].trim().startsWith('{')) {
+    addLog(args[0]);
+  } else {
+    const message = args.map(arg => typeof arg === 'object' ? JSON.stringify(arg) : String(arg)).join(' ');
+    addLog(message);
+  }
 };
 
 console.error = (...args: any[]) => {
