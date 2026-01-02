@@ -320,8 +320,15 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
       date: new Date(m.date * 1000).toISOString(),
       aiVerdict: "analyzing" as const,
     }));
-  } catch (error) {
-    console.error(`Failed to select channel ${lastChannelId}:`, error);
+  } catch (error: any) {
+    // Only log once and more cleanly
+    const errorMsg = error.errorMessage || error.message || "Unknown error";
+    if (errorMsg === "CHANNEL_INVALID") {
+      console.log(`[TG] Channel ${lastChannelId} is invalid or inaccessible. Removing from active list.`);
+    } else {
+      console.error(`[TG] Failed to select channel ${lastChannelId}:`, errorMsg);
+    }
+    
     // Remove the invalid channel ID from the list to prevent future errors
     selectedChannelIds = selectedChannelIds.filter(id => id !== lastChannelId);
     return [];
