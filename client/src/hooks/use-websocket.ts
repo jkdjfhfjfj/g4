@@ -106,9 +106,11 @@ export function useWebSocket() {
                 m.id === message.message.id ? message.message : m
               );
             }
-            // Play sound for real-time messages
+            // Play sound and show notification for real-time messages
             if (message.message.isRealtime) {
               const channelName = channels.find(c => c.id === message.message.channelId)?.title || 'Channel';
+              const body = message.message.text.substring(0, 100) + (message.message.text.length > 100 ? '...' : '');
+              sendPushNotification(`New message in ${channelName}`, body);
               playNotificationSound(`New message in ${channelName}`);
             }
             // console.log("Adding new message to feed:", message.message.id);
@@ -188,13 +190,16 @@ export function useWebSocket() {
           setAutoTradeEnabled(message.enabled);
           break;
         case "auto_trade_executed":
+          sendPushNotification("Auto Trade Executed", `${message.signal.symbol} ${message.signal.direction} at ${message.signal.entryPrice}`);
           playNotificationSound(`Auto Trade Executed: ${message.signal.symbol} ${message.signal.direction}`);
           break;
         case "trade_result":
           setTradeResult({ success: message.success, message: message.message });
           if (message.success) {
+            sendPushNotification("Trade Success", message.message);
             playNotificationSound(message.message);
           } else {
+            sendPushNotification("Trade Failed", message.message);
             playNotificationSound(`Trade Failed: ${message.message}`);
           }
           setTimeout(() => setTradeResult(null), 5000);
@@ -367,6 +372,18 @@ export function useWebSocket() {
     reconnectTelegram,
     logs,
   };
+}
+
+function sendPushNotification(title: string, body: string) {
+  if (serviceWorkerRegistration && Notification.permission === 'granted') {
+    serviceWorkerRegistration.showNotification(title, {
+      body,
+      icon: '/favicon.ico',
+      badge: '/favicon.ico',
+      tag: 'trading-update',
+      renotify: true
+    });
+  }
 }
 
 let serviceWorkerRegistration: ServiceWorkerRegistration | null = null;
