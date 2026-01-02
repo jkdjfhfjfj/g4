@@ -303,9 +303,12 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
     selectedChannelIds = [channelId];
   }
 
-  const lastChannelId = selectedChannelIds[selectedChannelIds.length - 1];
-  if (!lastChannelId) return [];
+  // Filter out empty IDs and handle invalid IDs
+  const validIds = selectedChannelIds.filter(id => id && id.trim().length > 0);
+  if (validIds.length === 0) return [];
 
+  const lastChannelId = validIds[validIds.length - 1];
+  
   try {
     const entity = await client.getEntity(lastChannelId);
     const messages = await client.getMessages(entity, { limit: 100 });
@@ -318,7 +321,9 @@ export async function selectChannel(channelId: string | string[]): Promise<Teleg
       aiVerdict: "analyzing" as const,
     }));
   } catch (error) {
-    console.error("Failed to select channel:", error);
+    console.error(`Failed to select channel ${lastChannelId}:`, error);
+    // Remove the invalid channel ID from the list to prevent future errors
+    selectedChannelIds = selectedChannelIds.filter(id => id !== lastChannelId);
     return [];
   }
 }

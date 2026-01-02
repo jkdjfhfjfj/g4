@@ -372,14 +372,14 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
         }
       }
       
-      console.log(`Analyzing real-time message: ${messageKey}`);
+      console.log(`[AI] Analyzing real-time message: ${messageKey}`);
       // Don't await - process analysis in background
       analyzeMessage(message).then(({ verdict, verdictDescription, signals: detectedSignals, modelUsed }) => {
         updatedMessage.aiVerdict = verdict;
         updatedMessage.verdictDescription = verdictDescription;
         updatedMessage.modelUsed = modelUsed;
         
-        console.log(`Analysis complete for ${messageKey}: ${verdict} - ${verdictDescription}`);
+        console.log(`[AI] Analysis complete for ${messageKey}: ${verdict}`);
         // Broadcast updated message with analysis
         broadcast({ type: "new_message", message: updatedMessage });
 
@@ -610,10 +610,10 @@ export function initWebSocket(server: Server) {
 
   // Set up Telegram message handler for REAL-TIME messages
   telegram.onMessage(async (message) => {
-    console.log(`Received real-time message from Telegram: ${message.channelId}:${message.id}`);
+    console.log(`[TG] Received real-time message: ${message.channelId}:${message.id}`);
     const messageKey = `${message.channelId}:${message.id}`;
     if (processedMessageIds.has(messageKey)) {
-      console.log(`Skipping early broadcast of duplicate message: ${messageKey}`);
+      console.log(`[TG] Skipping early broadcast of duplicate message: ${messageKey}`);
       return;
     }
     const realtimeMessage = { ...message, isRealtime: true };
