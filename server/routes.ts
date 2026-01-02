@@ -3,31 +3,35 @@ import type { Server } from "http";
 import { initWebSocket } from "./websocket";
 import * as telegram from "./telegram";
 import * as metaapi from "./metaapi";
+import * as ai from "./groq-ai";
 
 export async function registerRoutes(
   httpServer: Server,
   app: Express
 ): Promise<Server> {
-  // Initialize WebSocket server
+  // ... existing code ...
   initWebSocket(httpServer);
-
-  // Initialize Telegram client
-  telegram.initTelegram().catch((err) => {
-    console.error("Failed to initialize Telegram:", err);
-  });
-
-  // Initialize MetaAPI
-  metaapi.initMetaApi().catch((err) => {
-    console.error("Failed to initialize MetaAPI:", err);
-  });
 
   // Health check endpoint
   app.get("/api/health", (_req, res) => {
+    // ... existing code ...
     res.json({
       status: "ok",
       telegram: telegram.getTelegramStatus(),
       metaapi: metaapi.getMetaApiStatus(),
     });
+  });
+
+  // Add error analysis endpoint
+  app.post("/api/analyze-error", async (req, res) => {
+    try {
+      const { errorText } = req.body;
+      if (!errorText) return res.status(400).json({ error: "Missing errorText" });
+      const analysis = await ai.analyzeError(errorText);
+      res.json(analysis);
+    } catch (error) {
+      res.status(500).json({ error: "Analysis failed" });
+    }
   });
 
   // Get channels

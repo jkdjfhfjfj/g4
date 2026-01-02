@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Terminal, ScrollText, X, Pause, Play } from "lucide-react";
+import { Terminal, ScrollText, X, Pause, Play, Brain, ChevronRight, AlertCircle, Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -8,16 +8,28 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface LogsFABProps {
   logs: string[];
+}
+
+interface ErrorAnalysis {
+  explanation: string;
+  correction: string;
+  modelUsed?: string;
+  logIndex: number;
 }
 
 export function LogsFAB({ logs }: LogsFABProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [displayLogs, setDisplayLogs] = useState<string[]>([]);
+  const [analyzingIndex, setAnalyzingIndex] = useState<number | null>(null);
+  const [analysis, setAnalysis] = useState<ErrorAnalysis | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   // Sync display logs when not paused or when dialog opens
   useEffect(() => {
@@ -43,6 +55,23 @@ export function LogsFAB({ logs }: LogsFABProps) {
     }
   }, [displayLogs, isOpen, isPaused]);
 
+  const handleAnalyzeError = async (log: string, index: number) => {
+    try {
+      setAnalyzingIndex(index);
+      const res = await apiRequest("POST", "/api/analyze-error", { errorText: log });
+      const data = await res.json();
+      setAnalysis({ ...data, logIndex: index });
+    } catch (error) {
+      toast({
+        title: "Analysis failed",
+        description: "Could not connect to AI service.",
+        variant: "destructive"
+      });
+    } finally {
+      setAnalyzingIndex(null);
+    }
+  };
+
   return (
     <>
       <Button
@@ -61,7 +90,7 @@ export function LogsFAB({ logs }: LogsFABProps) {
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
-        <DialogContent className="max-w-4xl h-[80vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
+        <DialogContent className="max-w-5xl h-[85vh] flex flex-col p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="p-4 border-b bg-muted/30 flex flex-row items-center justify-between space-y-0 relative">
             <div className="flex items-center gap-2">
               <Terminal className="h-5 w-5 text-primary" />
@@ -81,74 +110,141 @@ export function LogsFAB({ logs }: LogsFABProps) {
             </div>
           </DialogHeader>
 
-          <div className="flex-1 bg-[#0d1117] p-0 font-mono text-sm leading-relaxed overflow-hidden flex flex-col">
-            <div className="bg-[#161b22] px-4 py-2 border-b border-border/50 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
-              <span>Output</span>
-              <div className="flex items-center gap-3">
-                <span className="flex items-center gap-1.5">
-                  <div className={`h-1.5 w-1.5 rounded-full ${isPaused ? "bg-yellow-500" : "bg-green-500 animate-pulse"}`} /> 
-                  {isPaused ? "Paused" : "Live"}
-                </span>
-                <span>30m Retention</span>
+          <div className="flex-1 flex overflow-hidden">
+            {/* Logs List */}
+            <div className={`flex-1 flex flex-col bg-[#0d1117] border-r border-border/10 ${analysis ? "hidden md:flex" : "flex"}`}>
+              <div className="bg-[#161b22] px-4 py-2 border-b border-border/50 flex items-center justify-between text-[10px] uppercase tracking-wider text-muted-foreground font-bold">
+                <span>Output</span>
+                <div className="flex items-center gap-3">
+                  <span className="flex items-center gap-1.5">
+                    <div className={`h-1.5 w-1.5 rounded-full ${isPaused ? "bg-yellow-500" : "bg-green-500 animate-pulse"}`} /> 
+                    {isPaused ? "Paused" : "Live"}
+                  </span>
+                  <span>30m Retention</span>
+                </div>
               </div>
+              <ScrollArea ref={scrollRef} className="flex-1 w-full">
+                <div className="p-4 space-y-1.5">
+                  {displayLogs.length === 0 ? (
+                    <div className="text-muted-foreground italic py-4 flex flex-col items-center gap-2">
+                      <div className="h-8 w-8 rounded-full border-2 border-dashed border-muted-foreground/30 animate-spin" />
+                      Waiting for system activity...
+                    </div>
+                  ) : (
+                    displayLogs.map((log, i) => {
+                      const isError = log.includes("ERROR:");
+                      const isTrade = log.includes("[MT-EXEC]") || log.includes("[MT-API]");
+                      const isAI = log.includes("[AI]");
+                      const isTG = log.includes("[TG]");
+                      const isSuccess = log.toLowerCase().includes("success");
+                      const isWarning = log.toLowerCase().includes("warning");
+                      
+                      const timestamp = log.match(/\[(.*?)\]/)?.[1] || "";
+                      const content = log.replace(/\[.*?\]\s*/, "");
+                      
+                      let borderClass = "border-transparent text-gray-300";
+                      let bgClass = "hover:bg-white/5";
+                      
+                      if (isError) {
+                        borderClass = "border-red-500 text-red-300";
+                        bgClass = "bg-red-500/5";
+                      } else if (isTrade) {
+                        borderClass = "border-cyan-500 text-cyan-300";
+                        bgClass = "bg-cyan-500/5";
+                      } else if (isAI) {
+                        borderClass = "border-purple-500 text-purple-300";
+                        bgClass = "bg-purple-500/5";
+                      } else if (isTG) {
+                        borderClass = "border-blue-500 text-blue-300";
+                        bgClass = "bg-blue-500/5";
+                      } else if (isSuccess) {
+                        borderClass = "border-green-500 text-green-300";
+                        bgClass = "bg-green-500/5";
+                      } else if (isWarning) {
+                        borderClass = "border-yellow-500 text-yellow-300";
+                        bgClass = "bg-yellow-500/5";
+                      }
+                      
+                      return (
+                        <div 
+                          key={i} 
+                          className={`group relative flex items-start border-l-2 pl-3 py-0.5 transition-colors ${borderClass} ${bgClass} ${analysis?.logIndex === i ? "bg-primary/10 border-l-primary" : ""}`}
+                        >
+                          <div className="flex-1 flex flex-col">
+                            <span className="text-[10px] opacity-40 mr-2 select-none font-sans">
+                              {timestamp.split('T')[1]?.split('.')[0] || timestamp}
+                            </span>
+                            <span className="whitespace-pre-wrap break-all">{content}</span>
+                          </div>
+                          
+                          {isError && (
+                            <div className="ml-2 opacity-0 group-hover:opacity-100 transition-opacity flex items-center">
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-6 w-6 rounded-full bg-primary/20 hover:bg-primary text-primary-foreground"
+                                onClick={() => handleAnalyzeError(log, i)}
+                                disabled={analyzingIndex === i}
+                                title="AI Analysis"
+                              >
+                                {analyzingIndex === i ? <Loader2 className="h-3 w-3 animate-spin" /> : <Brain className="h-3 w-3" />}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </ScrollArea>
             </div>
-            <ScrollArea ref={scrollRef} className="flex-1 w-full">
-              <div className="p-4 space-y-1.5">
-                {displayLogs.length === 0 ? (
-                  <div className="text-muted-foreground italic py-4 flex flex-col items-center gap-2">
-                    <div className="h-8 w-8 rounded-full border-2 border-dashed border-muted-foreground/30 animate-spin" />
-                    Waiting for system activity...
+
+            {/* AI Detail Panel */}
+            {analysis && (
+              <div className="w-full md:w-96 bg-muted/20 border-l border-border/10 flex flex-col overflow-hidden animate-in slide-in-from-right-4 duration-300">
+                <div className="p-4 border-b bg-muted/30 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 text-primary" />
+                    <h3 className="font-bold text-sm uppercase tracking-wider">AI Analysis</h3>
                   </div>
-                ) : (
-                  displayLogs.map((log, i) => {
-                    const isError = log.includes("ERROR:");
-                    const isTrade = log.includes("[MT-EXEC]") || log.includes("[MT-API]");
-                    const isAI = log.includes("[AI]");
-                    const isTG = log.includes("[TG]");
-                    const isSuccess = log.toLowerCase().includes("success");
-                    const isWarning = log.toLowerCase().includes("warning");
-                    
-                    const timestamp = log.match(/\[(.*?)\]/)?.[1] || "";
-                    const content = log.replace(/\[.*?\]\s*/, "");
-                    
-                    let borderClass = "border-transparent text-gray-300";
-                    let bgClass = "hover:bg-white/5";
-                    
-                    if (isError) {
-                      borderClass = "border-red-500 text-red-300";
-                      bgClass = "bg-red-500/5";
-                    } else if (isTrade) {
-                      borderClass = "border-cyan-500 text-cyan-300";
-                      bgClass = "bg-cyan-500/5";
-                    } else if (isAI) {
-                      borderClass = "border-purple-500 text-purple-300";
-                      bgClass = "bg-purple-500/5";
-                    } else if (isTG) {
-                      borderClass = "border-blue-500 text-blue-300";
-                      bgClass = "bg-blue-500/5";
-                    } else if (isSuccess) {
-                      borderClass = "border-green-500 text-green-300";
-                      bgClass = "bg-green-500/5";
-                    } else if (isWarning) {
-                      borderClass = "border-yellow-500 text-yellow-300";
-                      bgClass = "bg-yellow-500/5";
-                    }
-                    
-                    return (
-                      <div 
-                        key={i} 
-                        className={`group border-l-2 pl-3 py-0.5 transition-colors ${borderClass} ${bgClass}`}
-                      >
-                        <span className="text-[10px] opacity-40 mr-2 select-none font-sans">
-                          {timestamp.split('T')[1]?.split('.')[0] || timestamp}
-                        </span>
-                        <span className="whitespace-pre-wrap break-all">{content}</span>
+                  <Button size="icon" variant="ghost" className="h-6 w-6" onClick={() => setAnalysis(null)}>
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
+                
+                <ScrollArea className="flex-1">
+                  <div className="p-4 space-y-6">
+                    <section className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                        <AlertCircle className="h-3 w-3" />
+                        Explanation
                       </div>
-                    );
-                  })
-                )}
+                      <div className="p-3 bg-[#161b22] rounded-md border border-border/30 text-sm leading-relaxed text-gray-200">
+                        {analysis.explanation}
+                      </div>
+                    </section>
+
+                    <section className="space-y-2">
+                      <div className="flex items-center gap-2 text-xs font-bold text-muted-foreground uppercase tracking-widest text-primary">
+                        <Brain className="h-3 w-3" />
+                        Correction View
+                      </div>
+                      <div className="p-3 bg-primary/5 rounded-md border border-primary/20 text-sm leading-relaxed text-primary-foreground/90 font-mono">
+                        {analysis.correction}
+                      </div>
+                    </section>
+
+                    {analysis.modelUsed && (
+                      <div className="pt-4 border-t border-border/10">
+                        <span className="text-[10px] text-muted-foreground opacity-50 uppercase font-mono">
+                          Analyzed by {analysis.modelUsed}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
               </div>
-            </ScrollArea>
+            )}
           </div>
         </DialogContent>
       </Dialog>

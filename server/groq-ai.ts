@@ -219,3 +219,67 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
     return { verdict: "error", verdictDescription: "Analysis error occurred", signals: [], modelUsed: undefined };
   }
 }
+
+export async function analyzeError(errorText: string): Promise<{
+  explanation: string;
+  correction: string;
+  modelUsed?: string;
+}> {
+  if (!GROQ_API_KEY) {
+    return { explanation: "AI analysis unavailable", correction: "Check GROQ_API_KEY configuration." };
+  }
+
+  const ERROR_PROMPT = `You are a specialized system administrator and trading bot developer. 
+Analyze the following error log from a forex trading bot and provide:
+1. A clear explanation of what went wrong.
+2. A step-by-step correction or fix for the issue.
+
+Respond in JSON format:
+{
+  "explanation": "string",
+  "correction": "string"
+}`;
+
+  try {
+    let result: any = null;
+    let modelUsed: string | undefined = undefined;
+
+    for (const model of MODELS) {
+      const response = await withTimeout(
+        groq.chat.completions.create({
+          model,
+          messages: [
+            { role: "system", content: ERROR_PROMPT },
+            { role: "user", content: errorText },
+          ],
+          temperature: 0.1,
+          response_format: { type: "json_object" },
+        }),
+        MODEL_TIMEOUT_MS
+      );
+
+      if (response) {
+        const content = response.choices[0]?.message?.content;
+        if (content) {
+          result = JSON.parse(content);
+          modelUsed = model.split('/').pop() || model;
+          break;
+        }
+      }
+    }
+
+    if (!result) throw new Error("All models failed");
+
+    return {
+      explanation: result.explanation,
+      correction: result.correction,
+      modelUsed
+    };
+  } catch (error: any) {
+    return {
+      explanation: "Failed to analyze error log.",
+      correction: "Please check logs manually or ensure API access is active.",
+      modelUsed: undefined
+    };
+  }
+}
