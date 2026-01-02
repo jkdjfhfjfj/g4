@@ -351,6 +351,10 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     
     // Create unique key using channel + message ID
     const messageKey = `${message.channelId}:${message.id}`;
+
+    if (processedMessageIds.has(messageKey)) {
+      return;
+    }
     
     // For all messages, broadcast immediately (don't wait for analysis)
     // Removed duplicate broadcast from here as it's handled in the event listener or background start
