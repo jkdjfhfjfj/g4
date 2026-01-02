@@ -15,7 +15,7 @@ import Groq from "groq-sdk";
 import type { ParsedSignal, TelegramMessage } from "@shared/schema";
 import { randomUUID } from "crypto";
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY || "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";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 const groq = new Groq({
   apiKey: GROQ_API_KEY,
