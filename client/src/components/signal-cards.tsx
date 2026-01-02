@@ -223,10 +223,20 @@ function SignalCard({
         </div>
 
         {signal.verdictDescription && (
-          <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50">
+          <div className="mt-1 p-2 rounded bg-muted/30 border border-border/50 space-y-2">
             <p className="text-[11px] text-muted-foreground leading-snug italic">
               {signal.verdictDescription}
             </p>
+            {signal.technicalReason && (
+              <p className="text-[11px] text-muted-foreground border-t border-border/20 pt-1">
+                <span className="font-semibold">Analysis:</span> {signal.technicalReason}
+              </p>
+            )}
+            {signal.riskReward && (
+              <p className="text-[11px] text-muted-foreground">
+                <span className="font-semibold">R/R:</span> {signal.riskReward}
+              </p>
+            )}
           </div>
         )}
 
@@ -268,9 +278,14 @@ function SignalCard({
             </div>
           )}
           {signal.status === "executed" && (
-            <Badge variant="outline" className="text-xs">
-              Executed
-            </Badge>
+            <div className="flex flex-col items-end">
+              <Badge variant="outline" className="text-xs">
+                Executed
+              </Badge>
+              {signal.executedLotSize && (
+                <span className="text-[10px] text-muted-foreground">Lot: {signal.executedLotSize}</span>
+              )}
+            </div>
           )}
           {signal.status === "dismissed" && (
             <Badge variant="secondary" className="text-xs">

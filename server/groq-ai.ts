@@ -48,6 +48,8 @@ Respond in JSON format only with an array of signals (one or more):
       "isSignal": boolean,
       "confidence": number (0-1),
       "reason": string (COMPREHENSIVE 40-80 word explanation. Break down the technical rationale, why the direction was chosen based on the message content, and provide a clear 'Risk Assessment' or 'Execution Tip' based on the specific parameters found. This is for the end-user to see clearly.),
+      "technical_analysis": string (Detailed technical reason including support/resistance levels, trend analysis, or indicators mentioned in the message),
+      "risk_reward_ratio": string (Estimated risk/reward ratio based on SL/TP),
       "symbol": string or null,
       "direction": "BUY" or "SELL" or null,
       "orderType": "MARKET" or "LIMIT",
@@ -74,6 +76,8 @@ interface SignalAnalysis {
   isSignal: boolean;
   confidence: number;
   reason: string;
+  technical_analysis?: string;
+  risk_reward_ratio?: string;
   symbol: string | null;
   direction: "BUY" | "SELL" | null;
   orderType: "MARKET" | "LIMIT";
@@ -212,6 +216,8 @@ export async function analyzeMessage(message: TelegramMessage): Promise<{
         rawMessage: message.text,
         modelUsed,
         verdictDescription: s.reason || `${s.direction} signal detected for ${s.symbol}`,
+        technicalReason: s.technical_analysis,
+        riskReward: s.risk_reward_ratio,
       };
     });
 

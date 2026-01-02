@@ -86,7 +86,10 @@ export interface ParsedSignal {
   rawMessage: string;
   verdictDescription?: string;
   modelUsed?: string;
-  failureReason?: string; // Error message if execution fails
+  failureReason?: string;
+  technicalReason?: string;
+  riskReward?: string;
+  executedLotSize?: string;
 }
 
 // Trading account state from MetaAPI

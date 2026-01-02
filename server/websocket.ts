@@ -67,9 +67,11 @@ function addLog(message: string) {
   broadcast({ type: "logs", logs: [logEntry] });
 }
 
-// Override console.log and console.error to capture logs
-const originalLog = console.log;
+    const originalLog = console.log;
 const originalError = console.error;
+
+// Fix LSP diagnostics for duplicate console declarations
+// (They were accidentally duplicated in a previous edit)
 
 console.log = (...args: any[]) => {
   originalLog.apply(console, args);
@@ -453,7 +455,8 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 takeProfit: signal.takeProfit?.[0],
                 orderType: signal.orderType === "LIMIT" ? "LIMIT" : "MARKET",
                 entryPrice: signal.entryPrice,
-                signalId: signal.id
+                signalId: signal.id,
+                lotSize: globalLotSize
               };
               
               console.log(JSON.stringify({
@@ -462,7 +465,8 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                 event: "AUTO_TRADE_START",
                 symbol: signal.symbol,
                 direction: signal.direction,
-                volume: globalLotSize
+                volume: globalLotSize,
+                reason: signal.verdictDescription
               }));
               
               metaapi.executeTrade(
@@ -484,9 +488,10 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
                     result
                   }));
                   signal.status = "executed";
+                  signal.executedLotSize = globalLotSize.toString();
                   signals.set(signal.id, signal);
                   broadcast({ type: "signal_updated", signal });
-                  broadcast({ type: "auto_trade_executed", signal, result });
+                  broadcast({ type: "auto_trade_executed", signal, result, lotSize: globalLotSize });
                 } else {
                   console.error(JSON.stringify({
                     level: "ERROR",
