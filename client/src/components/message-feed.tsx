@@ -133,17 +133,15 @@ export function MessageFeed({ messages, selectedChannelIds }: MessageFeedProps) 
                     <VerdictBadge verdict={message.aiVerdict} />
                   </div>
                   <p className="text-sm whitespace-pre-wrap break-words">{message.text}</p>
-                  {message.verdictDescription && (
-                    <div className="mt-2 p-2.5 rounded-lg bg-muted/40 border border-border/60 flex flex-col gap-2">
-                      <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-primary/80 tracking-wider">
-                        <Cpu className="h-3.5 w-3.5" />
-                        AI Signal Analysis
-                      </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-3">
-                        {message.verdictDescription}
-                      </p>
+                  <div className="mt-2 p-2.5 rounded-lg bg-muted/40 border border-border/60 flex flex-col gap-2">
+                    <div className="flex items-center gap-2 text-[10px] uppercase font-bold text-primary/80 tracking-wider">
+                      <Cpu className="h-3.5 w-3.5" />
+                      AI Signal Analysis
                     </div>
-                  )}
+                    <p className="text-xs text-muted-foreground leading-relaxed italic border-l-2 border-primary/20 pl-3">
+                      {message.verdictDescription || (message.aiVerdict === 'analyzing' ? 'Analyzing message for trading signals...' : 'No analysis available for this message.')}
+                    </p>
+                  </div>
                 </div>
               ))}
             </div>
