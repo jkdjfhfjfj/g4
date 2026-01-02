@@ -353,13 +353,13 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     const messageKey = `${message.channelId}:${message.id}`;
 
     if (processedMessageIds.has(messageKey)) {
+      // If it's real-time and we already marked it as analyzing or skipped, don't re-process
+      // But if it was historical and now it's real-time, we might want to analyze it?
+      // Actually, historical messages are marked as "skipped". 
+      // If a message was historical, then real-time arrives (edge case), we skip it.
       return;
     }
     
-    // For all messages, broadcast immediately (don't wait for analysis)
-    // Removed duplicate broadcast from here as it's handled in the event listener or background start
-    // broadcast({ type: "new_message", message: updatedMessage });
-
     // Mark message as being processed to prevent duplicates
     processedMessageIds.add(messageKey);
     console.log(`[WS] Routing ${messageKey}. isRealtime: ${isRealtime}`);

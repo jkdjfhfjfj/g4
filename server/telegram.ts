@@ -237,6 +237,15 @@ export async function initTelegram(): Promise<void> {
   }
 }
 
+function normalizeId(id: string | number | undefined | null): string {
+  if (!id) return "";
+  // String conversion and basic cleanup
+  let sid = id.toString().trim();
+  // Remove common prefixes
+  sid = sid.replace(/^-100/, "").replace(/^-/, "");
+  return sid;
+}
+
 /**
  * Sets up the real-time event listener for new messages.
  */
@@ -246,7 +255,7 @@ function setupMessageHandler() {
   client.addEventHandler(async (update: Api.TypeUpdate) => {
     if (update instanceof Api.UpdateNewChannelMessage) {
       const message = update.message;
-      if (message instanceof Api.Message && selectedChannelIds.length > 0) {
+      if (message instanceof Api.Message) {
         const peerId = message.peerId as any;
         let channelId = "";
         
@@ -254,15 +263,16 @@ function setupMessageHandler() {
         else if (peerId.chatId) channelId = `-${peerId.chatId}`;
         else if (peerId.userId) channelId = `${peerId.userId}`;
         
-        // Flexible ID comparison (handling prefix variations)
-        const incomingNum = channelId.toString().replace("-100", "").replace("-", "");
-        const isSelected = selectedChannelIds.some(id => {
-          const sid = id.toString().replace("-100", "").replace("-", "");
-          return sid === incomingNum;
-        });
+        const incomingNum = normalizeId(channelId);
+        
+        // Ensure selectedChannelIds is properly checked
+        // Log for debugging
+        console.log(`[TG] Incoming from ${channelId} (${incomingNum}). Active IDs: ${selectedChannelIds.join(",")}`);
+
+        const isSelected = selectedChannelIds.some(id => normalizeId(id) === incomingNum);
 
         if (isSelected) {
-          console.log(`[TG] MATCH: Message ${message.id} from ${channelId}`);
+          console.log(`[TG] MATCH: Real-time message ${message.id} from channel ${channelId}`);
           const telegramMessage: TelegramMessage = {
             id: message.id,
             channelId: channelId,
@@ -275,8 +285,8 @@ function setupMessageHandler() {
         } else {
           // Log ignored signals to help user find the correct channel ID
           const lowerText = (message.message || "").toLowerCase();
-          if (lowerText.includes("buy") || lowerText.includes("sell") || lowerText.includes("gold")) {
-            console.log(`[TG] IGNORED SIGNAL from ${channelId} (raw: ${incomingNum}). Active: ${selectedChannelIds.join(",")}`);
+          if (lowerText.includes("buy") || lowerText.includes("sell") || lowerText.includes("gold") || lowerText.includes("forex")) {
+            console.log(`[TG] IGNORED SIGNAL from ${channelId} (${incomingNum}). Selection mismatch.`);
           }
         }
       }
