@@ -23,13 +23,11 @@ const groq = new Groq({
 
 // Models to try in order (fallback system) - faster models first
 const MODELS = [
-  "openai/gpt-oss-20b",
-  "openai/gpt-oss-120b",
-  "meta-llama/llama-4-scout-17b-16e-instruct",
-  "meta-llama/llama-4-maverick-17b-128e-instruct",
+  "llama-3.3-70b-versatile",
+  "llama-3.1-70b-versatile",
   "llama3-70b-8192",
-  "llama3-8b-8192",
   "mixtral-8x7b-32768",
+  "llama3-8b-8192",
 ];
 
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.

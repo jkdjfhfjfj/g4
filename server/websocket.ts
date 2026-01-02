@@ -356,11 +356,11 @@ async function processMessage(message: TelegramMessage, isRealtime: boolean = fa
     // Removed duplicate broadcast from here as it's handled in the event listener or background start
     // broadcast({ type: "new_message", message: updatedMessage });
 
+    // Mark message as being processed to prevent duplicates
+    processedMessageIds.add(messageKey);
+
     // Only analyze real-time messages asynchronously, skip historical ones
     if (isRealtime) {
-      // Mark message as being processed to prevent duplicates
-      processedMessageIds.add(messageKey);
-      
       // Broadcast with "analyzing" state before starting heavy background work
       broadcast({ type: "new_message", message: { ...updatedMessage, aiVerdict: "analyzing" } });
 
