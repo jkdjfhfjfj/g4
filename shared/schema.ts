@@ -173,6 +173,7 @@ export type WSMessageType =
   | { type: 'auto_trade_enabled'; enabled: boolean }
   | { type: 'trade_result'; success: boolean; message: string }
   | { type: 'lot_size_updated'; lotSize: number }
+  | { type: 'channels_selected'; channelIds: string[] }
   | { type: 'telegram_disconnected' }
   | { type: 'logs'; logs: string[] };
 
