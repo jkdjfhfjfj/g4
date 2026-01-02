@@ -139,41 +139,25 @@ async function handleMessage(ws: WebSocket, data: any) {
         // Broadcast the full list to all clients so they stay in sync
         broadcast({ type: "channels_selected", channelIds: savedChannelIds });
         
-        // Tell Telegram module which channels we are interested in
-        await telegram.selectChannel(savedChannelIds);
+        // Tell Telegram module which channels we are interested in and get history
+        const messages = await telegram.selectChannel(savedChannelIds);
         
-        // Handle message processing for all selected channels
-        for (const channelId of channelIds) {
-          try {
-            const messages = await telegram.selectChannel(channelId);
-            
-            // Only show last hour of messages (real-time), skip older history
-            const oneHourAgo = Date.now() - 60 * 60 * 1000;
-            const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
+        // Only show last hour of messages (real-time), skip older history
+        const oneHourAgo = Date.now() - 60 * 60 * 1000;
+        const recentMessages = messages.filter(m => new Date(m.date).getTime() > oneHourAgo);
 
-            console.log(JSON.stringify({
-              level: "INFO",
-              module: "WEBSOCKET",
-              event: "FETCHING_HISTORY",
-              channelId,
-              count: recentMessages.length
-            }));
+        console.log(JSON.stringify({
+          level: "INFO",
+          module: "WEBSOCKET",
+          event: "FETCHING_HISTORY",
+          count: recentMessages.length
+        }));
 
-            for (const message of recentMessages) {
-              ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
-              
-              const messageKey = `${message.channelId}:${message.id}`;
-              processedMessageIds.add(messageKey);
-            }
-          } catch (err) {
-            console.error(JSON.stringify({
-              level: "ERROR",
-              module: "WEBSOCKET",
-              event: "HISTORY_FETCH_FAILED",
-              channelId,
-              error: err instanceof Error ? err.message : String(err)
-            }));
-          }
+        for (const message of recentMessages) {
+          ws.send(JSON.stringify({ type: "new_message", message: { ...message, isRealtime: false } }));
+          
+          const messageKey = `${message.channelId}:${message.id}`;
+          processedMessageIds.add(messageKey);
         }
         break;
       }

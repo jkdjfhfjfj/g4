@@ -327,42 +327,43 @@ export async function getChannels(): Promise<TelegramChannel[]> {
 export async function selectChannel(channelId: string | string[]): Promise<TelegramMessage[]> {
   if (!client || !isConnected) return [];
   
-  if (Array.isArray(channelId)) {
-    selectedChannelIds = channelId;
-  } else {
-    selectedChannelIds = [channelId];
-  }
-
-  // Filter out empty IDs and handle invalid IDs
-  const validIds = selectedChannelIds.filter(id => id && id.trim().length > 0);
-  if (validIds.length === 0) return [];
-
-  const lastChannelId = validIds[validIds.length - 1];
+  const incomingIds = Array.isArray(channelId) ? channelId : [channelId];
+  // Filter out empty IDs
+  const validIncomingIds = incomingIds.filter(id => id && id.trim().length > 0);
   
-  try {
-    const entity = await client.getEntity(lastChannelId);
-    const messages = await client.getMessages(entity, { limit: 100 });
-    return messages.filter(m => m.message).map(m => ({
-      id: m.id,
-      channelId: lastChannelId,
-      channelTitle: (entity as any).title || "",
-      text: m.message || "",
-      date: new Date(m.date * 1000).toISOString(),
-      aiVerdict: "analyzing" as const,
-    }));
-  } catch (error: any) {
-    // Only log once and more cleanly
-    const errorMsg = error.errorMessage || error.message || "Unknown error";
-    if (errorMsg === "CHANNEL_INVALID") {
-      console.log(`[TG] Channel ${lastChannelId} is invalid or inaccessible. Removing from active list.`);
-    } else {
-      console.error(`[TG] Failed to select channel ${lastChannelId}:`, errorMsg);
+  // Update global selection
+  const uniqueIds = new Set([...selectedChannelIds, ...validIncomingIds]);
+  selectedChannelIds = Array.from(uniqueIds);
+
+  if (validIncomingIds.length === 0) return [];
+
+  // We only fetch history for the channels passed in this call
+  const results: TelegramMessage[] = [];
+  
+  for (const idToFetch of validIncomingIds) {
+    try {
+      console.log(`[TG] Fetching history for channel: ${idToFetch}`);
+      const entity = await client.getEntity(idToFetch);
+      const messages = await client.getMessages(entity, { limit: 50 });
+      const channelMessages = messages.filter(m => m.message).map(m => ({
+        id: m.id,
+        channelId: idToFetch,
+        channelTitle: (entity as any).title || "",
+        text: m.message || "",
+        date: new Date(m.date * 1000).toISOString(),
+        aiVerdict: "analyzing" as const,
+      }));
+      results.push(...channelMessages);
+    } catch (error: any) {
+      const errorMsg = error.errorMessage || error.message || "Unknown error";
+      console.error(`[TG] Failed to fetch history for ${idToFetch}:`, errorMsg);
+      if (errorMsg === "CHANNEL_INVALID") {
+        selectedChannelIds = selectedChannelIds.filter(id => id !== idToFetch);
+      }
     }
-    
-    // Remove the invalid channel ID from the list to prevent future errors
-    selectedChannelIds = selectedChannelIds.filter(id => id !== lastChannelId);
-    return [];
   }
+  
+  return results;
 }
 
 export function getTelegramStatus() { return currentStatus; }
