@@ -292,9 +292,14 @@ export default function Dashboard() {
                 <CardHeader className="pb-3">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm">Account Status</CardTitle>
-                    <Badge variant={account.connected ? "default" : "secondary"}>
-                      {account.connected ? "Live" : "Offline"}
-                    </Badge>
+                    <div className="flex gap-2">
+                      <Badge variant="outline" className="uppercase">
+                        {account.accountType || "Demo"}
+                      </Badge>
+                      <Badge variant={account.connected ? "default" : "secondary"}>
+                        {account.connected ? "Live" : "Offline"}
+                      </Badge>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>

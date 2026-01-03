@@ -204,6 +204,7 @@ export async function getAccountInfo(): Promise<TradingAccount | null> {
       currency: info.currency || "USD",
       leverage: info.leverage || 100,
       connected: isConnected,
+      accountType: info.type || "DEMO", // Added accountType
     };
     lastAccountUpdate = now;
     return cachedAccount;

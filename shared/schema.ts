@@ -105,6 +105,7 @@ export interface TradingAccount {
   currency: string;
   leverage: number;
   connected: boolean;
+  accountType?: string;
 }
 
 // An open trade in the MetaTrader account
