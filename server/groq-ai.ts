@@ -27,7 +27,12 @@ const MODELS = [
   "openai/gpt-oss-20b",
   "llama-3.3-70b-versatile",
   "llama-3.1-8b-instant",
-  "llama3-guard-4-12b"
+  "openai/gpt-oss-safeguard-20b",
+  "meta-llama/llama-guard-4-12b",
+  "groq/compound-mini",
+  "groq/compound",
+  "meta-llama/llama-4-scout-17b-16e-instruct",
+  "meta-llama/llama-4-scout-17b-16e-instruct"
 ];
 
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
