@@ -1,5 +1,7 @@
 User-agent: *
 Allow: /
+Allow: /features
+Allow: /how-it-works
 Disallow: /dashboard
 Disallow: /api/
 Disallow: /attached_assets/

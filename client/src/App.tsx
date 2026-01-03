@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Dashboard from "@/pages/dashboard";
 import LandingPage from "@/pages/LandingPage";
+import FeaturesPage from "@/pages/seo/Features";
+import HowItWorksPage from "@/pages/seo/HowItWorks";
 import { useEffect } from "react";
 import { LogsFAB } from "@/components/logs-fab";
 import { useWebSocket } from "@/hooks/use-websocket";
@@ -16,6 +18,8 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
+      <Route path="/features" component={FeaturesPage} />
+      <Route path="/how-it-works" component={HowItWorksPage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
