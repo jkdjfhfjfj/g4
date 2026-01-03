@@ -43,17 +43,31 @@ interface TradeDialogProps {
 }
 
 function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogProps) {
-  const [volume, setVolume] = useState("0.01");
+  const [volume, setVolume] = useState(() => {
+    return localStorage.getItem("last_lot_size") || "0.01";
+  });
   const [stopLoss, setStopLoss] = useState("");
   const [takeProfit, setTakeProfit] = useState("");
 
   const handleTrade = () => {
+    const volNum = parseFloat(volume);
     onTrade(
-      parseFloat(volume),
+      volNum,
       stopLoss ? parseFloat(stopLoss) : undefined,
       takeProfit ? parseFloat(takeProfit) : undefined
     );
+    localStorage.setItem("last_lot_size", volume);
     onClose();
+  };
+
+  const adjustVolume = (amount: number) => {
+    setVolume(prev => {
+      const current = parseFloat(prev) || 0;
+      const next = Math.max(0.01, Math.min(100, current + amount));
+      const fixed = next.toFixed(2);
+      localStorage.setItem("last_lot_size", fixed);
+      return fixed;
+    });
   };
 
   if (!symbol) return null;
@@ -81,22 +95,43 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
             <Label htmlFor="volume" className="text-right">
               Volume
             </Label>
-            <Input
-              id="volume"
-              type="number"
-              step="0.01"
-              min="0.01"
-              max="100"
-              value={volume}
-              onChange={(e) => {
-                const val = e.target.value;
-                if (val === "" || !isNaN(parseFloat(val))) {
+            <div className="col-span-3 flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={() => adjustVolume(-0.01)}
+                data-testid="button-volume-decrement"
+              >
+                -
+              </Button>
+              <Input
+                id="volume"
+                type="number"
+                step="0.01"
+                min="0.01"
+                max="100"
+                value={volume}
+                onChange={(e) => {
+                  const val = e.target.value;
                   setVolume(val);
-                }
-              }}
-              className="col-span-3 font-mono"
-              data-testid="input-market-trade-volume"
-            />
+                  if (val !== "" && !isNaN(parseFloat(val))) {
+                    localStorage.setItem("last_lot_size", val);
+                  }
+                }}
+                className="flex-1 font-mono h-8"
+                data-testid="input-market-trade-volume"
+              />
+              <Button 
+                variant="outline" 
+                size="icon" 
+                className="h-8 w-8"
+                onClick={() => adjustVolume(0.01)}
+                data-testid="button-volume-increment"
+              >
+                +
+              </Button>
+            </div>
           </div>
           <div className="grid grid-cols-4 items-center gap-4">
             <Label htmlFor="stopLoss" className="text-right">
