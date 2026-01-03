@@ -95,15 +95,24 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
             <Label htmlFor="volume" className="text-right">
               Volume
             </Label>
-            <div className="col-span-3 flex items-center gap-2">
+            <div className="col-span-3 flex items-center gap-1 flex-wrap">
               <Button 
                 variant="outline" 
-                size="icon" 
-                className="h-8 w-8"
-                onClick={() => adjustVolume(-0.01)}
-                data-testid="button-volume-decrement"
+                size="sm" 
+                className="h-8 px-2 text-[10px]"
+                onClick={() => adjustVolume(-0.1)}
+                data-testid="button-volume-minus-01"
               >
-                -
+                -0.1
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 px-2 text-[10px]"
+                onClick={() => adjustVolume(-0.01)}
+                data-testid="button-volume-minus-001"
+              >
+                -0.01
               </Button>
               <Input
                 id="volume"
@@ -119,17 +128,26 @@ function TradeDialog({ symbol, direction, open, onClose, onTrade }: TradeDialogP
                     localStorage.setItem("last_lot_size", val);
                   }
                 }}
-                className="flex-1 font-mono h-8"
+                className="w-20 font-mono h-8 text-center"
                 data-testid="input-market-trade-volume"
               />
               <Button 
                 variant="outline" 
-                size="icon" 
-                className="h-8 w-8"
+                size="sm" 
+                className="h-8 px-2 text-[10px]"
                 onClick={() => adjustVolume(0.01)}
-                data-testid="button-volume-increment"
+                data-testid="button-volume-plus-001"
               >
-                +
+                +0.01
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="h-8 px-2 text-[10px]"
+                onClick={() => adjustVolume(0.1)}
+                data-testid="button-volume-plus-01"
+              >
+                +0.1
               </Button>
             </div>
           </div>
