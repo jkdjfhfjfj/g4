@@ -169,8 +169,29 @@ export default function Dashboard() {
           {/* Quick Settings Row: Lot, Auto, Disconnect */}
           <div className="px-3 md:px-4 py-2 border-t border-border/50 bg-muted/20 flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 px-2 py-1 bg-background rounded-lg border border-border h-9">
-                <span className="text-[10px] uppercase font-bold text-muted-foreground ml-1">Lot</span>
+              <div className="flex items-center gap-1 px-1 py-1 bg-background rounded-lg border border-border h-9">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 px-1 text-[10px] hover:bg-muted"
+                  onClick={() => {
+                    const next = Math.max(0.01, (lotSize || 0) - 0.1);
+                    updateLotSize(parseFloat(next.toFixed(2)));
+                  }}
+                >
+                  -0.1
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 px-1 text-[10px] hover:bg-muted"
+                  onClick={() => {
+                    const next = Math.max(0.01, (lotSize || 0) - 0.01);
+                    updateLotSize(parseFloat(next.toFixed(2)));
+                  }}
+                >
+                  -0.01
+                </Button>
                 <Input
                   id="quick-lot"
                   type="text"
@@ -187,8 +208,30 @@ export default function Dashboard() {
                     if (!isNaN(val) && val > 0) updateLotSize(val);
                     else if (e.target.value === "") updateLotSize(0);
                   }}
-                  className="w-20 h-7 text-xs font-mono border-none focus-visible:ring-0 p-1 bg-transparent"
+                  className="w-12 h-7 text-xs font-mono border-none focus-visible:ring-0 p-0 bg-transparent text-center"
                 />
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 px-1 text-[10px] hover:bg-muted"
+                  onClick={() => {
+                    const next = (lotSize || 0) + 0.01;
+                    updateLotSize(parseFloat(next.toFixed(2)));
+                  }}
+                >
+                  +0.01
+                </Button>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 px-1 text-[10px] hover:bg-muted"
+                  onClick={() => {
+                    const next = (lotSize || 0) + 0.1;
+                    updateLotSize(parseFloat(next.toFixed(2)));
+                  }}
+                >
+                  +0.1
+                </Button>
               </div>
 
               <div className="flex items-center gap-2 px-3 py-1 bg-background rounded-lg border border-border h-9">
