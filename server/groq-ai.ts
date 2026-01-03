@@ -25,13 +25,9 @@ const groq = new Groq({
 const MODELS = [
   "openai/gpt-oss-120b",
   "openai/gpt-oss-20b",
-  "gpt-4o",
-  "gpt-4o-mini",
   "llama-3.3-70b-versatile",
-  "llama-3.1-70b-versatile",
-  "mixtral-8x7b-32768",
-  "llama3-70b-8192",
-  "llama3-8b-8192",
+  "llama-3.1-8b-instant",
+  "llama3-guard-4-12b"
 ];
 
 const SIGNAL_DETECTION_PROMPT = `You are a forex trading signal detector. Analyze the message and determine if it contains a valid trading signal.
