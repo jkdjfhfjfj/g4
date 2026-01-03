@@ -43,7 +43,7 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
               Need to see your detailed performance report or have questions?
             </p>
             <Button asChild className="gap-2">
-              <a href="https://t.me/your_telegram_handle" target="_blank" rel="noopener noreferrer">
+              <a href="https://t.me/mcalj" target="_blank" rel="noopener noreferrer">
                 <MessageCircle className="h-4 w-4" />
                 Contact Us on Telegram
               </a>
