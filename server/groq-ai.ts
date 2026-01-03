@@ -55,7 +55,7 @@ Respond in JSON format only with an array of signals (one or more):
       "orderType": "MARKET" or "LIMIT",
       "entryPrice": number or null,
       "stopLoss": number or null,
-      "takeProfit": [number] or null
+      "takeProfit": [number] or null (Provide an array of numbers. Ensure they are distinct numbers. If the message lists multiple levels like "TP1: 1.0900 TP2: 1.0950", return [1.0900, 1.0950]. NEVER concatenate them into a single string of digits.),
     }
   ]
 }

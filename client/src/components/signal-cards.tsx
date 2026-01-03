@@ -217,7 +217,11 @@ function SignalCard({
               <p className="text-xs text-muted-foreground flex items-center gap-1">
                 <Target className="h-3 w-3 text-success" /> TP
               </p>
-              <p className="font-mono font-medium">{signal.takeProfit[0]}</p>
+              <div className="flex flex-wrap gap-1">
+                {signal.takeProfit.map((tp, i) => (
+                  <p key={i} className="font-mono font-medium">{tp}{i < signal.takeProfit!.length - 1 ? "," : ""}</p>
+                ))}
+              </div>
             </div>
           )}
         </div>
