@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Link } from "wouter";
+import { Helmet } from "react-helmet";
 import { 
   Zap, 
   Shield, 
@@ -15,8 +16,16 @@ import {
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
-      {/* SEO Metadata should ideally be in a layout or via helmet, 
-          but we'll ensure the content is rich for crawlers */}
+      <Helmet>
+        <title>TGTOMT - AI-Powered Telegram to MetaTrader Automation</title>
+        <meta name="description" content="Automate your forex trading by converting Telegram signals into MT4/MT5 trades instantly. Features AI analysis, risk management, and 24/7 monitoring." />
+        <meta name="keywords" content="forex trading bot, telegram signals, metatrader automation, mt4, mt5, copy trading, ai trading" />
+        <meta property="og:title" content="TGTOMT - Telegram to MetaTrader" />
+        <meta property="og:description" content="Instant Telegram signal execution for MT4/MT5 with AI-powered technical analysis." />
+        <meta property="og:type" content="website" />
+        <meta name="robots" content="index, follow" />
+        <link rel="canonical" href="https://tgtomt.ddns.net/" />
+      </Helmet>
       
       {/* Navigation */}
       <nav className="border-b bg-background/95 backdrop-blur sticky top-0 z-50">

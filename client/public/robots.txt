@@ -1,5 +1,8 @@
 User-agent: *
-Disallow: /attached_assets/
+Allow: /
 Disallow: /dashboard
+Disallow: /api/
+Disallow: /attached_assets/
 Disallow: /.well-known/
+
 Sitemap: /sitemap.xml
