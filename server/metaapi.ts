@@ -324,67 +324,8 @@ export async function getMarkets(): Promise<MarketSymbol[]> {
 }
 
 export async function getHistory(): Promise<TradeHistory[]> {
-  if (!connection || !isConnected) {
-    return cachedHistory;
-  }
-
-  const now = Date.now();
-  // Cache for 120 seconds - respect rate limits
-  if (cachedHistory.length > 0 && now - lastHistoryUpdate < 120000) {
-    return cachedHistory;
-  }
-
-  try {
-    const endTime = new Date();
-    const startTime = new Date(endTime.getTime() - 30 * 24 * 60 * 60 * 1000); // Last 30 days
-
-    // Use RPC connection getDealsByTimeRange
-    let deals: any[] = [];
-    
-    try {
-      const rpcDeals = await connection.getDealsByTimeRange(startTime, endTime);
-      if (rpcDeals && rpcDeals.length > 0) {
-        deals = rpcDeals;
-        console.log(`Got ${deals.length} deals from RPC connection`);
-      }
-    } catch (e: any) {
-      console.log("getDealsByTimeRange not available:", e.message?.substring(0, 50));
-    }
-
-    const trades: TradeHistory[] = [];
-
-    for (const deal of (deals || []).slice(-50)) {
-      // Filter for actual trade entries/exits
-      const dealType = deal.type || deal.entryType;
-      if (dealType === "DEAL_TYPE_SELL" || dealType === "DEAL_TYPE_BUY" ||
-          dealType === "DEAL_ENTRY_IN" || dealType === "DEAL_ENTRY_OUT") {
-        const isBuy = dealType === "DEAL_TYPE_BUY" || 
-          (dealType === "DEAL_ENTRY_IN" && deal.positionType === "POSITION_TYPE_BUY");
-        
-        trades.push({
-          id: deal.id || deal._id || String(Date.now()),
-          symbol: deal.symbol || "Unknown",
-          type: isBuy ? "buy" : "sell",
-          volume: deal.volume || deal.lots || 0,
-          openPrice: deal.price || deal.openPrice || 0,
-          closePrice: deal.closePrice || deal.price || 0,
-          profit: deal.profit || 0,
-          openTime: deal.time || deal.openTime || new Date().toISOString(),
-          closeTime: deal.closeTime || deal.time || new Date().toISOString(),
-          commission: deal.commission || 0,
-          swap: deal.swap || 0,
-        });
-      }
-    }
-
-    cachedHistory = trades.reverse();
-    lastHistoryUpdate = now;
-    console.log(`Returning ${cachedHistory.length} history trades`);
-    return cachedHistory;
-  } catch (error) {
-    console.error("Failed to get history:", error);
-    return cachedHistory;
-  }
+  // History disabled to prevent rate limits from interfering with trade execution
+  return cachedHistory;
 }
 
 const executionLocks = new Set<string>();

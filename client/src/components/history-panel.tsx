@@ -1,17 +1,8 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { History, TrendingUp, TrendingDown, BarChart3, AlertCircle } from "lucide-react";
+import { History, BarChart3, MessageCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import type { TradeHistory } from "@shared/schema";
-import { format } from "date-fns";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface TradeHistoryExtended extends TradeHistory {
   comment?: string;
@@ -22,14 +13,6 @@ interface HistoryPanelProps {
 }
 
 export function HistoryPanel({ trades }: HistoryPanelProps) {
-  const totalProfit = trades.reduce((sum, t) => sum + t.profit, 0);
-  const winningTrades = trades.filter((t) => t.profit > 0).length;
-  const losingTrades = trades.filter((t) => t.profit < 0).length;
-  const winRate = trades.length > 0 ? (winningTrades / trades.length) * 100 : 0;
-  const totalVolume = trades.reduce((sum, t) => sum + t.volume, 0);
-  const avgProfit = trades.length > 0 ? totalProfit / trades.length : 0;
-  const totalCommission = trades.reduce((sum, t) => sum + t.commission, 0);
-
   return (
     <Card className="h-full flex flex-col">
       <CardHeader className="pb-2">
@@ -37,152 +20,36 @@ export function HistoryPanel({ trades }: HistoryPanelProps) {
           <div className="flex flex-col">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <History className="h-4 w-4" />
-              Trade History ({trades.length})
+              Trade History
             </CardTitle>
-            <div className="flex flex-col gap-1 mt-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground cursor-help hover:text-foreground transition-colors">
-                      <AlertCircle className="h-3 w-3" />
-                      <span>Rate limits apply (120s sync)</span>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent className="max-w-[250px]">
-                    <p className="font-semibold mb-1">Why is my history not updating?</p>
-                    <p className="text-xs">MetaAPI requires separate history sync requests which are heavily rate-limited on free accounts. We sync last 7 days of history every 2 minutes to prevent API bans.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-              {trades.length === 0 && (
-                <div className="flex items-center gap-1 text-[10px] text-destructive animate-pulse">
-                  <AlertCircle className="h-3 w-3" />
-                  <span>Requesting history sync... (may take 120s)</span>
-                </div>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2 text-xs">
-            <Badge variant="outline" className="font-mono">
-              Wins: {winningTrades}/{trades.length}
-            </Badge>
-            <Badge
-              variant={totalProfit >= 0 ? "default" : "destructive"}
-              className="font-mono"
-            >
-              P/L: {totalProfit >= 0 ? "+" : ""}{totalProfit.toFixed(2)}
-            </Badge>
           </div>
         </div>
       </CardHeader>
 
-      {trades.length > 0 && (
-        <div className="px-4 py-2 bg-card border-b border-border grid grid-cols-3 sm:grid-cols-6 gap-2 text-xs">
-          <div>
-            <p className="text-muted-foreground">Win Rate</p>
-            <p className="font-semibold text-foreground">{winRate.toFixed(1)}%</p>
+      <CardContent className="flex-1 p-6 flex flex-col items-center justify-center text-center">
+        <div className="max-w-md space-y-4">
+          <div className="bg-primary/10 p-4 rounded-full w-fit mx-auto">
+            <BarChart3 className="h-12 w-12 text-primary" />
           </div>
-          <div>
-            <p className="text-muted-foreground">Avg Trade</p>
-            <p className={`font-semibold ${avgProfit >= 0 ? "text-success" : "text-destructive"}`}>
-              {avgProfit >= 0 ? "+" : ""}{avgProfit.toFixed(2)}
+          <div className="space-y-2">
+            <h3 className="text-lg font-semibold">History Sync Disabled</h3>
+            <p className="text-sm text-muted-foreground">
+              Direct history sync has been disabled to prevent MetaAPI rate limits from interfering with your trade execution speed. 
+              This ensures your orders are processed instantly.
             </p>
           </div>
-          <div>
-            <p className="text-muted-foreground">Volume</p>
-            <p className="font-semibold font-mono">{totalVolume.toFixed(2)}</p>
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-muted-foreground">Wins</p>
-            <p className="font-semibold text-success">{winningTrades}</p>
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-muted-foreground">Losses</p>
-            <p className="font-semibold text-destructive">{losingTrades}</p>
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-muted-foreground">Commission</p>
-            <p className="font-mono font-semibold">{totalCommission.toFixed(2)}</p>
+          <div className="pt-4">
+            <p className="text-xs text-muted-foreground mb-4">
+              Need to see your detailed performance report or have questions?
+            </p>
+            <Button asChild className="gap-2">
+              <a href="https://t.me/your_telegram_handle" target="_blank" rel="noopener noreferrer">
+                <MessageCircle className="h-4 w-4" />
+                Contact Us on Telegram
+              </a>
+            </Button>
           </div>
         </div>
-      )}
-
-      <CardContent className="flex-1 p-0 overflow-hidden flex flex-col">
-        {trades.length === 0 ? (
-          <div className="flex flex-col items-center justify-center flex-1 px-4 text-center">
-            <BarChart3 className="h-8 w-8 text-muted-foreground mb-2" />
-            <p className="text-sm text-muted-foreground">No trade history</p>
-          </div>
-        ) : (
-          <div className="flex-1 overflow-hidden flex flex-col w-full border-t border-border">
-            <div className="overflow-x-auto overflow-y-auto w-full flex-1">
-              <Table className="w-max min-w-full">
-                <TableHeader className="sticky top-0 bg-background z-10">
-                  <TableRow>
-                    <TableHead className="text-xs px-3 py-2">Date</TableHead>
-                    <TableHead className="text-xs px-3 py-2">Symbol</TableHead>
-                    <TableHead className="text-xs px-3 py-2">Type</TableHead>
-                    <TableHead className="text-xs text-right px-3 py-2">Volume</TableHead>
-                    <TableHead className="text-xs text-right px-3 py-2">Entry</TableHead>
-                    <TableHead className="text-xs text-right px-3 py-2">Exit</TableHead>
-                    <TableHead className="text-xs text-right px-3 py-2">P/L</TableHead>
-                    <TableHead className="text-xs px-3 py-2">Comment</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {trades.map((trade) => (
-                    <TableRow key={trade.id} data-testid={`history-row-${trade.id}`}>
-                      <TableCell className="text-xs text-muted-foreground px-3 py-2">
-                        {format(new Date(trade.closeTime), "MMM d HH:mm")}
-                      </TableCell>
-                      <TableCell className="font-mono font-semibold text-sm px-3 py-2">
-                        {trade.symbol}
-                      </TableCell>
-                      <TableCell className="px-3 py-2">
-                        <Badge
-                          variant={trade.type === "buy" ? "default" : "destructive"}
-                          className={`text-xs flex w-fit ${
-                            trade.type === "buy"
-                              ? "bg-success text-success-foreground"
-                              : ""
-                          }`}
-                          data-testid={`badge-trade-type-${trade.id}`}
-                        >
-                          {trade.type === "buy" ? (
-                            <TrendingUp className="h-2.5 w-2.5 mr-1" />
-                          ) : (
-                            <TrendingDown className="h-2.5 w-2.5 mr-1" />
-                          )}
-                          {trade.type.toUpperCase()}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-xs px-3 py-2">
-                        {trade.volume.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-xs px-3 py-2">
-                        {trade.openPrice.toFixed(5)}
-                      </TableCell>
-                      <TableCell className="text-right font-mono text-xs px-3 py-2">
-                        {trade.closePrice.toFixed(5)}
-                      </TableCell>
-                      <TableCell
-                        className={`text-right font-mono text-xs font-semibold px-3 py-2 ${
-                          trade.profit >= 0 ? "text-success" : "text-destructive"
-                        }`}
-                        data-testid={`text-profit-${trade.id}`}
-                      >
-                        {trade.profit >= 0 ? "+" : ""}{trade.profit.toFixed(2)}
-                      </TableCell>
-                      <TableCell className="text-[10px] text-muted-foreground max-w-[150px] truncate px-3 py-2">
-                        {trade.comment || "-"}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );
