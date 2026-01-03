@@ -294,7 +294,7 @@ export default function Dashboard() {
                     <CardTitle className="text-sm">Account Status</CardTitle>
                     <div className="flex gap-2">
                       <Badge variant="outline" className="uppercase">
-                        {account.accountType || "Demo"}
+                        {(account.accountType === "ACCOUNT_TRADE_MODE_REAL" || account.accountType === "REAL") ? "Live" : "Demo"}
                       </Badge>
                       <Badge variant={account.connected ? "default" : "secondary"}>
                         {account.connected ? "Live" : "Offline"}

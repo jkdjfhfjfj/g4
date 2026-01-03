@@ -204,7 +204,7 @@ export async function getAccountInfo(): Promise<TradingAccount | null> {
       currency: info.currency || "USD",
       leverage: info.leverage || 100,
       connected: isConnected,
-      accountType: info.type || "DEMO", // Added accountType
+      accountType: info.tradeMode || info.type || "DEMO", // Using tradeMode from MetaAPI
     };
     lastAccountUpdate = now;
     return cachedAccount;
