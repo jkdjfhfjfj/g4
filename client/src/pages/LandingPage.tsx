@@ -36,13 +36,13 @@ export default function LandingPage() {
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
             <Link href="/features">
-              <a className="hover:text-primary transition-colors">Features</a>
+              <span className="hover:text-primary transition-colors cursor-pointer">Features</span>
             </Link>
             <Link href="/how-it-works">
-              <a className="hover:text-primary transition-colors">How it Works</a>
+              <span className="hover:text-primary transition-colors cursor-pointer">How it Works</span>
             </Link>
             <Link href="/pricing">
-              <a className="hover:text-primary transition-colors">Pricing</a>
+              <span className="hover:text-primary transition-colors cursor-pointer">Pricing</span>
             </Link>
           </div>
           <Link href="/dashboard">
@@ -221,9 +221,15 @@ export default function LandingPage() {
             © 2026 TGTOMT. Trading forex involves high risk.
           </p>
           <div className="flex justify-center gap-6 text-sm text-muted-foreground">
-            <a href="#" className="hover:text-primary">Terms</a>
-            <a href="#" className="hover:text-primary">Privacy</a>
-            <a href="#" className="hover:text-primary">Sitemap</a>
+            <Link href="/features">
+              <span className="hover:text-primary cursor-pointer">Features</span>
+            </Link>
+            <Link href="/how-it-works">
+              <span className="hover:text-primary cursor-pointer">How it Works</span>
+            </Link>
+            <Link href="/pricing">
+              <span className="hover:text-primary cursor-pointer">Pricing</span>
+            </Link>
           </div>
         </div>
       </footer>
