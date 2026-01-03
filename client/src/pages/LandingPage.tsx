@@ -35,8 +35,12 @@ export default function LandingPage() {
             <span className="font-bold text-xl tracking-tight">TGTOMT</span>
           </div>
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-            <a href="#features" className="hover:text-primary transition-colors">Features</a>
-            <a href="#how-it-works" className="hover:text-primary transition-colors">How it Works</a>
+            <Link href="/features">
+              <a className="hover:text-primary transition-colors">Features</a>
+            </Link>
+            <Link href="/how-it-works">
+              <a className="hover:text-primary transition-colors">How it Works</a>
+            </Link>
             <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
           </div>
           <Link href="/dashboard">
@@ -128,6 +132,78 @@ export default function LandingPage() {
                 title="Cloud Based"
                 description="Runs in the cloud 24/7. No need to keep your terminal open or use a dedicated VPS for the bot itself."
               />
+            </div>
+          </div>
+        </section>
+
+        {/* Pricing Section */}
+        <section id="pricing" className="py-24">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-16 space-y-4">
+              <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">Simple, Transparent Pricing</h2>
+              <p className="text-muted-foreground text-lg">Choose the plan that fits your trading volume.</p>
+            </div>
+            <div className="grid md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+              {/* Basic Plan */}
+              <Card className="flex flex-col border-none shadow-md bg-background">
+                <CardContent className="pt-8 flex-1 flex flex-col items-center text-center space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold uppercase tracking-wider text-muted-foreground">Starter</h3>
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-4xl font-extrabold">$29</span>
+                      <span className="text-muted-foreground">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm text-left w-full">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> 3 Telegram Channels</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> Instant Execution</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> 24/7 Monitoring</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> Email Support</li>
+                  </ul>
+                  <Button className="w-full mt-auto" variant="outline">Choose Starter</Button>
+                </CardContent>
+              </Card>
+
+              {/* Pro Plan */}
+              <Card className="flex flex-col border-2 border-primary shadow-xl bg-background relative overflow-hidden">
+                <div className="absolute top-0 right-0 bg-primary text-primary-foreground text-[10px] font-bold py-1 px-3 rounded-bl-lg uppercase">Most Popular</div>
+                <CardContent className="pt-8 flex-1 flex flex-col items-center text-center space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold uppercase tracking-wider text-primary">Pro</h3>
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-4xl font-extrabold">$59</span>
+                      <span className="text-muted-foreground">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm text-left w-full">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> 10 Telegram Channels</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> AI Signal Validation</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> Advanced Risk Management</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> Priority Support</li>
+                  </ul>
+                  <Button className="w-full mt-auto">Go Pro</Button>
+                </CardContent>
+              </Card>
+
+              {/* Ultimate Plan */}
+              <Card className="flex flex-col border-none shadow-md bg-background">
+                <CardContent className="pt-8 flex-1 flex flex-col items-center text-center space-y-6">
+                  <div className="space-y-2">
+                    <h3 className="text-xl font-bold uppercase tracking-wider text-muted-foreground">Ultimate</h3>
+                    <div className="flex items-baseline justify-center gap-1">
+                      <span className="text-4xl font-extrabold">$99</span>
+                      <span className="text-muted-foreground">/mo</span>
+                    </div>
+                  </div>
+                  <ul className="space-y-3 text-sm text-left w-full">
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> Unlimited Channels</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> Custom AI Prompting</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> API Access</li>
+                    <li className="flex items-center gap-2"><CheckCircle2 className="h-4 w-4 text-primary" /> 1-on-1 Onboarding</li>
+                  </ul>
+                  <Button className="w-full mt-auto" variant="outline">Contact Sales</Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
