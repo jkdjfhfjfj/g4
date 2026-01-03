@@ -2,6 +2,7 @@ User-agent: *
 Allow: /
 Allow: /features
 Allow: /how-it-works
+Allow: /pricing
 Disallow: /dashboard
 Disallow: /api/
 Disallow: /attached_assets/

@@ -41,7 +41,9 @@ export default function LandingPage() {
             <Link href="/how-it-works">
               <a className="hover:text-primary transition-colors">How it Works</a>
             </Link>
-            <a href="#pricing" className="hover:text-primary transition-colors">Pricing</a>
+            <Link href="/pricing">
+              <a className="hover:text-primary transition-colors">Pricing</a>
+            </Link>
           </div>
           <Link href="/dashboard">
             <Button size="sm" className="font-semibold">

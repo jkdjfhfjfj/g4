@@ -8,6 +8,7 @@ import Dashboard from "@/pages/dashboard";
 import LandingPage from "@/pages/LandingPage";
 import FeaturesPage from "@/pages/seo/Features";
 import HowItWorksPage from "@/pages/seo/HowItWorks";
+import PricingPage from "@/pages/seo/Pricing";
 import { useEffect } from "react";
 import { LogsFAB } from "@/components/logs-fab";
 import { useWebSocket } from "@/hooks/use-websocket";
@@ -20,6 +21,7 @@ function Router() {
       <Route path="/" component={LandingPage} />
       <Route path="/features" component={FeaturesPage} />
       <Route path="/how-it-works" component={HowItWorksPage} />
+      <Route path="/pricing" component={PricingPage} />
       <Route path="/dashboard" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
